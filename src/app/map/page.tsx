@@ -8,7 +8,7 @@ export const metadata = {
 export default function MapPage() {
   return (
     <main className="flex flex-col h-screen w-full">
-      <div className="flex-1 w-full" style={{ height: 'calc(100vh - 0px)' }}>
+      <div className="flex-1 w-full">
         <MapWrapper />
       </div>
     </main>
