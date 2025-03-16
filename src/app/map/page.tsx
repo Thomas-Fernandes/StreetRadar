@@ -1,4 +1,4 @@
-import MapWrapper from '@/components/map/MapWrapper';
+import MapWrapper from '@/components/map/mapWrapper';
 
 export const metadata = {
   title: 'StreetRadar - Carte interactive',

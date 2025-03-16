@@ -1,105 +1,96 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 interface MapContainerProps {
-    center: [number, number];
-    zoom: number;
+  center?: [number, number];
+  zoom?: number;
 }
 
-const MapContainer = ({ center, zoom }: MapContainerProps) => {
-    const mapRef = useRef<HTMLDivElement>(null);
-    const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
-    
-    // Debug logs
-    useEffect(() => {
-        console.log("MapContainer mounted, ref exists:", !!mapRef.current);
-    }, []);
+export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: MapContainerProps) {
+  const mapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    console.log("Initializing map...");
 
     // Fix pour les icônes Leaflet
-    useEffect(() => {
-        try {
-            // Fix pour les icônes Leaflet
-            delete (L.Icon.Default.prototype as Partial<{ _getIconUrl: unknown }>)._getIconUrl;
-            
-            L.Icon.Default.mergeOptions({
-                iconRetinaUrl: '/images/marker-icon-2x.png',
-                iconUrl: '/images/marker-icon.png',
-                shadowUrl: '/images/marker-shadow.png',
-            });
-            
-            console.log("Leaflet icons set up");
-        } catch (e) {
-            console.error("Error setting up Leaflet icons:", e);
-        }
-    }, []);
+    delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+    
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl: '/images/marker-icon-2x.png',
+      iconUrl: '/images/marker-icon.png',
+      shadowUrl: '/images/marker-shadow.png',
+    });
 
-    useEffect(() => {
-        if (!mapRef.current) {
-            console.error("Map ref is not available");
-            return;
-        }
-        
-        if (mapInstance) {
-            console.log("Map already initialized");
-            return;
-        }
-        
-        try {
-            console.log("Initializing map...");
-            // Initialiser la carte
-            const map = L.map(mapRef.current).setView(center, zoom);
-            
-            console.log("Map initialized, adding tiles...");
-            
-            // Ajouter des couches de base
-            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19,
-            });
+    // Initialiser la carte
+    const map = L.map(mapRef.current).setView(center, zoom);
 
-            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-                maxZoom: 19,
-            });
+    // Ajouter la couche OSM de base
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
 
-            const baseMaps = {
-                "OpenStreetMap": osm,
-                "Satellite": satellite,
-            };
+    // Ajouter la couche satellite comme option
+    const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+      maxZoom: 19
+    });
 
-            // Contrôle de couches
-            L.control.layers(baseMaps).addTo(map);
+    // Définir les couches de base
+    const baseMaps = {
+      "OpenStreetMap": osm,
+      "Satellite": satellite
+    };
 
-            // Définir la couche par défaut
-            osm.addTo(map);
+    // Fournisseurs de streetview (exemple fictif pour l'instant)
+    const googleStreetView = L.layerGroup();
+    const appleStreetView = L.layerGroup();
+    const bingStreetView = L.layerGroup();
+    const mapillaryStreetView = L.layerGroup();
 
-            console.log("Map fully set up");
-            setMapInstance(map);
+    // Ajouter quelques lignes d'exemple pour Google StreetView (en bleu)
+    L.polyline([[48.8566, 2.3522], [48.86, 2.36]], { color: 'blue', weight: 5 }).addTo(googleStreetView);
+    L.polyline([[48.87, 2.35], [48.87, 2.37]], { color: 'blue', weight: 5 }).addTo(googleStreetView);
 
-            // Nettoyage lors du démontage du composant
-            return () => {
-                console.log("Cleaning up map");
-                map.remove();
-            };
-        } catch (e) {
-            console.error("Error initializing map:", e);
-        }
-    }, [center, zoom, mapInstance]);
+    // Ajouter quelques lignes d'exemple pour Apple Look Around (en rouge)
+    L.polyline([[48.85, 2.34], [48.84, 2.35]], { color: 'red', weight: 5 }).addTo(appleStreetView);
+    
+    // Ajouter quelques lignes d'exemple pour Bing Streetside (en vert)
+    L.polyline([[48.86, 2.33], [48.85, 2.32]], { color: 'green', weight: 5 }).addTo(bingStreetView);
+    
+    // Ajouter quelques lignes d'exemple pour Mapillary (en jaune)
+    L.polyline([[48.88, 2.35], [48.89, 2.36]], { color: 'orange', weight: 5 }).addTo(mapillaryStreetView);
 
-    return (
-        <div 
-            ref={mapRef} 
-            style={{ 
-                height: '100%', 
-                width: '100%', 
-                backgroundColor: "#e0e0e0",
-                minHeight: "400px"  // Hauteur minimale pour s'assurer que la carte est visible
-            }} 
-        />
-    );
-};
+    // Définir les couches superposées
+    const overlayMaps = {
+      "Google Street View": googleStreetView,
+      "Apple Look Around": appleStreetView,
+      "Bing Streetside": bingStreetView,
+      "Mapillary": mapillaryStreetView
+    };
 
-export default MapContainer;
+    // Ajouter le contrôleur de couches
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    // Ajouter l'échelle
+    L.control.scale().addTo(map);
+
+    // Activer par défaut la couche Google Street View
+    googleStreetView.addTo(map);
+
+    return () => {
+      map.remove();
+    };
+  }, [center, zoom]);
+
+  return (
+    <div style={{ height: '100vh', width: '100%' }}>
+      <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+    </div>
+  );
+}
