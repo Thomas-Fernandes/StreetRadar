@@ -1,8 +1,10 @@
+// src/components/map/mapContainer.tsx
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { StreetViewService } from '@/services/streetViewService';
 
 interface MapContainerProps {
   center?: [number, number];
@@ -11,7 +13,15 @@ interface MapContainerProps {
 
 export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: MapContainerProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+  const [visibleLayers, setVisibleLayers] = useState({
+    googleStreetView: true,
+    appleLookAround: false,
+    bingStreetside: false,
+    mapillary: false,
+  });
 
+  // Effet pour l'initialisation de la carte
   useEffect(() => {
     if (!mapRef.current) return;
 
@@ -47,50 +57,83 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
       "Satellite": satellite
     };
 
-    // Fournisseurs de streetview (exemple fictif pour l'instant)
-    const googleStreetView = L.layerGroup();
-    const appleStreetView = L.layerGroup();
-    const bingStreetView = L.layerGroup();
-    const mapillaryStreetView = L.layerGroup();
-
-    // Ajouter quelques lignes d'exemple pour Google StreetView (en bleu)
-    L.polyline([[48.8566, 2.3522], [48.86, 2.36]], { color: 'blue', weight: 5 }).addTo(googleStreetView);
-    L.polyline([[48.87, 2.35], [48.87, 2.37]], { color: 'blue', weight: 5 }).addTo(googleStreetView);
-
-    // Ajouter quelques lignes d'exemple pour Apple Look Around (en rouge)
-    L.polyline([[48.85, 2.34], [48.84, 2.35]], { color: 'red', weight: 5 }).addTo(appleStreetView);
-    
-    // Ajouter quelques lignes d'exemple pour Bing Streetside (en vert)
-    L.polyline([[48.86, 2.33], [48.85, 2.32]], { color: 'green', weight: 5 }).addTo(bingStreetView);
-    
-    // Ajouter quelques lignes d'exemple pour Mapillary (en jaune)
-    L.polyline([[48.88, 2.35], [48.89, 2.36]], { color: 'orange', weight: 5 }).addTo(mapillaryStreetView);
-
-    // Définir les couches superposées
-    const overlayMaps = {
-      "Google Street View": googleStreetView,
-      "Apple Look Around": appleStreetView,
-      "Bing Streetside": bingStreetView,
-      "Mapillary": mapillaryStreetView
-    };
-
-    // Ajouter le contrôleur de couches
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    // Définir les contrôles de couches
+    L.control.layers(baseMaps, {}).addTo(map);
 
     // Ajouter l'échelle
     L.control.scale().addTo(map);
 
-    // Activer par défaut la couche Google Street View
-    googleStreetView.addTo(map);
+    // Stocker l'instance de carte
+    setMapInstance(map);
 
     return () => {
       map.remove();
     };
   }, [center, zoom]);
 
+  // Effet pour gérer les couches de Street View
+  useEffect(() => {
+    if (!mapInstance) return;
+    
+    // Référence aux couches pour pouvoir les supprimer plus tard
+    const layers: L.TileLayer[] = [];
+    
+    // Ajouter les couches selon leur visibilité
+    if (visibleLayers.googleStreetView) {
+      const googleLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
+        maxZoom: 21,
+        opacity: 0.9
+      }).addTo(mapInstance);
+      layers.push(googleLayer);
+    }
+    
+    // Autres fournisseurs à implémenter...
+    
+    // Nettoyage lors du changement de dépendances
+    return () => {
+      layers.forEach(layer => {
+        if (mapInstance.hasLayer(layer)) {
+          mapInstance.removeLayer(layer);
+        }
+      });
+    };
+  }, [mapInstance, visibleLayers]);
+
+  // Fonction pour basculer la visibilité des couches
+  const toggleLayer = (layer: keyof typeof visibleLayers) => {
+    setVisibleLayers(prev => ({
+      ...prev,
+      [layer]: !prev[layer]
+    }));
+  };
+
   return (
     <div style={{ height: '100vh', width: '100%' }}>
       <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+      
+      {/* Contrôle de couches simplifié */}
+      {mapInstance && (
+        <div className="layer-controls" style={{ 
+          position: 'absolute', 
+          top: '10px', 
+          right: '10px', 
+          background: 'white', 
+          padding: '10px', 
+          borderRadius: '4px',
+          zIndex: 1000 
+        }}>
+          <div>
+            <input 
+              type="checkbox" 
+              id="google-layer" 
+              checked={visibleLayers.googleStreetView} 
+              onChange={() => toggleLayer('googleStreetView')} 
+            />
+            <label htmlFor="google-layer">Google Street View</label>
+          </div>
+          {/* Autres fournisseurs à ajouter ultérieurement */}
+        </div>
+      )}
     </div>
   );
 }
