@@ -52,9 +52,9 @@ export default function Home() {
             />
           </div>
           <nav className="nav">
-            <Link href="#" className="nav-link">About</Link>
-            <Link href="#" className="nav-link">API</Link>
-            <Link href="#" className="nav-link">Contact</Link>
+            <Link href="/about" className="nav-link">About</Link>
+            <Link href="/api" className="nav-link">API</Link>
+            <Link href="/contact" className="nav-link">Contact</Link>
           </nav>
         </div>
       </header>
