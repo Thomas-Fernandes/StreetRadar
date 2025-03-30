@@ -1,4 +1,17 @@
-// src/components/map/mapContainer.tsx
+/**
+ * MapContainer.tsx
+ * 
+ * Ce composant gère l'affichage et l'interaction avec la carte principale de StreetRadar.
+ * Il utilise Leaflet pour afficher une carte interactive et superpose différentes couches 
+ * de couverture de Street View provenant de divers fournisseurs. Le composant permet 
+ * à l'utilisateur de basculer entre différentes couches et fonds de carte.
+ * 
+ * Fonctionnalités principales:
+ * - Affichage d'une carte interactive avec choix de fond (OSM/Satellite)
+ * - Visualisation des couvertures Street View (Google, etc.)
+ * - Contrôles pour activer/désactiver les différentes couches
+ */
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -6,79 +19,79 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { StreetViewService } from '@/services/streetViewService';
 
+/**
+ * Propriétés acceptées par le composant MapContainer
+ */
 interface MapContainerProps {
   center?: [number, number];
   zoom?: number;
 }
 
+/**
+ * Composant principal de la carte qui affiche et gère l'interaction avec Leaflet
+ */
 export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: MapContainerProps) {
+  // Référence au conteneur DOM de la carte
   const mapRef = useRef<HTMLDivElement>(null);
+  // Instance de la carte Leaflet
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+  // État des couches visibles
   const [visibleLayers, setVisibleLayers] = useState({
     googleStreetView: true,
     appleLookAround: false,
     bingStreetside: false,
-    mapillary: false,
   });
 
-  // Effet pour l'initialisation de la carte
+  // Initialisation de la carte Leaflet
   useEffect(() => {
     if (!mapRef.current) return;
 
-    console.log("Initializing map...");
-
     // Fix pour les icônes Leaflet
     delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
-    
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/images/marker-icon-2x.png',
       iconUrl: '/images/marker-icon.png',
       shadowUrl: '/images/marker-shadow.png',
     });
 
-    // Initialiser la carte
+    // Création de la carte
     const map = L.map(mapRef.current).setView(center, zoom);
 
-    // Ajouter la couche OSM de base
+    // Couche OSM de base
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19
     }).addTo(map);
 
-    // Ajouter la couche satellite comme option
+    // Couche satellite alternative
     const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       maxZoom: 19
     });
 
-    // Définir les couches de base
+    // Configuration du contrôle de couches
     const baseMaps = {
       "OpenStreetMap": osm,
       "Satellite": satellite
     };
-
-    // Définir les contrôles de couches
     L.control.layers(baseMaps, {}).addTo(map);
-
-    // Ajouter l'échelle
     L.control.scale().addTo(map);
 
-    // Stocker l'instance de carte
     setMapInstance(map);
 
+    // Nettoyage lors du démontage
     return () => {
       map.remove();
     };
   }, [center, zoom]);
 
-  // Effet pour gérer les couches de Street View
+  // Gestion des couches de Street View
   useEffect(() => {
     if (!mapInstance) return;
     
-    // Référence aux couches pour pouvoir les supprimer plus tard
     const layers: L.TileLayer[] = [];
     
-    // Ajouter les couches selon leur visibilité
+    // Ajout de la couche Google Street View si activée
     if (visibleLayers.googleStreetView) {
       const googleLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
         maxZoom: 21,
@@ -87,9 +100,7 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
       layers.push(googleLayer);
     }
     
-    // Autres fournisseurs à implémenter...
-    
-    // Nettoyage lors du changement de dépendances
+    // Nettoyage des couches lors des changements
     return () => {
       layers.forEach(layer => {
         if (mapInstance.hasLayer(layer)) {
@@ -99,7 +110,7 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
     };
   }, [mapInstance, visibleLayers]);
 
-  // Fonction pour basculer la visibilité des couches
+  // Fonction pour basculer la visibilité d'une couche
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
     setVisibleLayers(prev => ({
       ...prev,
@@ -109,9 +120,10 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
 
   return (
     <div style={{ height: '100vh', width: '100%' }}>
+      {/* Conteneur de la carte */}
       <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
       
-      {/* Contrôle de couches simplifié */}
+      {/* Contrôle de couches */}
       {mapInstance && (
         <div className="layer-controls" style={{ 
           position: 'absolute', 
