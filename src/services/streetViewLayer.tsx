@@ -16,7 +16,7 @@
 
 import { useEffect } from 'react';
 import L from 'leaflet';
-import { StreetViewService } from './streetViewService';
+import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 
 /**
