@@ -46,15 +46,41 @@ export class StreetViewService {
   /**
    * Génère l'URL pour les tuiles de couverture Bing Streetside
    * 
-   * Note: Actuellement un placeholder car Bing n'expose pas facilement 
-   * ces données via une API publique.
+   * Cette URL permet d'afficher les lignes violettes indiquant où Streetside est disponible.
+   * Elle utilise le système de quadkey de Bing Maps pour identifier les tuiles.
    * 
-   * @returns URL template pour les tuiles Bing Streetside (actuellement vide)
+   * @returns URL template pour les tuiles Bing Streetside
    */
   static getBingStreetsideTileUrl(): string {
-    // Bing n'offre pas d'équivalent public facilement accessible
-    // Cette méthode est un placeholder pour une implémentation future
-    return '';
+    // Cette URL a été identifiée par l'analyse du réseau et correspond au format utilisé par Bing Maps
+    // La notation {q} sera remplacée par un TileLayer personnalisé qui convertira les coordonnées en quadkey
+    return 'https://t.ssl.ak.dynamic.tiles.virtualearth.net/comp/ch/{q}?mkt=fr-FR&it=Z,HC&n=t&og=2651&sv=9.36';
   }
 
+  /**
+   * Convertit les coordonnées de tuile (x, y, z) en quadkey de Bing Maps
+   * 
+   * Le quadkey est un système de notation utilisé par Bing Maps où chaque tuile est identifiée
+   * par une chaîne unique de chiffres 0-3, chacun représentant un quadrant à chaque niveau de zoom.
+   * 
+   * @param x - La coordonnée X de la tuile
+   * @param y - La coordonnée Y de la tuile
+   * @param z - Le niveau de zoom
+   * @returns Le quadkey correspondant aux coordonnées
+   */
+  static tileXYToQuadKey(x: number, y: number, z: number): string {
+    let quadKey = '';
+    for (let i = z; i > 0; i--) {
+      let digit = 0;
+      const mask = 1 << (i - 1);
+      if ((x & mask) !== 0) {
+        digit += 1;
+      }
+      if ((y & mask) !== 0) {
+        digit += 2;
+      }
+      quadKey += digit;
+    }
+    return quadKey;
+  }
 }

@@ -17,7 +17,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { StreetViewService } from '@/services/streetViewService';
+import StreetViewLayer from '@/services/streetViewLayer';
 
 /**
  * Propriétés acceptées par le composant MapContainer
@@ -38,8 +38,8 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
   // État des couches visibles
   const [visibleLayers, setVisibleLayers] = useState({
     googleStreetView: true,
-    appleLookAround: false,
     bingStreetside: false,
+    appleLookAround: false,
   });
 
   // Initialisation de la carte Leaflet
@@ -85,31 +85,6 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
     };
   }, [center, zoom]);
 
-  // Gestion des couches de Street View
-  useEffect(() => {
-    if (!mapInstance) return;
-    
-    const layers: L.TileLayer[] = [];
-    
-    // Ajout de la couche Google Street View si activée
-    if (visibleLayers.googleStreetView) {
-      const googleLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
-        maxZoom: 21,
-        opacity: 0.9
-      }).addTo(mapInstance);
-      layers.push(googleLayer);
-    }
-    
-    // Nettoyage des couches lors des changements
-    return () => {
-      layers.forEach(layer => {
-        if (mapInstance.hasLayer(layer)) {
-          mapInstance.removeLayer(layer);
-        }
-      });
-    };
-  }, [mapInstance, visibleLayers]);
-
   // Fonction pour basculer la visibilité d'une couche
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
     setVisibleLayers(prev => ({
@@ -132,8 +107,12 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
           background: 'white', 
           padding: '10px', 
           borderRadius: '4px',
-          zIndex: 1000 
+          zIndex: 1000,
+          boxShadow: '0 1px 5px rgba(0,0,0,0.2)'
         }}>
+          <div className="control-header" style={{ marginBottom: '8px', fontWeight: 'bold' }}>
+            Couches de Street View
+          </div>
           <div>
             <input 
               type="checkbox" 
@@ -141,10 +120,40 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
               checked={visibleLayers.googleStreetView} 
               onChange={() => toggleLayer('googleStreetView')} 
             />
-            <label htmlFor="google-layer">Google Street View</label>
+            <label htmlFor="google-layer" style={{ marginLeft: '5px', color: '#4285F4' }}>Google Street View</label>
           </div>
-          {/* Autres fournisseurs à ajouter ultérieurement */}
+          <div style={{ marginTop: '8px' }}>
+            <input 
+              type="checkbox" 
+              id="bing-layer" 
+              checked={visibleLayers.bingStreetside} 
+              onChange={() => toggleLayer('bingStreetside')} 
+            />
+            <label htmlFor="bing-layer" style={{ marginLeft: '5px', color: '#8661C5' }}>Bing Streetside</label>
+          </div>
+          {/* Apple Look Around sera ajouté plus tard */}
         </div>
+      )}
+
+      {/* Composants pour les couches Street View */}
+      {mapInstance && (
+        <>
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="google" 
+            visible={visibleLayers.googleStreetView} 
+          />
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="bing" 
+            visible={visibleLayers.bingStreetside} 
+          />
+          {/* <StreetViewLayer 
+            map={mapInstance} 
+            provider="apple" 
+            visible={visibleLayers.appleLookAround} 
+          /> */}
+        </>
       )}
     </div>
   );
