@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
+import { createYandexTileLayer } from './yandexTileLayer';
 
 /**
  * Propriétés pour le composant StreetViewLayer
@@ -62,7 +63,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           });
           break;
         case 'yandex':
-          tileLayer = L.tileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
+          tileLayer = createYandexTileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
             maxZoom: 21,
             opacity: 0.9,
             pane: 'overlayPane',
