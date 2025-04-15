@@ -83,4 +83,15 @@ export class StreetViewService {
     }
     return quadKey;
   }
+  /**
+   * Génère l'URL pour les tuiles de couverture Yandex Panoramas
+   * 
+   * Cette URL permet d'afficher les lignes indiquant où Yandex Panoramas est disponible
+   * sur la carte.
+   * 
+   * @returns URL template pour les tuiles de couverture Yandex Panoramas
+   */
+  static getYandexPanoramasTileUrl(): string {
+    return 'https://04.core-stv-renderer.maps.yandex.net/2.x/tiles?l=stv,sta&x={x}&y={y}&z={z}&scale=1&v=2025.04.14.22.49-1_25.04.11-0-24374&lang=en_UA&format=png&client_id=yandex-web-maps';
+  }
 }

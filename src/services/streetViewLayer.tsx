@@ -27,7 +27,7 @@ import { createBingTileLayer } from './bingTileLayer';
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing';
+  provider: 'google' | 'apple' | 'bing' | 'yandex';
   visible: boolean;
 }
 
@@ -56,6 +56,13 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
         case 'bing':
           // Utiliser notre TileLayer personnalisé pour Bing qui gère les quadkeys
           tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
+            maxZoom: 21,
+            opacity: 0.9,
+            pane: 'overlayPane',
+          });
+          break;
+        case 'yandex':
+          tileLayer = L.tileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
             maxZoom: 21,
             opacity: 0.9,
             pane: 'overlayPane',

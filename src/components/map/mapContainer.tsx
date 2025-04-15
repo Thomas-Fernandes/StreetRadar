@@ -39,6 +39,7 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
   const [visibleLayers, setVisibleLayers] = useState({
     googleStreetView: true,
     bingStreetside: false,
+    yandexPanoramas: false,
     appleLookAround: false,
   });
 
@@ -131,7 +132,15 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
             />
             <label htmlFor="bing-layer" style={{ marginLeft: '5px', color: '#8661C5' }}>Bing Streetside</label>
           </div>
-          {/* Apple Look Around sera ajouté plus tard */}
+          <div style={{ marginTop: '8px' }}>
+            <input 
+              type="checkbox" 
+              id="yandex-layer" 
+              checked={visibleLayers.yandexPanoramas} 
+              onChange={() => toggleLayer('yandexPanoramas')} 
+            />
+            <label htmlFor="yandex-layer" style={{ marginLeft: '5px', color: '#FF0000' }}>Yandex Panoramas</label>
+          </div>
         </div>
       )}
 
@@ -148,11 +157,11 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
             provider="bing" 
             visible={visibleLayers.bingStreetside} 
           />
-          {/* <StreetViewLayer 
+          <StreetViewLayer 
             map={mapInstance} 
-            provider="apple" 
-            visible={visibleLayers.appleLookAround} 
-          /> */}
+            provider="yandex" 
+            visible={visibleLayers.yandexPanoramas} 
+          />
         </>
       )}
     </div>
