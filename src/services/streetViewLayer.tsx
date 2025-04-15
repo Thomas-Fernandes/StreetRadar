@@ -17,6 +17,7 @@
 import { useEffect } from 'react';
 import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
+import { createBingTileLayer } from './bingTileLayer';
 
 /**
  * Propriétés pour le composant StreetViewLayer
@@ -43,25 +44,40 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
     let tileLayer: L.TileLayer | null = null;
 
     // Sélectionner l'URL appropriée selon le fournisseur
-    switch (provider) {
-      case 'google':
-        tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
-          maxZoom: 21,      // Niveau de zoom maximum
-          opacity: 0.9,     // Légère transparence
-          pane: 'overlayPane', // Panneau Leaflet pour positionner la couche
-        });
-        break;
-      case 'apple':
-        // Implémentation future pour Apple Look Around
-        break;
-      case 'bing':
-        // Implémentation future pour Bing Streetside
-        break;
-    }
-
-    // Ajouter la couche à la carte si elle existe et doit être visible
-    if (tileLayer && visible) {
-      tileLayer.addTo(map);
+    if (visible) {
+      switch (provider) {
+        case 'google':
+          tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
+            maxZoom: 21,
+            opacity: 0.9,
+            pane: 'overlayPane',
+          });
+          break;
+        case 'bing':
+          // Utiliser notre TileLayer personnalisé pour Bing qui gère les quadkeys
+          tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
+            maxZoom: 21,
+            opacity: 0.9,
+            pane: 'overlayPane',
+          });
+          break;
+        case 'apple':
+          // Implémentation future pour Apple Look Around
+          const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
+          if (appleUrl) {
+            tileLayer = L.tileLayer(appleUrl, {
+              maxZoom: 21,
+              opacity: 0.9,
+              pane: 'overlayPane',
+            });
+          }
+          break;
+      }
+      
+      // Ajouter la couche à la carte si elle a été créée
+      if (tileLayer) {
+        tileLayer.addTo(map);
+      }
     }
 
     // Fonction de nettoyage exécutée lors du démontage ou changement des dépendances

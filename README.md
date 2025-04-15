@@ -1,12 +1,15 @@
 # StreetRadar
 
-A worldwide interactive map centralizing street view coverage from multiple providers (Google, Apple, Bing, Yandex, Baidu, and more).
+A worldwide interactive map centralizing street view coverage from multiple providers (Google, Bing, Apple, and more).
 
 ## 🚀 Current Features
 
 - **Interactive Map Interface**: Basic Leaflet.js integration with OpenStreetMap
-- **Google Street View Coverage**: Initial visualization of Google Street View coverage data
-- **Basic Layer Controls**: Toggle street view coverage layers
+- **Multiple Street View Providers**:
+  - Google Street View coverage visualization
+  - Bing Streetside coverage visualization
+- **Layer Controls**: Toggle street view coverage layers
+- **Multiple Base Maps**: OpenStreetMap and Satellite imagery
 
 ## 🛠️ Technology Stack
 
@@ -58,7 +61,7 @@ streetradar/
 ## 🚧 In Development
 
 We're actively working on:
-- Implementing more street view providers (Apple, Bing, etc.)
+- Implementing more street view providers (Apple, etc.)
 - Adding search and filtering functionality
 - Enhancing map controls and interactivity
 - Building out the backend API with MongoDB integration
