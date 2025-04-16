@@ -88,7 +88,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     L.control.scale().addTo(map);
 
     // Ajouter le bouton Home (personnalisé) au-dessus du zoom
-    const homeButton = L.Control.extend({
+    const HomeButtonControl = L.Control.extend({
       options: {
         position: 'topleft'
       },
@@ -111,7 +111,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       }
     });
     
-    map.addControl(new homeButton());
+    map.addControl(new HomeButtonControl());
 
     setMapInstance(map);
 
