@@ -26,12 +26,12 @@ const MapContainer = dynamic(() => import('@/components/map/mapContainer'), {
 
 /**
  * Composant wrapper qui charge de façon asynchrone le MapContainer
- * avec des coordonnées initiales centrées sur Paris
+ * avec des coordonnées initiales centrées sur la France
  */
 export default function MapWrapper() {
   return (
     <div className="w-full h-full">
-      <MapContainer center={[48.8566, 2.3522]} zoom={13} />
+      <MapContainer center={[46.603354, 1.888334]} zoom={3} />
     </div>
   );
 }

@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
+import { createYandexTileLayer } from './yandexTileLayer';
 
 /**
  * Propriétés pour le composant StreetViewLayer
@@ -27,7 +28,7 @@ import { createBingTileLayer } from './bingTileLayer';
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing';
+  provider: 'google' | 'apple' | 'bing' | 'yandex';
   visible: boolean;
 }
 
@@ -48,7 +49,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
       switch (provider) {
         case 'google':
           tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
-            maxZoom: 21,
+            maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
           });
@@ -56,7 +57,14 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
         case 'bing':
           // Utiliser notre TileLayer personnalisé pour Bing qui gère les quadkeys
           tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
-            maxZoom: 21,
+            maxZoom: 19,
+            opacity: 0.9,
+            pane: 'overlayPane',
+          });
+          break;
+        case 'yandex':
+          tileLayer = createYandexTileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
+            maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
           });
@@ -66,7 +74,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
           if (appleUrl) {
             tileLayer = L.tileLayer(appleUrl, {
-              maxZoom: 21,
+              maxZoom: 19,
               opacity: 0.9,
               pane: 'overlayPane',
             });
