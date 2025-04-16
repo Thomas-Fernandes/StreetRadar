@@ -10,6 +10,7 @@
  * - Affichage d'une carte interactive avec choix de fond (OSM/Satellite)
  * - Visualisation des couvertures Street View (Google, etc.)
  * - Contrôles pour activer/désactiver les différentes couches
+ * - Bouton Home pour revenir à la page d'accueil
  */
 
 'use client';
@@ -30,7 +31,7 @@ interface MapContainerProps {
 /**
  * Composant principal de la carte qui affiche et gère l'interaction avec Leaflet
  */
-export default function MapContainer({ center = [46.603354, 1.888334], zoom = 5 }: MapContainerProps) {
+export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 }: MapContainerProps) {
   // Référence au conteneur DOM de la carte
   const mapRef = useRef<HTMLDivElement>(null);
   // Instance de la carte Leaflet
@@ -57,8 +58,14 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 5 
 
     // Création de la carte
     const map = L.map(mapRef.current, {
-      maxZoom: 19
+      maxZoom: 19,
+      zoomControl: false  // Désactiver le contrôle de zoom par défaut pour le repositionner
     }).setView(center, zoom);
+
+    // Ajouter le contrôle de zoom à une position spécifique
+    L.control.zoom({
+      position: 'topleft'
+    }).addTo(map);
 
     // Couche OSM de base
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -79,6 +86,32 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 5 
     };
     L.control.layers(baseMaps, {}).addTo(map);
     L.control.scale().addTo(map);
+
+    // Ajouter le bouton Home (personnalisé) au-dessus du zoom
+    const homeButton = L.Control.extend({
+      options: {
+        position: 'topleft'
+      },
+      onAdd: function() {
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+        const button = L.DomUtil.create('a', 'home-button', container);
+        
+        button.innerHTML = '🏠';
+        button.title = 'Retour à l\'accueil';
+        button.href = '/';  // Lien vers la page d'accueil
+        button.style.display = 'flex';
+        button.style.alignItems = 'center';
+        button.style.justifyContent = 'center';
+        button.style.width = '30px';
+        button.style.height = '30px';
+        button.style.fontSize = '18px';
+        button.style.textDecoration = 'none';
+        
+        return container;
+      }
+    });
+    
+    map.addControl(new homeButton());
 
     setMapInstance(map);
 
