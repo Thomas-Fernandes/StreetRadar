@@ -49,7 +49,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
       switch (provider) {
         case 'google':
           tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
-            maxZoom: 21,
+            maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
           });
@@ -57,14 +57,14 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
         case 'bing':
           // Utiliser notre TileLayer personnalisé pour Bing qui gère les quadkeys
           tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
-            maxZoom: 21,
+            maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
           });
           break;
         case 'yandex':
           tileLayer = createYandexTileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
-            maxZoom: 21,
+            maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
           });
@@ -74,7 +74,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
           if (appleUrl) {
             tileLayer = L.tileLayer(appleUrl, {
-              maxZoom: 21,
+              maxZoom: 19,
               opacity: 0.9,
               pane: 'overlayPane',
             });

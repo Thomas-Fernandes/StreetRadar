@@ -30,7 +30,7 @@ interface MapContainerProps {
 /**
  * Composant principal de la carte qui affiche et gère l'interaction avec Leaflet
  */
-export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: MapContainerProps) {
+export default function MapContainer({ center = [46.603354, 1.888334], zoom = 5 }: MapContainerProps) {
   // Référence au conteneur DOM de la carte
   const mapRef = useRef<HTMLDivElement>(null);
   // Instance de la carte Leaflet
@@ -38,7 +38,7 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
   // État des couches visibles
   const [visibleLayers, setVisibleLayers] = useState({
     googleStreetView: true,
-    bingStreetside: false,
+    bingStreetside: true,
     yandexPanoramas: false,
     appleLookAround: false,
   });
@@ -56,7 +56,9 @@ export default function MapContainer({ center = [48.8566, 2.3522], zoom = 13 }: 
     });
 
     // Création de la carte
-    const map = L.map(mapRef.current).setView(center, zoom);
+    const map = L.map(mapRef.current, {
+      maxZoom: 19
+    }).setView(center, zoom);
 
     // Couche OSM de base
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
