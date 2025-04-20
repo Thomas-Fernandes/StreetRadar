@@ -188,20 +188,18 @@
     transition: all 0.3s ease;
   }
   
+  /* Mise à jour du style de l'en-tête pour correspondre au control-panel-header */
   .basemap-selector-header {
     padding: 10px 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
-    font-weight: 500;
-    color: var(--sr-text);
-    border-bottom: 1px solid var(--sr-border-light);
-    transition: all 0.2s ease;
-  }
-  
-  .basemap-selector-header:hover {
+    font-size: 16px;
+    font-weight: 700;
     color: var(--sr-primary);
+    border-bottom: 1px solid rgba(155, 68, 52, 0.15);
+    transition: all 0.2s ease;
   }
   
   .basemap-options {
@@ -259,12 +257,13 @@
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2300b2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>');
   }
   
+  /* Mise à jour de la flèche pour correspondre à arrow-icon */
   .basemap-arrow {
     display: inline-block;
     width: 8px;
     height: 8px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
+    border-right: 2px solid var(--sr-primary);
+    border-bottom: 2px solid var(--sr-primary);
     transform: rotate(45deg);
     transition: transform 0.3s ease;
   }

@@ -133,6 +133,15 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     }));
   };
 
+  // Handle checkbox click without propagation to parent
+  const handleCheckboxClick = (
+    e: React.MouseEvent<HTMLInputElement>, 
+    layer: keyof typeof visibleLayers
+  ) => {
+    e.stopPropagation(); // Stop propagation to prevent double toggle
+    toggleLayer(layer);
+  };
+
   // Toggle panel collapsed state
   const togglePanel = () => {
     setIsPanelCollapsed(!isPanelCollapsed);
@@ -194,16 +203,16 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                   type="checkbox" 
                   id="google-layer" 
                   checked={visibleLayers.googleStreetView} 
-                  onChange={() => {}} 
+                  onChange={() => {}} // Controlled by parent div click
+                  onClick={(e) => handleCheckboxClick(e, 'googleStreetView')}
                   className="checkbox-input google"
                 />
               </div>
-              <label 
-                htmlFor="google-layer" 
+              <span 
                 className={`provider-label google ${visibleLayers.googleStreetView ? 'active' : ''}`}
               >
                 Google Street View
-              </label>
+              </span>
             </div>
             
             {/* Bing Streetside */}
@@ -216,16 +225,16 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                   type="checkbox" 
                   id="bing-layer" 
                   checked={visibleLayers.bingStreetside} 
-                  onChange={() => {}} 
+                  onChange={() => {}} // Controlled by parent div click
+                  onClick={(e) => handleCheckboxClick(e, 'bingStreetside')}
                   className="checkbox-input bing"
                 />
               </div>
-              <label 
-                htmlFor="bing-layer" 
+              <span 
                 className={`provider-label bing ${visibleLayers.bingStreetside ? 'active' : ''}`}
               >
                 Bing Streetside
-              </label>
+              </span>
             </div>
             
             {/* Yandex Panoramas */}
@@ -238,16 +247,16 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                   type="checkbox" 
                   id="yandex-layer" 
                   checked={visibleLayers.yandexPanoramas} 
-                  onChange={() => {}} 
+                  onChange={() => {}} // Controlled by parent div click
+                  onClick={(e) => handleCheckboxClick(e, 'yandexPanoramas')}
                   className="checkbox-input yandex"
                 />
               </div>
-              <label 
-                htmlFor="yandex-layer" 
+              <span 
                 className={`provider-label yandex ${visibleLayers.yandexPanoramas ? 'active' : ''}`}
               >
                 Yandex Panoramas
-              </label>
+              </span>
             </div>
           </div>
         </div>
