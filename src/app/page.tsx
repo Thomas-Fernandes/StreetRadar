@@ -34,6 +34,12 @@ export default function Home() {
       name: 'Bing Streetside', 
       logoSrc: '/images/providers/bing.svg',
       logoAlt: 'Bing Logo' 
+    },
+    { 
+      id: 'yandex', 
+      name: 'Yandex Panoramas', 
+      logoSrc: '/images/providers/yandex.svg',
+      logoAlt: 'Yandex Logo' 
     }
   ];
 
