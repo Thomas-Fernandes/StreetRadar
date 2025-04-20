@@ -79,14 +79,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       maxZoom: 19
     });
 
-    // Configuration du contrôle de couches
-    const baseMaps = {
-      "OpenStreetMap": osm,
-      "Satellite": satellite
-    };
-    L.control.layers(baseMaps, {}).addTo(map);
-    L.control.scale().addTo(map);
-
     // Ajouter le bouton Home (personnalisé) au-dessus du zoom
     const HomeButtonControl = L.Control.extend({
       options: {
@@ -108,6 +100,14 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     L.control.zoom({                          // Contrôle de zoom en deuxième
       position: 'topleft'
     }).addTo(map);
+
+    // Configuration du contrôle de couches
+    const baseMaps = {
+      "OpenStreetMap": osm,
+      "Satellite": satellite
+    };
+    L.control.layers(baseMaps, {}, { position: 'topleft', collapsed: true }).addTo(map);
+    L.control.scale().addTo(map);
 
     setMapInstance(map);
 
