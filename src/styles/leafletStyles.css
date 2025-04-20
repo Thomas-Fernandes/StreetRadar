@@ -272,3 +272,170 @@
   .basemap-selector.open .basemap-arrow {
     transform: rotate(-135deg);
   }
+  
+  /* Styles extraits de mapContainer.tsx */
+  .control-panel {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: var(--sr-background, #fefbf1);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    width: 250px;
+    font-family: var(--font-geist-sans, sans-serif);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .control-panel-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--sr-primary, #9b4434);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+  }
+  
+  .control-panel-header.collapsed {
+    border-bottom: 0px solid transparent;
+  }
+  
+  .control-panel-header:not(.collapsed) {
+    border-bottom: 2px solid rgba(155, 68, 52, 0.15);
+  }
+  
+  .controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    max-height: 300px;
+    opacity: 1;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .controls-container.collapsed {
+    padding: 0 16px;
+    max-height: 0;
+    opacity: 0;
+  }
+  
+  .control-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.5);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  
+  .control-item:hover {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .control-item.active {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .control-item.active.google {
+    background-color: rgba(66, 133, 244, 0.1);
+    border-left: 3px solid #4285F4;
+  }
+  
+  .control-item.active.bing {
+    background-color: rgba(66, 133, 244, 0.1);
+    border-left: 3px solid #4285F4;
+  }
+  
+  .control-item.active.yandex {
+    background-color: rgba(134, 97, 197, 0.1);
+    border-left: 3px solid #8661C5;
+  }
+  
+  .checkbox-container {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .checkbox-input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  
+  .checkbox-input.google {
+    accent-color: #4285F4;
+  }
+  
+  .checkbox-input.bing {
+    accent-color: #4285F4;
+  }
+  
+  .checkbox-input.yandex {
+    accent-color: #8661C5;
+  }
+  
+  .provider-label {
+    cursor: pointer;
+    font-size: 14px;
+    flex: 1;
+  }
+  
+  .provider-label.google {
+    color: #4285F4;
+  }
+  
+  .provider-label.bing {
+    color: #4285F4;
+  }
+  
+  .provider-label.yandex {
+    color: #8661C5;
+  }
+  
+  .provider-label.active {
+    font-weight: 500;
+  }
+  
+  .arrow-icon {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid var(--sr-primary, #9b4434);
+    border-bottom: 2px solid var(--sr-primary, #9b4434);
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+  }
+  
+  .arrow-icon.collapsed {
+    transform: rotate(-45deg);
+  }
+  
+  .arrow-icon:not(.collapsed) {
+    transform: rotate(45deg);
+  }
+  
+  .header-icon-container {
+    display: flex;
+    align-items: center;
+  }
+  
+  .header-map-icon {
+    font-size: 14px;
+    color: var(--sr-text-light, #666666);
+    margin-right: 4px;
+  }

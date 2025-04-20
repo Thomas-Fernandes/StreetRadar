@@ -164,116 +164,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     setIsBasemapSelectorOpen(!isBasemapSelectorOpen);
   };
 
-  // Control panel styles - redesigned and harmonized
-  const controlPanelStyle = {
-    position: 'absolute' as const,
-    top: '15px',
-    right: '15px',
-    backgroundColor: 'var(--sr-background, #fefbf1)',
-    borderRadius: '8px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-    zIndex: 1000,
-    width: '250px',
-    fontFamily: 'var(--font-geist-sans, sans-serif)',
-    border: '1px solid rgba(0, 0, 0, 0.05)',
-    transition: 'all 0.3s ease',
-    overflow: 'hidden'
-  };
-
-  // Header style
-  const headerStyle = {
-    fontSize: '16px',
-    fontWeight: 700,
-    color: 'var(--sr-primary, #9b4434)',
-    borderBottom: isPanelCollapsed ? '0px solid transparent' : '2px solid rgba(155, 68, 52, 0.15)',
-    padding: '16px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    userSelect: 'none' as const,
-    transition: 'all 0.2s ease'
-  };
-
-  // Controls container style
-  const controlsContainerStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    gap: '12px',
-    padding: isPanelCollapsed ? '0 16px' : '16px',
-    maxHeight: isPanelCollapsed ? '0' : '300px',
-    opacity: isPanelCollapsed ? 0 : 1,
-    transition: 'all 0.3s ease',
-    overflow: 'hidden'
-  };
-
-  // Control item style
-  const controlItemStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    padding: '8px 10px',
-    borderRadius: '6px',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    transition: 'all 0.2s ease',
-    cursor: 'pointer',
-    border: '1px solid transparent'
-  };
-
-  // Checkbox container style
-  const checkboxContainerStyle = {
-    position: 'relative' as const,
-    width: '20px',
-    height: '20px',
-    marginRight: '12px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
-  // Provider colors
-  const providerColors = {
-    google: '#4285F4',     // Blue for Google
-    bing: '#4285F4',       // Teal for Bing
-    yandex: '#8661C5'      // Purple for Yandex
-  };
-
-  // Function to generate hover style based on provider
-  const getHoverStyle = (provider: string, isChecked: boolean) => {
-    const color = providerColors[provider as keyof typeof providerColors];
-    
-    return {
-      backgroundColor: isChecked ? `rgba(${hexToRgb(color)}, 0.1)` : 'rgba(255, 255, 255, 0.5)',
-      borderLeft: isChecked ? `3px solid ${color}` : '1px solid transparent',
-      boxShadow: isChecked ? '0 2px 8px rgba(0, 0, 0, 0.05)' : 'none'
-    };
-  };
-
-  // Function to convert hex color to RGB
-  function hexToRgb(hex: string) {
-    // Remove # if present
-    hex = hex.replace(/^#/, '');
-    
-    // Parse RGB values
-    const bigint = parseInt(hex, 16);
-    const r = (bigint >> 16) & 255;
-    const g = (bigint >> 8) & 255;
-    const b = bigint & 255;
-    
-    return `${r}, ${g}, ${b}`;
-  }
-
-  // Arrow icon that rotates based on panel state
-  const arrowIcon = {
-    display: 'inline-block',
-    width: '10px',
-    height: '10px',
-    borderRight: '2px solid var(--sr-primary, #9b4434)',
-    borderBottom: '2px solid var(--sr-primary, #9b4434)',
-    transform: isPanelCollapsed ? 'rotate(-45deg)' : 'rotate(45deg)',
-    transition: 'transform 0.3s ease',
-    marginLeft: '8px'
-  };
-
   return (
     <div style={{ height: '100vh', width: '100%', position: 'relative' }}>
       {/* Map container */}
@@ -281,50 +171,36 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       
       {/* Custom layer control with improved design */}
       {mapInstance && (
-        <div style={controlPanelStyle}>
+        <div className="control-panel">
           <div 
-            style={headerStyle}
+            className={`control-panel-header ${isPanelCollapsed ? 'collapsed' : ''}`}
             onClick={togglePanel}
           >
             <span>Street View Layers</span>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ fontSize: '14px', color: 'var(--sr-text-light, #666666)', marginRight: '4px' }}>🗺️</span>
-              <span style={arrowIcon}></span>
+            <div className="header-icon-container">
+              <span className="header-map-icon">🗺️</span>
+              <span className={`arrow-icon ${isPanelCollapsed ? 'collapsed' : ''}`}></span>
             </div>
           </div>
           
-          <div style={controlsContainerStyle}>
+          <div className={`controls-container ${isPanelCollapsed ? 'collapsed' : ''}`}>
             {/* Google Street View */}
             <div 
-              style={{
-                ...controlItemStyle,
-                ...getHoverStyle('google', visibleLayers.googleStreetView)
-              }}
+              className={`control-item ${visibleLayers.googleStreetView ? 'active google' : ''}`}
               onClick={() => toggleLayer('googleStreetView')}
             >
-              <div style={checkboxContainerStyle}>
+              <div className="checkbox-container">
                 <input 
                   type="checkbox" 
                   id="google-layer" 
                   checked={visibleLayers.googleStreetView} 
                   onChange={() => {}} 
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: providerColors.google,
-                    cursor: 'pointer'
-                  }}
+                  className="checkbox-input google"
                 />
               </div>
               <label 
                 htmlFor="google-layer" 
-                style={{ 
-                  color: providerColors.google,
-                  cursor: 'pointer',
-                  fontWeight: visibleLayers.googleStreetView ? 500 : 400,
-                  fontSize: '14px',
-                  flex: 1
-                }}
+                className={`provider-label google ${visibleLayers.googleStreetView ? 'active' : ''}`}
               >
                 Google Street View
               </label>
@@ -332,35 +208,21 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             
             {/* Bing Streetside */}
             <div 
-              style={{
-                ...controlItemStyle,
-                ...getHoverStyle('bing', visibleLayers.bingStreetside)
-              }}
+              className={`control-item ${visibleLayers.bingStreetside ? 'active bing' : ''}`}
               onClick={() => toggleLayer('bingStreetside')}
             >
-              <div style={checkboxContainerStyle}>
+              <div className="checkbox-container">
                 <input 
                   type="checkbox" 
                   id="bing-layer" 
                   checked={visibleLayers.bingStreetside} 
                   onChange={() => {}} 
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: providerColors.bing,
-                    cursor: 'pointer'
-                  }}
+                  className="checkbox-input bing"
                 />
               </div>
               <label 
                 htmlFor="bing-layer" 
-                style={{ 
-                  color: providerColors.bing,
-                  cursor: 'pointer',
-                  fontWeight: visibleLayers.bingStreetside ? 500 : 400,
-                  fontSize: '14px',
-                  flex: 1
-                }}
+                className={`provider-label bing ${visibleLayers.bingStreetside ? 'active' : ''}`}
               >
                 Bing Streetside
               </label>
@@ -368,35 +230,21 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             
             {/* Yandex Panoramas */}
             <div 
-              style={{
-                ...controlItemStyle,
-                ...getHoverStyle('yandex', visibleLayers.yandexPanoramas)
-              }}
+              className={`control-item ${visibleLayers.yandexPanoramas ? 'active yandex' : ''}`}
               onClick={() => toggleLayer('yandexPanoramas')}
             >
-              <div style={checkboxContainerStyle}>
+              <div className="checkbox-container">
                 <input 
                   type="checkbox" 
                   id="yandex-layer" 
                   checked={visibleLayers.yandexPanoramas} 
                   onChange={() => {}} 
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    accentColor: providerColors.yandex,
-                    cursor: 'pointer'
-                  }}
+                  className="checkbox-input yandex"
                 />
               </div>
               <label 
                 htmlFor="yandex-layer" 
-                style={{ 
-                  color: providerColors.yandex,
-                  cursor: 'pointer',
-                  fontWeight: visibleLayers.yandexPanoramas ? 500 : 400,
-                  fontSize: '14px',
-                  flex: 1
-                }}
+                className={`provider-label yandex ${visibleLayers.yandexPanoramas ? 'active' : ''}`}
               >
                 Yandex Panoramas
               </label>
