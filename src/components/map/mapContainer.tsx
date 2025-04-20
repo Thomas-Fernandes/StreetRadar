@@ -11,6 +11,7 @@
  * - Visualisation des couvertures Street View (Google, etc.)
  * - Contrôles pour activer/désactiver les différentes couches
  * - Bouton Home pour revenir à la page d'accueil
+ * - Interface utilisateur moderne avec styles inspirés de Tailwind
  */
 
 'use client';
@@ -18,6 +19,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import '@/styles/leafletStyles.css'; // Importation de nos styles personnalisés
 import StreetViewLayer from '@/services/streetViewLayer';
 
 /**
@@ -56,16 +58,14 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       shadowUrl: '/images/marker-shadow.png',
     });
 
-    // Création de la carte
+    // Création de la carte avec la classe streetradar-map pour notre CSS personnalisé
     const map = L.map(mapRef.current, {
       maxZoom: 19,
-      zoomControl: false  // Désactiver le contrôle de zoom par défaut pour le repositionner
+      zoomControl: false,  // Désactiver le contrôle de zoom par défaut pour le repositionner
     }).setView(center, zoom);
-
-    // Ajouter le contrôle de zoom à une position spécifique
-    L.control.zoom({
-      position: 'topleft'
-    }).addTo(map);
+    
+    // Ajouter notre classe CSS personnalisée au conteneur de la carte
+    map.getContainer().className += ' streetradar-map';
 
     // Couche OSM de base
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -93,25 +93,21 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         position: 'topleft'
       },
       onAdd: function() {
-        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+        const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control home-control');
         const button = L.DomUtil.create('a', 'home-button', container);
         
         button.innerHTML = '🏠';
         button.title = 'Retour à l\'accueil';
         button.href = '/';  // Lien vers la page d'accueil
-        button.style.display = 'flex';
-        button.style.alignItems = 'center';
-        button.style.justifyContent = 'center';
-        button.style.width = '30px';
-        button.style.height = '30px';
-        button.style.fontSize = '18px';
-        button.style.textDecoration = 'none';
         
         return container;
       }
     });
     
-    map.addControl(new HomeButtonControl());
+    map.addControl(new HomeButtonControl());  // Home button en premier
+    L.control.zoom({                          // Contrôle de zoom en deuxième
+      position: 'topleft'
+    }).addTo(map);
 
     setMapInstance(map);
 
@@ -134,47 +130,43 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       {/* Conteneur de la carte */}
       <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
       
-      {/* Contrôle de couches */}
+      {/* Contrôle de couches personnalisé */}
       {mapInstance && (
         <div className="layer-controls" style={{ 
           position: 'absolute', 
           top: '10px', 
-          right: '10px', 
-          background: 'white', 
-          padding: '10px', 
-          borderRadius: '4px',
-          zIndex: 1000,
-          boxShadow: '0 1px 5px rgba(0,0,0,0.2)'
+          right: '10px',
+          zIndex: 1000
         }}>
-          <div className="control-header" style={{ marginBottom: '8px', fontWeight: 'bold' }}>
+          <div className="layer-control-header">
             Couches de Street View
           </div>
-          <div>
+          <div className="layer-control-item">
             <input 
               type="checkbox" 
               id="google-layer" 
               checked={visibleLayers.googleStreetView} 
               onChange={() => toggleLayer('googleStreetView')} 
             />
-            <label htmlFor="google-layer" style={{ marginLeft: '5px', color: '#4285F4' }}>Google Street View</label>
+            <label htmlFor="google-layer" style={{ color: '#4285F4' }}>Google Street View</label>
           </div>
-          <div style={{ marginTop: '8px' }}>
+          <div className="layer-control-item">
             <input 
               type="checkbox" 
               id="bing-layer" 
               checked={visibleLayers.bingStreetside} 
               onChange={() => toggleLayer('bingStreetside')} 
             />
-            <label htmlFor="bing-layer" style={{ marginLeft: '5px', color: '#8661C5' }}>Bing Streetside</label>
+            <label htmlFor="bing-layer" style={{ color: '#8661C5' }}>Bing Streetside</label>
           </div>
-          <div style={{ marginTop: '8px' }}>
+          <div className="layer-control-item">
             <input 
               type="checkbox" 
               id="yandex-layer" 
               checked={visibleLayers.yandexPanoramas} 
               onChange={() => toggleLayer('yandexPanoramas')} 
             />
-            <label htmlFor="yandex-layer" style={{ marginLeft: '5px', color: '#FF0000' }}>Yandex Panoramas</label>
+            <label htmlFor="yandex-layer" style={{ color: '#FF0000' }}>Yandex Panoramas</label>
           </div>
         </div>
       )}

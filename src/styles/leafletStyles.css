@@ -1,0 +1,177 @@
+/**
+ * leafletStyles.css
+ * 
+ * Styles modernes pour la carte Leaflet de StreetRadar
+ * Inspirés par les contrôles Tailwind CSS avec des bords arrondis
+ * et une apparence minimaliste et élégante.
+ */
+
+/* Rendre les contrôles plus modernes avec des bords arrondis */
+.streetradar-map.leaflet-touch .leaflet-control-layers,
+.streetradar-map.leaflet-touch .leaflet-bar {
+  border-width: 0;
+}
+
+/* Style pour les boutons de la barre de contrôle */
+.streetradar-map.leaflet-touch .leaflet-bar a {
+  line-height: 1.5;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Arrondir les coins de tous les boutons */
+.streetradar-map.leaflet-touch .leaflet-bar a {
+  border-radius: 8px;
+  border-width: 0;
+}
+
+/* Aligner textuellement les boutons zoom */
+.streetradar-map .leaflet-control-zoom-in,
+.streetradar-map .leaflet-control-zoom-out {
+  font-weight: 400;
+  font-size: 18px;
+  color: #1f2937;
+  text-indent: 0;
+}
+
+/* Espacer les boutons dans la barre */
+.streetradar-map .leaflet-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: transparent;
+}
+
+/* État de survol des boutons */
+.streetradar-map .leaflet-bar a:hover,
+.streetradar-map .leaflet-bar a:focus {
+  background-color: #e5e7eb;
+}
+
+/* Styliser les popups */
+.streetradar-map .leaflet-popup-content-wrapper,
+.streetradar-map .leaflet-popup-tip {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  border-radius: 8px;
+}
+
+.streetradar-map .leaflet-popup-tip {
+  border-radius: 4px;
+}
+
+/* Bouton de fermeture de popup plus élégant */
+.streetradar-map.leaflet-container a.leaflet-popup-close-button {
+  top: -10px;
+  right: -10px;
+  border-radius: 9999px;
+  background-color: #f3f4f6;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.6;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+.streetradar-map.leaflet-container a.leaflet-popup-close-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Style pour le bouton home personnalisé */
+.streetradar-map .home-button {
+  border-radius: 8px !important;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.streetradar-map .home-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Style pour le panneau de contrôle des couches */
+.streetradar-map .layer-controls {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.streetradar-map .layer-control-header {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.streetradar-map .layer-control-item {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  color: #4b5563;
+}
+
+.streetradar-map .layer-control-item label {
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.streetradar-map .layer-control-item input[type="checkbox"] {
+  cursor: pointer;
+}
+
+/* Styles pour le control de couches leaflet natif */
+.streetradar-map .leaflet-control-layers {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.streetradar-map .leaflet-control-layers-toggle {
+  width: 36px;
+  height: 36px;
+  background-size: 20px 20px;
+}
+
+.streetradar-map .leaflet-control-layers-expanded {
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+}
+
+/* Style pour l'échelle */
+.streetradar-map .leaflet-control-scale {
+  margin-bottom: 10px;
+  margin-left: 10px;
+}
+
+.streetradar-map .leaflet-control-scale-line {
+  border-color: #4b5563;
+  color: #4b5563;
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* Assurer que le bouton Home reste en haut */
+.streetradar-map .home-control {
+    margin-bottom: 6px;
+  }
+  
+  /* Assurer que le bouton Home est bien séparé des autres contrôles */
+  .streetradar-map .leaflet-control-container .leaflet-top .leaflet-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
