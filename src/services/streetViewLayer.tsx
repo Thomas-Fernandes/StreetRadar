@@ -40,13 +40,13 @@ interface StreetViewLayerProps {
 const getAttribution = (provider: string): string => {
   switch (provider) {
     case 'google':
-      return '&copy; <a href="https://www.google.com/streetview/" target="_blank">Google Street View</a>';
+      return '&copy; <a href="https://www.google.com/streetview/" target="_blank" rel="noopener noreferrer">Google Street View</a>';
     case 'bing':
-      return '&copy; <a href="https://www.bing.com/maps/streetside" target="_blank">Microsoft Bing Streetside</a>';
+      return '&copy; <a href="https://www.bing.com/maps/streetside" target="_blank" rel="noopener noreferrer">Microsoft Bing Streetside</a>';
     case 'yandex':
-      return '&copy; <a href="https://yandex.com/maps/" target="_blank">Yandex Panoramas</a>';
+      return '&copy; <a href="https://yandex.com/maps/" target="_blank" rel="noopener noreferrer">Yandex Panoramas</a>';
     case 'apple':
-      return '&copy; <a href="https://maps.apple.com" target="_blank">Apple Look Around</a>';
+      return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
     default:
       return '';
   }
