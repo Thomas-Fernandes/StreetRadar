@@ -33,6 +33,26 @@ interface StreetViewLayerProps {
 }
 
 /**
+ * Obtient l'attribution appropriée pour chaque fournisseur
+ * @param provider - Le fournisseur de Street View
+ * @returns La chaîne d'attribution HTML
+ */
+const getAttribution = (provider: string): string => {
+  switch (provider) {
+    case 'google':
+      return '&copy; <a href="https://www.google.com/streetview/" target="_blank" rel="noopener noreferrer">Google Street View</a>';
+    case 'bing':
+      return '&copy; <a href="https://www.bing.com/maps/streetside" target="_blank" rel="noopener noreferrer">Microsoft Bing Streetside</a>';
+    case 'yandex':
+      return '&copy; <a href="https://yandex.com/maps/" target="_blank" rel="noopener noreferrer">Yandex Panoramas</a>';
+    case 'apple':
+      return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
+    default:
+      return '';
+  }
+};
+
+/**
  * Composant qui ajoute une couche de tuiles représentant la couverture Street View
  * d'un fournisseur spécifique à la carte Leaflet.
  */
@@ -43,6 +63,9 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
 
     // Variable pour stocker la référence à la couche créée
     let tileLayer: L.TileLayer | null = null;
+    
+    // Obtenir l'attribution pour ce fournisseur
+    const attribution = getAttribution(provider);
 
     // Sélectionner l'URL appropriée selon le fournisseur
     if (visible) {
@@ -52,6 +75,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
             maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
+            attribution: attribution
           });
           break;
         case 'bing':
@@ -60,6 +84,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
             maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
+            attribution: attribution
           });
           break;
         case 'yandex':
@@ -67,6 +92,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
             maxZoom: 19,
             opacity: 0.9,
             pane: 'overlayPane',
+            attribution: attribution
           });
           break;
         case 'apple':
@@ -77,6 +103,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
               maxZoom: 19,
               opacity: 0.9,
               pane: 'overlayPane',
+              attribution: attribution
             });
           }
           break;
