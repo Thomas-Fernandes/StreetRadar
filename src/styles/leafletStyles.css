@@ -438,3 +438,23 @@
     color: var(--sr-text-light, #666666);
     margin-right: 4px;
   }
+
+/* Add styles for "None" option icon */
+.basemap-icon-none {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="19.07" x2="19.07" y2="4.93"></line></svg>');
+}
+
+/* Make the coverage lines more visible against the plain background */
+.streetradar-map.no-basemap .leaflet-overlay-pane svg path {
+  stroke-width: 2px;
+  stroke-opacity: 0.9;
+}
+
+/* When no basemap is selected, add a subtle grid to help with orientation */
+.streetradar-map.no-basemap {
+  background-color: #f8f9fa;
+  background-image: 
+    linear-gradient(rgba(180, 180, 180, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 180, 180, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
