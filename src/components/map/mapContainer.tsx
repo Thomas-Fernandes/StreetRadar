@@ -158,11 +158,20 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       }
     });
     
-    // Add the selected basemap
-    if (basemapLayersRef.current[basemap]) {
+    // Add the selected basemap (unless "none" is selected)
+    if (basemap !== 'none' && basemapLayersRef.current[basemap]) {
       basemapLayersRef.current[basemap].addTo(mapInstance);
-      setCurrentBasemap(basemap);
     }
+    
+    // Set the background color for "none" option
+    if (basemap === 'none' && mapRef.current) {
+      mapRef.current.style.backgroundColor = '#f8f9fa'; // Light gray background
+    } else if (mapRef.current) {
+      mapRef.current.style.backgroundColor = ''; // Reset background
+    }
+    
+    // Update current basemap state
+    setCurrentBasemap(basemap);
     
     // Close the selector after selection
     setIsBasemapSelectorOpen(false);
@@ -290,6 +299,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             >
               <div className="basemap-option-icon basemap-icon-satellite"></div>
               <span>Satellite</span>
+            </div>
+            <div 
+              className={`basemap-option ${currentBasemap === 'none' ? 'active' : ''}`}
+              onClick={() => changeBasemap('none')}
+            >
+              <div className="basemap-option-icon basemap-icon-none"></div>
+              <span>None</span>
             </div>
           </div>
         </div>
