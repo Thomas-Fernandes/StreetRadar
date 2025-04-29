@@ -438,3 +438,81 @@
     color: var(--sr-text-light, #666666);
     margin-right: 4px;
   }
+
+/* Styles pour le contrôle PegCat */
+.pegcat-control {
+  margin-top: 10px !important; /* Espacement */
+}
+
+.pegcat-button {
+  width: 40px !important;
+  height: 40px !important;
+  background-color: var(--sr-background) !important;
+  color: var(--sr-text) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--sr-shadow-sm) !important;
+  border: 1px solid var(--sr-border-light) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
+}
+
+.pegcat-button:hover {
+  background-color: white !important;
+  color: var(--sr-primary) !important;
+  border-left: 3px solid var(--sr-primary) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--sr-shadow-md) !important;
+}
+
+.pegcat-button.stop {
+  opacity: 0.6;
+  cursor: not-allowed !important;
+}
+
+.pegcat-button.ready {
+  cursor: grab !important;
+}
+
+.pegcat-button.dragging {
+  cursor: grabbing !important;
+}
+
+.pegcat-img-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pegcat-button-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--sr-background);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-left: 10px;
+  white-space: nowrap;
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.pegcat-button:hover .pegcat-button-tooltip {
+  opacity: 1;
+}
+
+.pegcat-button-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  border-style: solid;
+  border-width: 6px 6px 6px 0;
+  border-color: transparent var(--sr-background) transparent transparent;
+}
