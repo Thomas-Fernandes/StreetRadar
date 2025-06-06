@@ -5,11 +5,11 @@
  * 
  * This page serves as the entry point for users and presents the main features
  * of the application. It includes several sections:
- * - A header with logo and navigation
+ * - A header with logo (navigation removed)
  * - A hero section with title and description
  * - A visual preview of the map that links to the full map page
  * - A presentation of supported Street View providers
- * - A minimalist footer
+ * - A minimalist footer with version number
  */
 
 import Link from 'next/link';
@@ -57,11 +57,6 @@ export default function Home() {
               priority
             />
           </div>
-          <nav className="nav">
-            <Link href="/about" className="nav-link">About</Link>
-            <Link href="/api" className="nav-link">API</Link>
-            <Link href="/contact" className="nav-link">Contact</Link>
-          </nav>
         </div>
       </header>
       
@@ -122,7 +117,7 @@ export default function Home() {
               height={35} 
             />
           </div>
-          <span className="copyright">© {new Date().getFullYear()} StreetRadar</span>
+          <span className="copyright">© {new Date().getFullYear()} StreetRadar v0.1</span>
         </div>
       </footer>
     </div>

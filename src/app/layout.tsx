@@ -34,6 +34,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
     title: 'StreetRadar - Carte interactive de couverture Street View',
     description: 'Visualisez la couverture mondiale des services de Street View (Google, Apple, Bing, etc.)',
+    icons: {
+        icon: '/images/logo_no_bg.png',
+        shortcut: '/images/logo_no_bg.png',
+        apple: '/images/logo_no_bg.png',
+    },
 };
 
 /**
