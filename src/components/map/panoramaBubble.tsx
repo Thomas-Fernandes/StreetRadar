@@ -132,13 +132,13 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         }}
       >
         <div style={{ marginBottom: '8px', fontWeight: 500 }}>
-          😿 Aucun panorama disponible
+          😿 No panoramas available
         </div>
         <div style={{ fontSize: '12px', marginBottom: '8px', color: 'var(--sr-text-light, #666)' }}>
-          Position : {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+          Position: {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
         </div>
         <div style={{ fontSize: '12px', marginBottom: '8px', color: 'var(--sr-text-light, #666)' }}>
-          Fournisseurs vérifiés : {detectionResults.map(r => r.provider).join(', ')}
+          Checked providers: {detectionResults.map(r => r.provider).join(', ')}
         </div>
         <button
           onClick={onClose}
@@ -153,7 +153,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
             transition: 'all 0.2s ease'
           }}
         >
-          Fermer
+          Close
         </button>
         <div
           style={{
@@ -282,7 +282,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
             e.currentTarget.style.color = 'var(--sr-primary, #9b4434)';
           }}
         >
-          Fermer
+          Close
         </button>
       </div>
       

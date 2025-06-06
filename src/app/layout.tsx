@@ -32,8 +32,8 @@ const geistMono = Geist_Mono({
 // Métadonnées de l'application (titre, description)
 // Note: À mettre à jour avec les valeurs spécifiques à StreetRadar
 export const metadata: Metadata = {
-    title: 'StreetRadar - Carte interactive de couverture Street View',
-    description: 'Visualisez la couverture mondiale des services de Street View (Google, Apple, Bing, etc.)',
+    title: 'StreetRadar - Interactive Street View Coverage Map',
+    description: 'Discover Street View coverage worldwide. Find panoramas from Google, Bing, Yandex and Apple in one place.',
     icons: {
         icon: '/images/logo_no_bg.png',
         shortcut: '/images/logo_no_bg.png',
@@ -50,7 +50,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="fr">
+        <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 {children}
             </body>
