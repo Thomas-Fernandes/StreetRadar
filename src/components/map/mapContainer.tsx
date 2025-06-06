@@ -65,7 +65,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
   
   // Niveau de zoom minimum pour activer Street View
-  const MIN_ZOOM_FOR_STREETVIEW = 16;
+  const MIN_ZOOM_FOR_STREETVIEW = 12;
 
   // Initialize Leaflet map
   useEffect(() => {
