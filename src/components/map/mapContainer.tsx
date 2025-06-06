@@ -66,8 +66,8 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   // Position en pixels pour les bulles temporaires
   const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{x: number, y: number} | null>(null);
   
-  // Niveau de zoom minimum pour activer Street View - réduit de 3 niveaux (16 -> 13)
-  const MIN_ZOOM_FOR_STREETVIEW = 13;
+  // Niveau de zoom minimum pour activer Street View - réduit de 6 niveaux au total (16 -> 13 -> 10)
+  const MIN_ZOOM_FOR_STREETVIEW = 10;
 
   // Initialize Leaflet map
   useEffect(() => {

@@ -2,6 +2,7 @@
  * pegcatControl.tsx
  * 
  * Contrôle PegCat qui s'intègre dans la structure Leaflet
+ * Version corrigée pour empêcher les clics involontaires
  */
 
 'use client';
@@ -31,6 +32,9 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
   const buttonRef = useRef<HTMLElement | null>(null);
   const imgContainerRef = useRef<HTMLElement | null>(null);
   const tooltipRef = useRef<HTMLElement | null>(null);
+  
+  // Flag pour savoir si on a commencé un drag
+  const isDraggingRef = useRef<boolean>(false);
   
   // Création du contrôle une seule fois
   useEffect(() => {
@@ -62,11 +66,27 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
         imgContainerRef.current = imgContainer;
         tooltipRef.current = tooltip;
         
-        // Prévenir les comportements par défaut
+        // Prévenir les comportements par défaut ET la propagation
         L.DomEvent
           .disableClickPropagation(container)
           .disableScrollPropagation(container)
-          .on(button, 'click', L.DomEvent.preventDefault);
+          .on(button, 'click', function(e) {
+            L.DomEvent.preventDefault(e);
+            L.DomEvent.stopPropagation(e);
+            
+            // Si on n'a pas glissé, c'est un simple clic - ne rien faire
+            if (!isDraggingRef.current) {
+              console.log('🚫 Clic simple sur le bouton PegCat - ignoré');
+            }
+          })
+          .on(button, 'mousedown', function(e) {
+            L.DomEvent.preventDefault(e);
+            L.DomEvent.stopPropagation(e);
+          })
+          .on(button, 'mouseup', function(e) {
+            L.DomEvent.preventDefault(e);
+            L.DomEvent.stopPropagation(e);
+          });
         
         return container;
       }
@@ -98,9 +118,14 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
     };
     
     const handleMapClick = (e: L.LeafletMouseEvent) => {
-      if (pegcatState !== 'dragging' && map.getZoom() >= minZoom) {
-        onMapClick(e.latlng);
-      }
+      // Ne pas traiter le clic si on est en train de glisser le PegCat
+      if (pegcatState === 'dragging') return;
+      
+      // Ne pas traiter le clic si le zoom est insuffisant
+      if (map.getZoom() < minZoom) return;
+      
+      // Appeler la fonction de gestion de clic
+      onMapClick(e.latlng);
     };
     
     map.on('zoomend', handleZoomEnd);
@@ -169,6 +194,10 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
     
     e.preventDefault();
     e.stopPropagation();
+    
+    // Réinitialiser le flag de drag
+    isDraggingRef.current = false;
+    
     setPegcatState('dragging');
     
     setDragPosition({
@@ -177,6 +206,9 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
     });
     
     const moveWithCursor = (event: MouseEvent) => {
+      // Marquer qu'on a bougé (donc c'est bien un drag)
+      isDraggingRef.current = true;
+      
       setDragPosition({
         x: event.clientX,
         y: event.clientY
@@ -187,11 +219,18 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
       setPegcatState('ready');
       setDragPosition(null);
       
-      if (map) {
+      // Si on a vraiment glissé, effectuer le drop
+      if (isDraggingRef.current && map) {
         const point = L.point(event.clientX, event.clientY);
         const latlng = map.containerPointToLatLng(point);
         onPegcatDrop(latlng);
+        console.log('🐱 PegCat dropped via drag and drop');
+      } else {
+        console.log('🚫 Pas de mouvement détecté - drop annulé');
       }
+      
+      // Réinitialiser le flag
+      isDraggingRef.current = false;
       
       document.removeEventListener('mouseup', finishDrag);
       document.removeEventListener('mousemove', moveWithCursor);
