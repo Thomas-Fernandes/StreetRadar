@@ -1,7 +1,7 @@
 /**
  * PanoramaBubble.tsx
  * 
- * Afficher les fournisseurs disponibles à l'utilisateur, avec informations de débogage supplémentaires pour les développeurs.
+ * Afficher les fournisseurs disponibles à l'utilisateur avec un design amélioré.
  * Le popup est maintenant fixe sur la position géographique et suit les mouvements de la carte.
  */
 
@@ -45,7 +45,7 @@ function getPanoramaUrl(result: StreetViewDetectionResult): string {
 
 /**
  * Composant de bulle pour les panoramas détectés
- * Maintenant avec position géographique fixe
+ * Maintenant avec position géographique fixe et design amélioré
  */
 const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({ 
   map, 
@@ -55,6 +55,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
 }) => {
   // État pour la position en pixels sur l'écran
   const [screenPosition, setScreenPosition] = useState<{x: number, y: number} | null>(null);
+  // État pour l'animation d'apparition
+  const [isVisible, setIsVisible] = useState(false);
 
   // Effet pour mettre à jour la position du popup quand la carte bouge
   useEffect(() => {
@@ -86,6 +88,17 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     };
   }, [map, position]);
 
+  // Effet pour l'animation d'apparition
+  useEffect(() => {
+    if (screenPosition) {
+      // Petit délai pour déclencher l'animation
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [screenPosition]);
+
   // Ne pas rendre si on n'a pas encore la position à l'écran
   if (!map || !screenPosition) {
     return null;
@@ -106,14 +119,16 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
           background: '#fefbf1',
           padding: '10px 15px',
           borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
           zIndex: 1000,
-          transform: 'translate(-50%, -100%)',
+          transform: `translate(-50%, -100%) scale(${isVisible ? 1 : 0.8})`,
           fontFamily: 'var(--font-geist-sans, sans-serif)',
           color: 'var(--sr-text, #333)',
           maxWidth: '250px',
           textAlign: 'center',
-          pointerEvents: 'auto' // Permettre les interactions
+          pointerEvents: 'auto',
+          opacity: isVisible ? 1 : 0,
+          transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}
       >
         <div style={{ marginBottom: '8px', fontWeight: 500 }}>
@@ -134,7 +149,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
             padding: '5px 10px',
             borderRadius: '4px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '14px',
+            transition: 'all 0.2s ease'
           }}
         >
           Fermer
@@ -165,20 +181,22 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         background: '#fefbf1',
         padding: '15px',
         borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
         zIndex: 1000,
-        transform: 'translate(-50%, -100%)',
+        transform: `translate(-50%, -100%) scale(${isVisible ? 1 : 0.8})`,
         fontFamily: 'var(--font-geist-sans, sans-serif)',
         color: 'var(--sr-text, #333)',
         maxWidth: '300px',
-        pointerEvents: 'auto' // Permettre les interactions
+        pointerEvents: 'auto',
+        opacity: isVisible ? 1 : 0,
+        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
       }}
     >
       <div style={{ marginBottom: '10px', fontWeight: 500, textAlign: 'center' }}>
-        🐱 Fournisseurs disponibles
+        🐱 Available providers
       </div>
       
-      <div style={{ fontSize: '12px', marginBottom: '8px', color: 'var(--sr-text-light, #666)', textAlign: 'center' }}>
+      <div style={{ fontSize: '12px', marginBottom: '12px', color: 'var(--sr-text-light, #666)', textAlign: 'center' }}>
         Position : {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
       </div>
       
@@ -193,22 +211,29 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              padding: '10px',
-              borderRadius: '6px',
-              background: 'white',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              padding: '12px',
+              borderRadius: '8px',
+              background: '#fefbf1', // Même couleur que le fond du popup
+              border: '1px solid rgba(155, 68, 52, 0.1)',
               textDecoration: 'none',
               color: 'inherit',
-              transition: 'transform 0.2s ease',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              width: '80px', // Largeur fixe pour tous les providers
+              minHeight: '70px' // Hauteur minimale pour éviter les variations
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = 'translateY(-3px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.8)';
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+              e.currentTarget.style.background = '#fefbf1';
             }}
           >
-            <div style={{ width: '32px', height: '32px', position: 'relative', marginBottom: '5px' }}>
+            <div style={{ width: '32px', height: '32px', position: 'relative', marginBottom: '8px' }}>
               <Image
                 src={`/images/providers/${result.provider}.svg`}
                 alt={`${result.provider} Logo`}
@@ -216,33 +241,45 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
                 height={32}
               />
             </div>
-            <div style={{ fontSize: '12px' }}>
+            <div style={{ 
+              fontSize: '14px', 
+              fontWeight: '500',
+              textAlign: 'center',
+              lineHeight: '1.2',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%'
+            }}>
               {result.provider === 'google' && 'Google'}
               {result.provider === 'bing' && 'Bing'}
               {result.provider === 'yandex' && 'Yandex'}
               {result.provider === 'apple' && 'Apple'}
             </div>
-            {/* Afficher l'URL de tuile pour debug */}
-            {result.tileUrl && (
-              <div style={{ fontSize: '8px', color: 'var(--sr-text-light, #666)', marginTop: '2px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {result.tileUrl.substring(0, 30)}...
-              </div>
-            )}
           </a>
         ))}
       </div>
       
-      <div style={{ marginTop: '12px', textAlign: 'center' }}>
+      <div style={{ marginTop: '15px', textAlign: 'center' }}>
         <button
           onClick={onClose}
           style={{
             background: 'transparent',
             border: '1px solid var(--sr-primary, #9b4434)',
             color: 'var(--sr-primary, #9b4434)',
-            padding: '5px 10px',
-            borderRadius: '4px',
+            padding: '6px 12px',
+            borderRadius: '6px',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '14px',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
+            e.currentTarget.style.color = 'white';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'var(--sr-primary, #9b4434)';
           }}
         >
           Fermer

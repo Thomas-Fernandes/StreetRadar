@@ -1,4 +1,5 @@
 /**
+ * panoramaService.ts
  * 
  * Service responsable de la gestion des liens vers les panoramas Street View
  * Version simplifiée temporaire qui se concentre uniquement sur la détection des tuiles.
@@ -34,9 +35,6 @@ export class PanoramaService {
     activeProviders: string[],
     options: PanoramaDetectionOptions = { method: 'canvas' }
   ): Promise<StreetViewDetectionResult[]> {
-    console.log("Détection des panoramas à", latlng.lat, latlng.lng);
-    console.log("Fournisseurs actifs:", activeProviders);
-    
     // Pour l'instant, utiliser uniquement la méthode Canvas
     return StreetViewDetectionCanvas.detectStreetViewAt(
       map,

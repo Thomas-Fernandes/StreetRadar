@@ -66,8 +66,6 @@ export class StreetViewDetectionCanvas {
       config => activeProviders.includes(config.name)
     );
     
-    console.log("Fournisseurs actifs à vérifier:", activeProviders);
-    
     // Pour chaque fournisseur actif
     for (const config of activeConfigs) {
       try {
@@ -81,20 +79,15 @@ export class StreetViewDetectionCanvas {
         const tileInfo = this.findTileForProvider(map, latlng, config);
         
         if (tileInfo) {
-          console.log(`✅ Tuile trouvée pour ${config.name}:`, tileInfo.imgElement.src);
-          
           // Si une tuile est trouvée, considérer que le panorama est disponible
           result.available = true;
           result.closestPoint = latlng; // Utiliser la position du clic comme position du panorama
           result.distance = 0;
           result.tileUrl = tileInfo.imgElement.src;
-        } else {
-          console.log(`❌ Aucune tuile trouvée pour ${config.name}`);
         }
         
         results.push(result);
       } catch (error) {
-        console.error(`❌ Erreur lors de la détection pour ${config.name}:`, error);
         results.push({
           provider: config.name,
           available: false
@@ -102,7 +95,6 @@ export class StreetViewDetectionCanvas {
       }
     }
     
-    console.log("📊 Résultats finaux de détection:", results);
     return results;
   }
 
@@ -134,7 +126,6 @@ export class StreetViewDetectionCanvas {
         layer._tiles && 
         !result
       ) {
-        console.log(`🔍 Couche trouvée pour ${config.name}:`, layer._url);
         const zoom = map.getZoom();
         
         // Utiliser les méthodes Leaflet pour convertir directement
@@ -144,8 +135,6 @@ export class StreetViewDetectionCanvas {
           y: Math.floor(point.y / 256),
           z: zoom
         };
-        
-        console.log(`📍 Coordonnées de tuile pour ${config.name}:`, tileCoords);
         
         // Chercher la tuile dans le cache de la couche
         for (const key in layer._tiles) {
@@ -171,18 +160,12 @@ export class StreetViewDetectionCanvas {
               clickPositionOnTile
             };
             
-            // Log uniquement dans la console pour le debug
-            console.log(`🎯 Tuile trouvée pour ${config.name} à ${tileCoords.x},${tileCoords.y},${tileCoords.z}`);
-            console.log(`📌 Position du clic dans la tuile: ${clickPositionOnTile.x},${clickPositionOnTile.y}`);
-            
             // SUPPRESSION DE TOUT L'AFFICHAGE VISUEL DE DEBUG
             // Plus de debugDiv, plus d'éléments visuels créés dans le DOM
             
             return;
           }
         }
-        
-        console.log(`⚠️ Aucune tuile trouvée pour ${config.name} aux coordonnées`, tileCoords);
       }
     });
   

@@ -17,6 +17,7 @@ import PegcatControl from './pegcatControl'; // Import du nouveau contrôle PegC
 import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
+import Image from 'next/image';
 
 /**
  * Props accepted by the MapContainer component
@@ -68,6 +69,31 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   
   // Niveau de zoom minimum pour activer Street View - réduit de 6 niveaux au total (16 -> 13 -> 10)
   const MIN_ZOOM_FOR_STREETVIEW = 10;
+
+  // Configuration des providers avec leurs informations
+  const providers = [
+    {
+      key: 'googleStreetView',
+      name: 'Street View',
+      shortName: 'Google',
+      logo: '/images/providers/google.svg',
+      color: '#4285F4'
+    },
+    {
+      key: 'bingStreetside',
+      name: 'Streetside',
+      shortName: 'Bing',
+      logo: '/images/providers/bing.svg',
+      color: '#4285F4'
+    },
+    {
+      key: 'yandexPanoramas',
+      name: 'Panoramas',
+      shortName: 'Yandex',
+      logo: '/images/providers/yandex.svg',
+      color: '#8661C5'
+    }
+  ];
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -278,8 +304,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
    * Gère l'événement de dépôt du PegCat sur la carte
    */
   const handlePegcatDrop = async (latlng: L.LatLng) => {
-    console.log('PegCat dropped at:', latlng);
-    
     // Commencer la détection
     await detectPanoramas(latlng, 'drop');
   };
@@ -288,7 +312,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
    * Gère le clic sur la carte quand le zoom est suffisant
    */
   const handleMapClick = async (latlng: L.LatLng) => {
-    console.log('Map clicked at:', latlng);
+    // Si un popup est déjà ouvert, le fermer au lieu d'en ouvrir un nouveau
+    if (detectedPosition) {
+      closePanoramaBubble();
+      return;
+    }
     
     // Commencer la détection
     await detectPanoramas(latlng, 'click');
@@ -323,8 +351,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         activeProviders,
         { method: 'canvas' }
       );
-      
-      console.log('Détection terminée:', results);
       
       // Stocker les résultats
       setDetectionResults(results);
@@ -382,71 +408,97 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
           </div>
           
           <div className={`controls-container ${isPanelCollapsed ? 'collapsed' : ''}`}>
-            {/* Google Street View */}
-            <div 
-              className={`control-item ${visibleLayers.googleStreetView ? 'active google' : ''}`}
-              onClick={() => toggleLayer('googleStreetView')}
-            >
-              <div className="checkbox-container">
-                <input 
-                  type="checkbox" 
-                  id="google-layer" 
-                  checked={visibleLayers.googleStreetView} 
-                  onChange={() => {}} // Controlled by parent div click
-                  onClick={(e) => handleCheckboxClick(e, 'googleStreetView')}
-                  className="checkbox-input google"
-                />
-              </div>
-              <span 
-                className={`provider-label google ${visibleLayers.googleStreetView ? 'active' : ''}`}
+            {providers.map((provider) => (
+              <div 
+                key={provider.key}
+                className={`control-item ${visibleLayers[provider.key as keyof typeof visibleLayers] ? 'active' : ''}`}
+                onClick={() => toggleLayer(provider.key as keyof typeof visibleLayers)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  background: 'transparent',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                  borderTop: '1px solid transparent',
+                  borderRight: '1px solid transparent',
+                  borderBottom: '1px solid transparent',
+                  borderLeft: visibleLayers[provider.key as keyof typeof visibleLayers] 
+                    ? `3px solid ${provider.color}` 
+                    : '1px solid transparent',
+                  ...(visibleLayers[provider.key as keyof typeof visibleLayers] && {
+                    background: `rgba(${provider.color === '#4285F4' ? '66, 133, 244' : '134, 97, 197'}, 0.1)`,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
+                  })
+                }}
+                onMouseOver={(e) => {
+                  if (!visibleLayers[provider.key as keyof typeof visibleLayers]) {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!visibleLayers[provider.key as keyof typeof visibleLayers]) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
               >
-                Google Street View
-              </span>
-            </div>
-            
-            {/* Bing Streetside */}
-            <div 
-              className={`control-item ${visibleLayers.bingStreetside ? 'active bing' : ''}`}
-              onClick={() => toggleLayer('bingStreetside')}
-            >
-              <div className="checkbox-container">
-                <input 
-                  type="checkbox" 
-                  id="bing-layer" 
-                  checked={visibleLayers.bingStreetside} 
-                  onChange={() => {}} // Controlled by parent div click
-                  onClick={(e) => handleCheckboxClick(e, 'bingStreetside')}
-                  className="checkbox-input bing"
-                />
+                {/* Logo du provider */}
+                <div style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  marginRight: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Image
+                    src={provider.logo}
+                    alt={`${provider.shortName} Logo`}
+                    width={20}
+                    height={20}
+                  />
+                </div>
+
+                {/* Checkbox */}
+                <div style={{
+                  position: 'relative',
+                  width: '18px',
+                  height: '18px',
+                  marginRight: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <input 
+                    type="checkbox" 
+                    id={`${provider.key}-layer`}
+                    checked={visibleLayers[provider.key as keyof typeof visibleLayers]}
+                    onChange={() => {}} // Controlled by parent div click
+                    onClick={(e) => handleCheckboxClick(e, provider.key as keyof typeof visibleLayers)}
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      accentColor: provider.color
+                    }}
+                  />
+                </div>
+
+                {/* Nom du provider */}
+                <span 
+                  style={{
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    flex: 1,
+                    color: provider.color,
+                    fontWeight: visibleLayers[provider.key as keyof typeof visibleLayers] ? '500' : '400'
+                  }}
+                >
+                  {provider.name}
+                </span>
               </div>
-              <span 
-                className={`provider-label bing ${visibleLayers.bingStreetside ? 'active' : ''}`}
-              >
-                Bing Streetside
-              </span>
-            </div>
-            
-            {/* Yandex Panoramas */}
-            <div 
-              className={`control-item ${visibleLayers.yandexPanoramas ? 'active yandex' : ''}`}
-              onClick={() => toggleLayer('yandexPanoramas')}
-            >
-              <div className="checkbox-container">
-                <input 
-                  type="checkbox" 
-                  id="yandex-layer" 
-                  checked={visibleLayers.yandexPanoramas} 
-                  onChange={() => {}} // Controlled by parent div click
-                  onClick={(e) => handleCheckboxClick(e, 'yandexPanoramas')}
-                  className="checkbox-input yandex"
-                />
-              </div>
-              <span 
-                className={`provider-label yandex ${visibleLayers.yandexPanoramas ? 'active' : ''}`}
-              >
-                Yandex Panoramas
-              </span>
-            </div>
+            ))}
           </div>
         </div>
       )}

@@ -76,7 +76,7 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
             
             // Si on n'a pas glissé, c'est un simple clic - ne rien faire
             if (!isDraggingRef.current) {
-              console.log('🚫 Clic simple sur le bouton PegCat - ignoré');
+              // Clic simple sur le bouton - ignoré silencieusement
             }
           })
           .on(button, 'mousedown', function(e) {
@@ -224,9 +224,6 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
         const point = L.point(event.clientX, event.clientY);
         const latlng = map.containerPointToLatLng(point);
         onPegcatDrop(latlng);
-        console.log('🐱 PegCat dropped via drag and drop');
-      } else {
-        console.log('🚫 Pas de mouvement détecté - drop annulé');
       }
       
       // Réinitialiser le flag
