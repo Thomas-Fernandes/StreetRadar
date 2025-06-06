@@ -657,7 +657,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
           }}
         >
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid var(--sr-primary, #9b4434)', borderBottomColor: 'transparent', animation: 'spin 1s linear infinite' }}></div>
-          <div>Recherche de panoramas...</div>
+          <div>Searching for panoramas...</div>
           <div
             style={{
               position: 'absolute',

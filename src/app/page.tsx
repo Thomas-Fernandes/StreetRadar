@@ -57,6 +57,10 @@ export default function Home() {
               priority
             />
           </div>
+          <nav className="nav">
+            <Link href="/map" className="nav-link">Map</Link>
+            <Link href="/analytics" className="nav-link">Analytics</Link>
+          </nav>
         </div>
       </header>
       

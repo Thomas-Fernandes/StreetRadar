@@ -1,3 +1,5 @@
+// src/app/map/page.tsx - Version mise à jour avec métadonnées
+
 /**
  * map/page.tsx
  * 
@@ -10,11 +12,18 @@
  */
 
 import MapWrapper from '@/components/map/mapWrapper';
+import type { Metadata } from 'next';
 
 // Métadonnées spécifiques à la page de carte
-export const metadata = {
-  title: 'StreetRadar - Carte interactive',
-  description: 'Carte mondiale interactive des rues streetviewées',
+export const metadata: Metadata = {
+  title: 'StreetRadar - Interactive Map',
+  description: 'Explore worldwide Street View coverage from Google, Bing, Yandex and Apple. Click anywhere to find available panoramas and discover street-level imagery around the world.',
+  keywords: 'street view, google maps, bing streetside, yandex panoramas, apple look around, coverage map, panoramas',
+  openGraph: {
+    title: 'StreetRadar - Interactive Street View Coverage Map',
+    description: 'Discover Street View coverage worldwide. Find panoramas from Google, Bing, Yandex and Apple in one place.',
+    type: 'website',
+  },
 };
 
 /**
