@@ -21,7 +21,7 @@ import dynamic from 'next/dynamic';
 // loading -> Affiche un placeholder pendant le chargement du composant
 const MapContainer = dynamic(() => import('@/components/map/mapContainer'), { 
   ssr: false,
-  loading: () => <div>Chargement de la carte...</div>
+  loading: () => <div>Loading map...</div>
 });
 
 /**
