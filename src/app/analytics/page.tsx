@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
               backgroundClip: 'text',
               color: 'transparent'
             }}>
-              Analytics & Statistics
+              Analytics &amp; Statistics
             </h1>
           </div>
 
@@ -93,7 +93,7 @@ export default function AnalyticsPage() {
               marginBottom: '20px',
               lineHeight: '1.5'
             }}>
-              We're working hard to bring you comprehensive analytics and data visualizations. 
+              We&apos;re working hard to bring you comprehensive analytics and data visualizations. 
               <br />
               <strong>Apple Look Around coverage analysis</strong> will be the first feature to launch!
             </p>
@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
               marginBottom: '40px',
               color: 'var(--text, #333333)'
             }}>
-              What's Coming
+              What&apos;s Coming
             </h3>
             
             <div style={{ 

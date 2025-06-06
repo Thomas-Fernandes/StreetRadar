@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
 import Image from 'next/image';
 
@@ -35,6 +35,69 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
   
   // Flag pour savoir si on a commencé un drag
   const isDraggingRef = useRef<boolean>(false);
+  
+  // Chemin de l'image en fonction de l'état
+  const getPegcatImage = useCallback(() => {
+    switch (pegcatState) {
+      case 'stop':
+        return '/images/pegcat/cat_stop.png';
+      case 'ready':
+        return '/images/pegcat/cat_ready.png';
+      case 'dragging':
+        return '/images/pegcat/cat_drop.png';
+      default:
+        return '/images/pegcat/cat_ready.png';
+    }
+  }, [pegcatState]);
+
+  // Démarrer le drag
+  const startDrag = useCallback((e: MouseEvent) => {
+    if (!map || pegcatState !== 'ready') return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Réinitialiser le flag de drag
+    isDraggingRef.current = false;
+    
+    setPegcatState('dragging');
+    
+    setDragPosition({
+      x: e.clientX,
+      y: e.clientY
+    });
+    
+    const moveWithCursor = (event: MouseEvent) => {
+      // Marquer qu'on a bougé (donc c'est bien un drag)
+      isDraggingRef.current = true;
+      
+      setDragPosition({
+        x: event.clientX,
+        y: event.clientY
+      });
+    };
+    
+    const finishDrag = (event: MouseEvent) => {
+      setPegcatState('ready');
+      setDragPosition(null);
+      
+      // Si on a vraiment glissé, effectuer le drop
+      if (isDraggingRef.current && map) {
+        const point = L.point(event.clientX, event.clientY);
+        const latlng = map.containerPointToLatLng(point);
+        onPegcatDrop(latlng);
+      }
+      
+      // Réinitialiser le flag
+      isDraggingRef.current = false;
+      
+      document.removeEventListener('mouseup', finishDrag);
+      document.removeEventListener('mousemove', moveWithCursor);
+    };
+    
+    document.addEventListener('mouseup', finishDrag);
+    document.addEventListener('mousemove', moveWithCursor);
+  }, [map, pegcatState, onPegcatDrop]);
   
   // Création du contrôle une seule fois
   useEffect(() => {
@@ -172,70 +235,7 @@ const PegcatControl: React.FC<PegcatControlProps> = ({
       button.onmousedown = null;
     }
     
-  }, [pegcatState]);
-
-  // Chemin de l'image en fonction de l'état
-  const getPegcatImage = () => {
-    switch (pegcatState) {
-      case 'stop':
-        return '/images/pegcat/cat_stop.png';
-      case 'ready':
-        return '/images/pegcat/cat_ready.png';
-      case 'dragging':
-        return '/images/pegcat/cat_drop.png';
-      default:
-        return '/images/pegcat/cat_ready.png';
-    }
-  };
-
-  // Démarrer le drag
-  const startDrag = (e: MouseEvent) => {
-    if (!map || pegcatState !== 'ready') return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // Réinitialiser le flag de drag
-    isDraggingRef.current = false;
-    
-    setPegcatState('dragging');
-    
-    setDragPosition({
-      x: e.clientX,
-      y: e.clientY
-    });
-    
-    const moveWithCursor = (event: MouseEvent) => {
-      // Marquer qu'on a bougé (donc c'est bien un drag)
-      isDraggingRef.current = true;
-      
-      setDragPosition({
-        x: event.clientX,
-        y: event.clientY
-      });
-    };
-    
-    const finishDrag = (event: MouseEvent) => {
-      setPegcatState('ready');
-      setDragPosition(null);
-      
-      // Si on a vraiment glissé, effectuer le drop
-      if (isDraggingRef.current && map) {
-        const point = L.point(event.clientX, event.clientY);
-        const latlng = map.containerPointToLatLng(point);
-        onPegcatDrop(latlng);
-      }
-      
-      // Réinitialiser le flag
-      isDraggingRef.current = false;
-      
-      document.removeEventListener('mouseup', finishDrag);
-      document.removeEventListener('mousemove', moveWithCursor);
-    };
-    
-    document.addEventListener('mouseup', finishDrag);
-    document.addEventListener('mousemove', moveWithCursor);
-  };
+  }, [pegcatState, getPegcatImage, startDrag]);
 
   return (
     <>

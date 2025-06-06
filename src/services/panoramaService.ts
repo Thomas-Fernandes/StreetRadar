@@ -26,14 +26,15 @@ export class PanoramaService {
    * @param map La carte Leaflet
    * @param latlng Position géographique où chercher des panoramas
    * @param activeProviders Liste des fournisseurs actifs
-   * @param options Options de détection
+   * @param _options Options de détection (non utilisées pour l'instant)
    * @returns Promesse avec les résultats de détection
    */
   static async detectPanoramasAt(
     map: L.Map,
     latlng: L.LatLng,
     activeProviders: string[],
-    options: PanoramaDetectionOptions = { method: 'canvas' }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options: PanoramaDetectionOptions = { method: 'canvas' }
   ): Promise<StreetViewDetectionResult[]> {
     // Pour l'instant, utiliser uniquement la méthode Canvas
     return StreetViewDetectionCanvas.detectStreetViewAt(

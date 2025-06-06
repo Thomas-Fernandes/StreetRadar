@@ -35,7 +35,7 @@ export interface StreetViewDetectionResult {
   distance?: number;
   panoId?: string;      // ID unique du panorama (utile pour la création de liens directs)
   heading?: number;     // Direction de la caméra vers le point de clic
-  metadata?: any;       // Métadonnées supplémentaires du panorama
+  metadata?: Record<string, unknown>;       // Métadonnées supplémentaires du panorama
 }
 
 /**
@@ -148,7 +148,9 @@ export class StreetViewDetectionAPI {
    * - Documentation: https://developers.google.com/maps/documentation/streetview/metadata
    */
   private static async checkGoogleStreetView(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     latlng: L.LatLng,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
     // Code à implémenter en se basant sur le projet streetlevel
@@ -177,7 +179,9 @@ export class StreetViewDetectionAPI {
    * - S'inspirera du projet streetlevel qui implémente cette logique
    */
   private static async checkBingStreetside(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     latlng: L.LatLng,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
     // Code à implémenter en se basant sur le projet streetlevel
@@ -197,7 +201,9 @@ export class StreetViewDetectionAPI {
    * - S'inspirera du projet streetlevel qui implémente cette logique
    */
   private static async checkYandexPanoramas(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     latlng: L.LatLng,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
     // Code à implémenter en se basant sur le projet streetlevel
@@ -217,7 +223,9 @@ export class StreetViewDetectionAPI {
    * - S'inspirera du projet streetlevel s'il implémente cette fonctionnalité
    */
   private static async checkAppleLookAround(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     latlng: L.LatLng,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
     // À rechercher si une API ou méthode est disponible

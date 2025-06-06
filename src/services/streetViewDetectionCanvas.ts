@@ -88,6 +88,7 @@ export class StreetViewDetectionCanvas {
         
         results.push(result);
       } catch (error) {
+        console.error(`Erreur lors de la détection pour ${config.name}:`, error);
         results.push({
           provider: config.name,
           available: false
@@ -118,12 +119,17 @@ export class StreetViewDetectionCanvas {
     } | null = null;
   
     // Parcourir toutes les couches de la carte
-    map.eachLayer((layer: any) => {
+    map.eachLayer((layer: L.Layer) => {
       // Vérifier si c'est une couche de tuiles correspondant au fournisseur
+      const tileLayer = layer as L.TileLayer & { 
+        _url?: string; 
+        _tiles?: Record<string, { coords: { x: number; y: number; z: number }; el: HTMLImageElement; complete: boolean }> 
+      };
+      
       if (
-        layer._url && 
-        layer._url.includes(config.urlPattern) && 
-        layer._tiles && 
+        tileLayer._url && 
+        tileLayer._url.includes(config.urlPattern) && 
+        tileLayer._tiles && 
         !result
       ) {
         const zoom = map.getZoom();
@@ -137,8 +143,8 @@ export class StreetViewDetectionCanvas {
         };
         
         // Chercher la tuile dans le cache de la couche
-        for (const key in layer._tiles) {
-          const tile = layer._tiles[key];
+        for (const key in tileLayer._tiles) {
+          const tile = tileLayer._tiles[key];
           
           // Si on trouve une tuile qui correspond à nos coordonnées
           if (

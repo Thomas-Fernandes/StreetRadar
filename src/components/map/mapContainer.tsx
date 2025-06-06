@@ -50,8 +50,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [isBasemapSelectorOpen, setIsBasemapSelectorOpen] = useState(false);
   // References to the basemap layers
   const basemapLayersRef = useRef<{[key: string]: L.TileLayer}>({});
-  // État pour savoir si la carte est clickable pour Street View
-  const [mapClickable, setMapClickable] = useState<boolean>(false);
   // Information sur le dernier clic/drop
   const [clickInfo, setClickInfo] = useState<{
     position: L.LatLng | null;
@@ -104,7 +102,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     if (!mapRef.current) return;
 
     // Fix for Leaflet icons
-    delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+    delete (L.Icon.Default.prototype as L.Icon<L.IconOptions> & { _getIconUrl?: unknown })._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/images/marker-icon-2x.png',
       iconUrl: '/images/marker-icon.png',
@@ -186,10 +184,8 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       const currentZoom = mapInstance.getZoom();
       if (currentZoom >= MIN_ZOOM_FOR_STREETVIEW) {
         mapInstance.getContainer().classList.add('map-clickable');
-        setMapClickable(true);
       } else {
         mapInstance.getContainer().classList.remove('map-clickable');
-        setMapClickable(false);
       }
     };
     
@@ -225,13 +221,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     // Écouter les événements de mouvement de la carte
     const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
     events.forEach(event => {
-      mapInstance.on(event as any, updateTempBubblePosition);
+      mapInstance.on(event as keyof L.LeafletEventHandlerFnMap, updateTempBubblePosition);
     });
 
     // Nettoyage des event listeners
     return () => {
       events.forEach(event => {
-        mapInstance.off(event as any, updateTempBubblePosition);
+        mapInstance.off(event as keyof L.LeafletEventHandlerFnMap, updateTempBubblePosition);
       });
     };
   }, [mapInstance, clickInfo?.position]);
@@ -351,7 +347,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     try {
       // Récupérer la liste des fournisseurs actifs
       const activeProviders = Object.entries(visibleLayers)
-        .filter(([_, isVisible]) => isVisible)
+        .filter(([, isVisible]) => isVisible)
         .map(([provider]) => provider.replace('StreetView', '').replace('Streetside', '').replace('Panoramas', '').replace('LookAround', '').toLowerCase());
       
       // Détecter les panoramas disponibles

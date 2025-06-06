@@ -75,15 +75,15 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     updatePosition();
 
     // Écouter les événements de mouvement de la carte
-    const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
+    const events: (keyof L.LeafletEventHandlerFnMap)[] = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
     events.forEach(event => {
-      map.on(event as any, updatePosition);
+      map.on(event, updatePosition);
     });
 
     // Nettoyage des event listeners
     return () => {
       events.forEach(event => {
-        map.off(event as any, updatePosition);
+        map.off(event, updatePosition);
       });
     };
   }, [map, position]);
