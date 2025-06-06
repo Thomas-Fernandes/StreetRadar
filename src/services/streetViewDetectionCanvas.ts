@@ -163,10 +163,11 @@ export class StreetViewDetectionCanvas {
             // SUPPRESSION DE TOUT L'AFFICHAGE VISUEL DE DEBUG
             // Plus de debugDiv, plus d'éléments visuels créés dans le DOM
             
-            return;
+            return result;
           }
         }
       }
+      return null;
     });
   
     return result;
