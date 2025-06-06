@@ -1,7 +1,8 @@
 /**
+ * streetViewDetectionCanvas.ts
  * 
  * Détecte uniquement la présence de tuiles des fournisseurs
- * temporairement : sans analyser le contenu des pixels (algorithme à retraiter).
+ * Version nettoyée sans affichage de debug visuel
  */
 
 import L from 'leaflet';
@@ -14,7 +15,7 @@ export interface StreetViewDetectionResult {
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
-  tileUrl?: string;   // URL de la tuile trouvée (utile pour le debug)
+  tileUrl?: string;   // URL de la tuile trouvée (utile pour le debug console uniquement)
 }
 
 /**
@@ -26,7 +27,7 @@ interface ProviderDetectionConfig {
 }
 
 /**
- * Classe simplifiée pour la détection de Street View par présence de tuiles
+ * Classe pour la détection de Street View par présence de tuiles
  */
 export class StreetViewDetectionCanvas {
   // Configuration de détection pour chaque fournisseur
@@ -51,7 +52,7 @@ export class StreetViewDetectionCanvas {
 
   /**
    * Détecte les tuiles de Street View disponibles à un emplacement donné
-   * Version simplifiée qui vérifie uniquement la présence de tuiles
+   * Version nettoyée sans debug visuel
    */
   static async detectStreetViewAt(
     map: L.Map, 
@@ -65,7 +66,7 @@ export class StreetViewDetectionCanvas {
       config => activeProviders.includes(config.name)
     );
     
-    console.log("Fournisseurs actifs:", activeProviders);
+    console.log("Fournisseurs actifs à vérifier:", activeProviders);
     
     // Pour chaque fournisseur actif
     for (const config of activeConfigs) {
@@ -80,7 +81,7 @@ export class StreetViewDetectionCanvas {
         const tileInfo = this.findTileForProvider(map, latlng, config);
         
         if (tileInfo) {
-          console.log(`Tuile trouvée pour ${config.name}:`, tileInfo.imgElement.src);
+          console.log(`✅ Tuile trouvée pour ${config.name}:`, tileInfo.imgElement.src);
           
           // Si une tuile est trouvée, considérer que le panorama est disponible
           result.available = true;
@@ -88,12 +89,12 @@ export class StreetViewDetectionCanvas {
           result.distance = 0;
           result.tileUrl = tileInfo.imgElement.src;
         } else {
-          console.log(`Aucune tuile trouvée pour ${config.name}`);
+          console.log(`❌ Aucune tuile trouvée pour ${config.name}`);
         }
         
         results.push(result);
       } catch (error) {
-        console.error(`Erreur lors de la détection pour ${config.name}:`, error);
+        console.error(`❌ Erreur lors de la détection pour ${config.name}:`, error);
         results.push({
           provider: config.name,
           available: false
@@ -101,13 +102,13 @@ export class StreetViewDetectionCanvas {
       }
     }
     
-    console.log("Résultats de détection:", results);
+    console.log("📊 Résultats finaux de détection:", results);
     return results;
   }
 
   /**
    * Trouve la tuile et l'élément image pour un fournisseur spécifique
-   * à l'emplacement du clic
+   * à l'emplacement du clic - VERSION NETTOYÉE
    */
   private static findTileForProvider(
     map: L.Map,
@@ -133,7 +134,7 @@ export class StreetViewDetectionCanvas {
         layer._tiles && 
         !result
       ) {
-        console.log(`Couche trouvée pour ${config.name}:`, layer._url);
+        console.log(`🔍 Couche trouvée pour ${config.name}:`, layer._url);
         const zoom = map.getZoom();
         
         // Utiliser les méthodes Leaflet pour convertir directement
@@ -144,7 +145,7 @@ export class StreetViewDetectionCanvas {
           z: zoom
         };
         
-        console.log(`Coordonnées de tuile pour ${config.name}:`, tileCoords);
+        console.log(`📍 Coordonnées de tuile pour ${config.name}:`, tileCoords);
         
         // Chercher la tuile dans le cache de la couche
         for (const key in layer._tiles) {
@@ -170,49 +171,18 @@ export class StreetViewDetectionCanvas {
               clickPositionOnTile
             };
             
-            // Afficher l'image de la tuile en console
-            console.log(`Tuile trouvée pour ${config.name} à ${tileCoords.x},${tileCoords.y},${tileCoords.z}`);
+            // Log uniquement dans la console pour le debug
+            console.log(`🎯 Tuile trouvée pour ${config.name} à ${tileCoords.x},${tileCoords.y},${tileCoords.z}`);
+            console.log(`📌 Position du clic dans la tuile: ${clickPositionOnTile.x},${clickPositionOnTile.y}`);
             
-            // Afficher l'image pour debug
-            const debugDiv = document.createElement('div');
-            debugDiv.style.position = 'fixed';
-            debugDiv.style.top = '10px';
-            debugDiv.style.right = '10px';
-            debugDiv.style.zIndex = '9999';
-            debugDiv.style.background = 'white';
-            debugDiv.style.padding = '5px';
-            debugDiv.style.border = '1px solid black';
-            
-            const imgClone = tile.el.cloneNode(true) as HTMLImageElement;
-            imgClone.style.maxWidth = '200px';
-            imgClone.style.maxHeight = '200px';
-            
-            const titleText = document.createElement('p');
-            titleText.textContent = `Tuile ${config.name}: ${tileCoords.x},${tileCoords.y},${tileCoords.z}`;
-            
-            debugDiv.appendChild(titleText);
-            debugDiv.appendChild(imgClone);
-            
-            // Ajouter un bouton pour fermer
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = 'Fermer';
-            closeBtn.onclick = () => document.body.removeChild(debugDiv);
-            debugDiv.appendChild(closeBtn);
-            
-            document.body.appendChild(debugDiv);
-            
-            // Supprimer automatiquement après 10 secondes
-            setTimeout(() => {
-              if (document.body.contains(debugDiv)) {
-                document.body.removeChild(debugDiv);
-              }
-            }, 10000);
+            // SUPPRESSION DE TOUT L'AFFICHAGE VISUEL DE DEBUG
+            // Plus de debugDiv, plus d'éléments visuels créés dans le DOM
             
             return;
           }
         }
         
-        console.log(`Aucune tuile trouvée pour ${config.name} aux coordonnées`, tileCoords);
+        console.log(`⚠️ Aucune tuile trouvée pour ${config.name} aux coordonnées`, tileCoords);
       }
     });
   
