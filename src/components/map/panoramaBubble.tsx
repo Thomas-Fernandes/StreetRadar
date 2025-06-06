@@ -1,11 +1,13 @@
 /**
+ * PanoramaBubble.tsx
  * 
  * Afficher les fournisseurs disponibles à l'utilisateur, avec informations de débogage supplémentaires pour les développeurs.
+ * Le popup est maintenant fixe sur la position géographique et suit les mouvements de la carte.
  */
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import Image from 'next/image';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
@@ -43,6 +45,7 @@ function getPanoramaUrl(result: StreetViewDetectionResult): string {
 
 /**
  * Composant de bulle pour les panoramas détectés
+ * Maintenant avec position géographique fixe
  */
 const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({ 
   map, 
@@ -50,18 +53,56 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
   position,
   onClose
 }) => {
+  // État pour la position en pixels sur l'écran
+  const [screenPosition, setScreenPosition] = useState<{x: number, y: number} | null>(null);
+
+  // Effet pour mettre à jour la position du popup quand la carte bouge
+  useEffect(() => {
+    if (!map) return;
+
+    const updatePosition = () => {
+      try {
+        const point = map.latLngToContainerPoint(position);
+        setScreenPosition({ x: point.x, y: point.y });
+      } catch (error) {
+        console.error('Erreur lors de la conversion des coordonnées:', error);
+      }
+    };
+
+    // Mettre à jour la position initiale
+    updatePosition();
+
+    // Écouter les événements de mouvement de la carte
+    const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
+    events.forEach(event => {
+      map.on(event as any, updatePosition);
+    });
+
+    // Nettoyage des event listeners
+    return () => {
+      events.forEach(event => {
+        map.off(event as any, updatePosition);
+      });
+    };
+  }, [map, position]);
+
+  // Ne pas rendre si on n'a pas encore la position à l'écran
+  if (!map || !screenPosition) {
+    return null;
+  }
+
   // Filtrer pour ne garder que les fournisseurs disponibles
   const availableProviders = detectionResults.filter(result => result.available);
   
   // Si aucun fournisseur n'est disponible
   if (availableProviders.length === 0) {
-    return map ? (
+    return (
       <div
         className="no-panorama-bubble"
         style={{
           position: 'absolute',
-          left: map.latLngToContainerPoint(position).x,
-          top: map.latLngToContainerPoint(position).y - 30,
+          left: screenPosition.x,
+          top: screenPosition.y - 30,
           background: '#fefbf1',
           padding: '10px 15px',
           borderRadius: '8px',
@@ -71,7 +112,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
           fontFamily: 'var(--font-geist-sans, sans-serif)',
           color: 'var(--sr-text, #333)',
           maxWidth: '250px',
-          textAlign: 'center'
+          textAlign: 'center',
+          pointerEvents: 'auto' // Permettre les interactions
         }}
       >
         <div style={{ marginBottom: '8px', fontWeight: 500 }}>
@@ -109,17 +151,17 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
           }}
         ></div>
       </div>
-    ) : null;
+    );
   }
   
   // Sinon, afficher les fournisseurs disponibles
-  return map ? (
+  return (
     <div
       className="panorama-bubble"
       style={{
         position: 'absolute',
-        left: map.latLngToContainerPoint(position).x,
-        top: map.latLngToContainerPoint(position).y - 30,
+        left: screenPosition.x,
+        top: screenPosition.y - 30,
         background: '#fefbf1',
         padding: '15px',
         borderRadius: '8px',
@@ -128,7 +170,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         transform: 'translate(-50%, -100%)',
         fontFamily: 'var(--font-geist-sans, sans-serif)',
         color: 'var(--sr-text, #333)',
-        maxWidth: '300px'
+        maxWidth: '300px',
+        pointerEvents: 'auto' // Permettre les interactions
       }}
     >
       <div style={{ marginBottom: '10px', fontWeight: 500, textAlign: 'center' }}>
@@ -219,7 +262,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         }}
       ></div>
     </div>
-  ) : null;
+  );
 };
 
 export default PanoramaBubble;

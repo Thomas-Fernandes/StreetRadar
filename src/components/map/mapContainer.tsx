@@ -63,9 +63,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [detectedPosition, setDetectedPosition] = useState<L.LatLng | null>(null);
   // État indiquant si une détection est en cours
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
+  // Position en pixels pour les bulles temporaires
+  const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{x: number, y: number} | null>(null);
   
-  // Niveau de zoom minimum pour activer Street View
-  const MIN_ZOOM_FOR_STREETVIEW = 12;
+  // Niveau de zoom minimum pour activer Street View - réduit de 3 niveaux (16 -> 13)
+  const MIN_ZOOM_FOR_STREETVIEW = 13;
 
   // Initialize Leaflet map
   useEffect(() => {
@@ -169,6 +171,40 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       mapInstance.off('zoomend', handleZoom);
     };
   }, [mapInstance]);
+
+  // Effet pour mettre à jour la position des bulles temporaires
+  useEffect(() => {
+    if (!mapInstance || !clickInfo?.position) {
+      setTempBubbleScreenPos(null);
+      return;
+    }
+
+    const updateTempBubblePosition = () => {
+      try {
+        const point = mapInstance.latLngToContainerPoint(clickInfo.position!);
+        setTempBubbleScreenPos({ x: point.x, y: point.y });
+      } catch (error) {
+        console.error('Erreur lors de la conversion des coordonnées:', error);
+        setTempBubbleScreenPos(null);
+      }
+    };
+
+    // Mettre à jour la position initiale
+    updateTempBubblePosition();
+
+    // Écouter les événements de mouvement de la carte
+    const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
+    events.forEach(event => {
+      mapInstance.on(event as any, updateTempBubblePosition);
+    });
+
+    // Nettoyage des event listeners
+    return () => {
+      events.forEach(event => {
+        mapInstance.off(event as any, updateTempBubblePosition);
+      });
+    };
+  }, [mapInstance, clickInfo?.position]);
 
   // Effet pour faire disparaître la bulle d'info après un délai
   useEffect(() => {
@@ -487,13 +523,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       )}
 
       {/* Bulle d'information temporaire (pour l'indication du clic/drop) */}
-      {clickInfo && clickInfo.position && mapInstance && !isDetecting && !detectedPosition && (
+      {clickInfo && clickInfo.position && mapInstance && !isDetecting && !detectedPosition && tempBubbleScreenPos && (
         <div
           className="info-bubble"
           style={{
             position: 'absolute',
-            left: mapInstance.latLngToContainerPoint(clickInfo.position).x,
-            top: mapInstance.latLngToContainerPoint(clickInfo.position).y - 30,
+            left: tempBubbleScreenPos.x,
+            top: tempBubbleScreenPos.y - 30,
             background: '#fefbf1',
             padding: '8px 12px',
             borderRadius: '6px',
@@ -504,7 +540,8 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             fontFamily: 'var(--font-geist-sans, sans-serif)',
             color: 'var(--sr-text, #333)',
             maxWidth: '250px',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            pointerEvents: 'auto'
           }}
         >
           <div style={{ fontWeight: '500' }}>
@@ -528,13 +565,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       )}
 
       {/* Indicateur pendant la détection */}
-      {isDetecting && clickInfo && clickInfo.position && mapInstance && (
+      {isDetecting && clickInfo && clickInfo.position && mapInstance && tempBubbleScreenPos && (
         <div
           className="detecting-bubble"
           style={{
             position: 'absolute',
-            left: mapInstance.latLngToContainerPoint(clickInfo.position).x,
-            top: mapInstance.latLngToContainerPoint(clickInfo.position).y - 30,
+            left: tempBubbleScreenPos.x,
+            top: tempBubbleScreenPos.y - 30,
             background: '#fefbf1',
             padding: '10px 15px',
             borderRadius: '6px',
@@ -546,7 +583,8 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             color: 'var(--sr-text, #333)',
             display: 'flex',
             alignItems: 'center',
-            gap: '8px'
+            gap: '8px',
+            pointerEvents: 'auto'
           }}
         >
           <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '2px solid var(--sr-primary, #9b4434)', borderBottomColor: 'transparent', animation: 'spin 1s linear infinite' }}></div>
