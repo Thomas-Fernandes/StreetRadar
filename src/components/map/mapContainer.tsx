@@ -66,6 +66,10 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
   // Position en pixels pour les bulles temporaires
   const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{x: number, y: number} | null>(null);
+  // État pour le popup d'avertissement Yandex
+  const [showYandexWarning, setShowYandexWarning] = useState<boolean>(false);
+  // Flag pour savoir si l'avertissement Yandex a déjà été montré
+  const [yandexWarningShown, setYandexWarningShown] = useState<boolean>(false);
   
   // Niveau de zoom minimum pour activer Street View - réduit de 6 niveaux au total (16 -> 13 -> 10)
   const MIN_ZOOM_FOR_STREETVIEW = 10;
@@ -245,6 +249,12 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
 
   // Function to toggle layer visibility
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
+    // Si on active Yandex et qu'il n'était pas déjà activé ET que l'avertissement n'a jamais été montré
+    if (layer === 'yandexPanoramas' && !visibleLayers.yandexPanoramas && !yandexWarningShown) {
+      setShowYandexWarning(true);
+      setYandexWarningShown(true); // Marquer comme montré pour ne plus jamais le montrer
+    }
+    
     setVisibleLayers(prev => ({
       ...prev,
       [layer]: !prev[layer]
@@ -386,6 +396,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const closePanoramaBubble = () => {
     setDetectedPosition(null);
     setDetectionResults([]);
+  };
+
+  /**
+   * Ferme le popup d'avertissement Yandex
+   */
+  const closeYandexWarning = () => {
+    setShowYandexWarning(false);
   };
 
   return (
@@ -665,11 +682,99 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         />
       )}
 
+      {/* Popup d'avertissement pour Yandex */}
+      {showYandexWarning && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 2000,
+            animation: 'fadeIn 0.3s ease'
+          }}
+          onClick={closeYandexWarning}
+        >
+          <div
+            style={{
+              background: '#fefbf1',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+              maxWidth: '400px',
+              width: '90%',
+              fontFamily: 'var(--font-geist-sans, sans-serif)',
+              color: 'var(--sr-text, #333)',
+              textAlign: 'center',
+              transform: 'scale(1)',
+              animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
+            <h3 style={{ 
+              margin: '0 0 16px 0', 
+              fontSize: '20px', 
+              fontWeight: '600',
+              color: 'var(--sr-primary, #9b4434)'
+            }}>
+              Yandex Panoramas - Alpha Feature
+            </h3>
+            <p style={{ 
+              margin: '0 0 20px 0', 
+              fontSize: '16px', 
+              lineHeight: '1.5',
+              color: 'var(--sr-text-light, #666)'
+            }}>
+              Yandex Panoramas support is currently in alpha testing. 
+              Coverage detection and panorama links may not work as expected.
+            </p>
+            <button
+              onClick={closeYandexWarning}
+              style={{
+                background: 'var(--sr-primary, #9b4434)',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = '#7a3429';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
+              }}
+            >
+              I understand
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Style pour l'animation de chargement */}
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+          0% { opacity: 0; }
+          100% { opacity: 1; }
+        }
+        
+        @keyframes popIn {
+          0% { transform: scale(0.8); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
         }
       `}</style>
     </div>
