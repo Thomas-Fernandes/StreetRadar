@@ -96,6 +96,7 @@ class AnalyticsService {
   /**
    * Track layer toggle
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async trackLayerToggle(provider: MapInteraction['provider'], enabled: boolean): Promise<void> {
     await this.trackMapInteraction('layer_toggle', { 
       provider: provider,
@@ -162,7 +163,7 @@ class AnalyticsService {
         }, {} as Record<string, number>) || {};
 
       // Daily visitors
-      const dailyVisitors = pageViews
+      const dailyVisitors: Record<string, Set<string>> = pageViews
         ?.reduce((acc, pv) => {
           const date = new Date(pv.created_at!).toISOString().split('T')[0];
           if (!acc[date]) acc[date] = new Set();
@@ -172,7 +173,7 @@ class AnalyticsService {
 
       const dailyVisitorsCount = Object.entries(dailyVisitors).map(([date, sessions]) => ({
         date,
-        visitors: sessions.size,
+        visitors: (sessions as Set<string>).size,
       }));
 
       return {
