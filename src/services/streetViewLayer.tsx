@@ -19,6 +19,7 @@ import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
+import { createAppleMVTLayer } from './appleMVTLayer';
 
 /**
  * Propriétés pour le composant StreetViewLayer
@@ -62,7 +63,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
     if (!map) return;
 
     // Variable pour stocker la référence à la couche créée
-    let tileLayer: L.TileLayer | null = null;
+    let tileLayer: L.TileLayer | L.GridLayer | null = null;
     
     // Obtenir l'attribution pour ce fournisseur
     const attribution = getAttribution(provider);
@@ -96,14 +97,18 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           });
           break;
         case 'apple':
-          // Implémentation future pour Apple Look Around
+          // Utiliser le layer MVT personnalisé pour Apple
           const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
-          if (appleUrl) {
-            tileLayer = L.tileLayer(appleUrl, {
-              maxZoom: 19,
+          if (appleUrl === 'APPLE_MVT_LAYER') {
+            tileLayer = createAppleMVTLayer({
               opacity: 0.9,
               pane: 'overlayPane',
-              attribution: attribution
+              attribution: attribution,
+              style: {
+                color: '#007AFF',
+                weight: 2,
+                opacity: 0.8
+              }
             });
           }
           break;

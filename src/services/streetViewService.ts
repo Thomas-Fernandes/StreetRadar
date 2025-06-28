@@ -31,16 +31,14 @@ export class StreetViewService {
   /**
    * Génère l'URL pour les tuiles de couverture Apple Look Around
    * 
-   * Note: Actuellement, Apple ne fournit pas d'API publique pour leurs données de couverture.
-   * Cette méthode est un placeholder pour une implémentation future si de telles données
-   * deviennent disponibles.
+   * Cette méthode retourne maintenant un identifiant spécial pour indiquer qu'il faut
+   * utiliser le layer MVT personnalisé au lieu d'un TileLayer standard.
    * 
-   * @returns URL template pour les tuiles Apple Look Around (actuellement vide)
+   * @returns Identifiant spécial pour le layer MVT Apple
    */
   static getAppleLookAroundTileUrl(): string {
-    // Apple n'offre pas d'équivalent public pour le moment
-    // Cette méthode est un placeholder pour une implémentation future
-    return '';
+    // Retourner un identifiant spécial pour indiquer l'utilisation du layer MVT
+    return 'APPLE_MVT_LAYER';
   }
 
   /**

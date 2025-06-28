@@ -40,7 +40,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     googleStreetView: true,
     bingStreetside: true,
     yandexPanoramas: false,
-    appleLookAround: false,
+    appleLookAround: true,
   });
   // Control panel collapsed state
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -94,6 +94,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       shortName: 'Yandex',
       logo: '/images/providers/yandex.svg',
       color: '#8661C5'
+    },
+    {
+      key: 'appleLookAround',
+      name: 'Look Around',
+      shortName: 'Apple',
+      logo: '/images/providers/apple.svg',
+      color: '#007AFF'
     }
   ];
 
@@ -573,6 +580,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             map={mapInstance} 
             provider="yandex" 
             visible={visibleLayers.yandexPanoramas} 
+          />
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="apple" 
+            visible={visibleLayers.appleLookAround} 
           />
         </>
       )}
