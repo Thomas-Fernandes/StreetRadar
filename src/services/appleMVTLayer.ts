@@ -77,8 +77,8 @@ export class AppleMVTLayer extends L.GridLayer {
     };
     
     // Mettre à jour les options avec les limites par défaut
-    (this.options as any).minZoom = 3;
-    (this.options as any).maxZoom = 16;
+    (this.options as L.GridLayerOptions).minZoom = 3;
+    (this.options as L.GridLayerOptions).maxZoom = 16;
     
     if (this._map) {
       this.redraw();
@@ -172,7 +172,8 @@ export class AppleMVTLayer extends L.GridLayer {
   private async renderMVTData(
     ctx: CanvasRenderingContext2D,
     arrayBuffer: ArrayBuffer,
-    coords: L.Coords
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _coords: L.Coords
   ): Promise<void> {
     try {
       // Configuration du style de dessin
@@ -184,8 +185,6 @@ export class AppleMVTLayer extends L.GridLayer {
 
       // Parser les données MVT
       const tile = new VectorTile(new Protobuf(arrayBuffer));
-      
-      let featuresRendered = 0;
       
       // Parcourir tous les layers dans la tuile MVT
       for (const layerName in tile.layers) {
@@ -221,7 +220,6 @@ export class AppleMVTLayer extends L.GridLayer {
               }
               
               ctx.stroke();
-              featuresRendered++;
             }
           }
         }
@@ -229,7 +227,7 @@ export class AppleMVTLayer extends L.GridLayer {
       
       // Features rendered successfully (debug info removed for production)
 
-    } catch (error) {
+    } catch {
       // Silent error handling for production - no visual error indicator
     }
   }

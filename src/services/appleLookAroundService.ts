@@ -11,7 +11,7 @@
  * le protocole Apple Look Around pour créer des liens directs vers les panoramas.
  */
 
-import { APPLE_CONSTANTS, APPLE_API } from '@/types/apple-protobuf';
+import { APPLE_CONSTANTS } from '@/types/apple-protobuf';
 import L from 'leaflet';
 
 /**
@@ -97,15 +97,9 @@ export class AppleLookAroundService {
     lat: number,
     lon: number,
     heading: number = 0,
-    pitch: number = 0
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _pitch: number = 0
   ): string {
-    const panoData: ApplePanoramaData = {
-      latitude: lat,
-      longitude: lon,
-      heading: heading,
-      pitch: pitch
-    };
-
     // Pour l'instant, utilisons une méthode simplifiée qui fonctionne bien
     // Cette URL ouvre Apple Maps avec un zoom élevé sur la position
     const baseUrl = `https://maps.apple.com/?ll=${lat.toFixed(6)},${lon.toFixed(6)}`;
@@ -139,13 +133,13 @@ export class AppleLookAroundService {
     lat: number,
     lon: number,
     heading: number = 0,
-    pitch: number = 0
+    _pitch: number = 0
   ): string {
     const panoData: ApplePanoramaData = {
       latitude: lat,
       longitude: lon,
       heading: heading,
-      pitch: pitch
+      pitch: _pitch
     };
 
     try {
@@ -153,7 +147,7 @@ export class AppleLookAroundService {
       return `https://maps.apple.com/?ll=${lat.toFixed(6)},${lon.toFixed(6)}&_mvs=${mvsParam}`;
     } catch (error) {
       console.warn('Failed to create advanced Look Around link, falling back to basic link:', error);
-      return this.buildLookAroundLink(lat, lon, heading, pitch);
+      return this.buildLookAroundLink(lat, lon, heading, _pitch);
     }
   }
 
@@ -166,8 +160,10 @@ export class AppleLookAroundService {
    * @returns Promise<boolean> indiquant si Look Around est disponible
    */
   static async checkLookAroundAvailability(
-    lat: number,
-    lon: number
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _lat: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _lon: number
   ): Promise<boolean> {
     // TODO: Implémenter la vérification via l'API Apple tile
     // comme décrit dans la documentation (étape 1)
@@ -242,19 +238,18 @@ export class AppleLookAroundService {
       // Calculer la tuile à zoom 17
       const tileCoord = this.wgs84ToTileCoord(lat, lon, APPLE_CONSTANTS.COVERAGE_ZOOM);
       
-      // Construire l'URL de l'API Apple
-      const url = new URL(APPLE_API.TILE_BASE_URL);
-      
-      // Préparer les en-têtes (pour une implémentation future)
-      const headers = {
-        ...APPLE_API.HEADERS,
-        'maps-tile-x': tileCoord.x.toString(),
-        'maps-tile-y': tileCoord.y.toString(),
-        'maps-tile-z': tileCoord.z.toString()
-      };
+      // TODO: Construire l'URL de l'API Apple et préparer les en-têtes pour une implémentation future
+      // const url = new URL(APPLE_API.TILE_BASE_URL);
+      // const headers = {
+      //   ...APPLE_API.HEADERS,
+      //   'maps-tile-x': tileCoord.x.toString(),
+      //   'maps-tile-y': tileCoord.y.toString(),
+      //   'maps-tile-z': tileCoord.z.toString()
+      // };
 
       // Pour l'instant, retourner available: true car nous ne faisons pas l'appel réel
       // Dans le futur, ceci ferait l'appel HTTP et parserait le protobuf
+      console.log('Tile coordinate calculated:', tileCoord);
       
       return {
         available: true,
