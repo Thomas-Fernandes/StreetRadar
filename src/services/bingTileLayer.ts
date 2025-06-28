@@ -1,33 +1,31 @@
 /**
- * bingTileLayer.ts
- * 
- * Extension de TileLayer de Leaflet spécifique à Bing Maps.
- * 
- * Cette classe étend le TileLayer standard de Leaflet pour gérer
- * le système de quadkey spécifique à Bing Maps. Elle remplace la variable {q}
- * dans l'URL par le quadkey correspondant calculé à partir des coordonnées x,y,z.
+ * Bing Maps specific Leaflet TileLayer extension.
+ *
+ * This class extends Leaflet's standard TileLayer to handle
+ * Bing Maps' specific quadkey system. It replaces the {q} variable
+ * in the URL with the corresponding quadkey calculated from x,y,z coordinates.
  */
 
 import L from 'leaflet';
 import { StreetViewService } from './streetViewService';
 
 /**
- * Interface pour les options spécifiques à BingTileLayer
+ * Interface for BingTileLayer specific options
  */
-// Utiliser directement L.TileLayerOptions puisqu'aucune option spécifique n'est nécessaire pour le moment
+// Use L.TileLayerOptions directly since no specific options are needed for now
 export type BingTileLayerOptions = L.TileLayerOptions;
 
 /**
- * Classe pour créer une couche de tuiles Bing Maps avec support des quadkeys
+ * Class to create a Bing Maps tile layer with quadkey support
  */
 export class BingTileLayer extends L.TileLayer {
   constructor(urlTemplate: string, options?: BingTileLayerOptions) {
-    // Nous allons utiliser une approche différente pour gérer les quadkeys
-    // Remplacer {q} par {z}/{x}/{y} pour pouvoir l'intercepter dans createTile
+    // We will use a different approach to handle quadkeys
+    // Replace {q} with {z}/{x}/{y} to intercept it in createTile
     const modifiedUrl = urlTemplate.replace('{q}', '{z}/{x}/{y}');
     super(modifiedUrl, options);
     
-    // Sauvegarder l'URL d'origine pour référence
+    // Save original URL for reference
     this.originalUrl = urlTemplate;
     this.hasQuadKey = urlTemplate.indexOf('{q}') !== -1;
   }
@@ -36,26 +34,26 @@ export class BingTileLayer extends L.TileLayer {
   private hasQuadKey: boolean;
 
   /**
-   * Surchargé de la classe parent pour gérer les quadkeys
+   * Overridden from parent class to handle quadkeys
    */
   getTileUrl(coords: L.Coords): string {
     if (this.hasQuadKey) {
-      // Pour les URLs qui utilisent des quadkeys
+      // For URLs that use quadkeys
       const quadKey = StreetViewService.tileXYToQuadKey(coords.x, coords.y, coords.z);
       return this.originalUrl.replace('{q}', quadKey);
     } else {
-      // Utiliser l'implémentation par défaut pour les autres URLs
+      // Use default implementation for other URLs
       return super.getTileUrl(coords);
     }
   }
 }
 
 /**
- * Fonction d'aide pour créer une instance BingTileLayer
- * 
- * @param urlTemplate - Le modèle d'URL pour les tuiles
- * @param options - Options supplémentaires pour le TileLayer
- * @returns Une nouvelle instance de BingTileLayer
+ * Helper function to create a BingTileLayer instance
+ *
+ * @param urlTemplate - The URL template for tiles
+ * @param options - Additional options for the TileLayer
+ * @returns BingTileLayer instance
  */
 export function createBingTileLayer(urlTemplate: string, options?: BingTileLayerOptions): BingTileLayer {
   return new BingTileLayer(urlTemplate, options);

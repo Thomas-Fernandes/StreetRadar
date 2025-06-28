@@ -188,7 +188,7 @@
     transition: all 0.3s ease;
   }
   
-  /* Mise à jour du style de l'en-tête pour correspondre au control-panel-header */
+  /* Updated header style to match control-panel-header */
   .basemap-selector-header {
     padding: 10px 15px;
     display: flex;
@@ -257,7 +257,7 @@
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%2300b2ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>');
   }
   
-  /* Mise à jour de la flèche pour correspondre à arrow-icon */
+  /* Updated arrow to match arrow-icon */
   .basemap-arrow {
     display: inline-block;
     width: 8px;
@@ -272,7 +272,7 @@
     transform: rotate(-135deg);
   }
   
-  /* Styles extraits de mapContainer.tsx */
+  /* Styles extracted from mapContainer.tsx */
   .control-panel {
     position: absolute;
     top: 15px;
@@ -439,9 +439,9 @@
     margin-right: 4px;
   }
 
-/* Styles pour le contrôle PegCat */
+/* Styles for PegCat control */
 .pegcat-control {
-  margin-top: 10px !important; /* Espacement */
+  margin-top: 10px !important; /* Spacing */
 }
 
 .pegcat-button {

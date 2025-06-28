@@ -1,31 +1,31 @@
 /**
  * yandexTileLayer.ts
  * 
- * Extension de TileLayer de Leaflet spécifique à Yandex Panoramas.
+ * Leaflet TileLayer extension specific to Yandex Panoramas.
  * 
- * Cette classe étend le TileLayer standard de Leaflet pour gérer
- * la projection EPSG:3395 utilisée par Yandex. Elle effectue les conversions
- * nécessaires entre les systèmes de coordonnées pour afficher correctement
- * les tuiles de couverture des panoramas Yandex sur la carte.
+ * This class extends Leaflet's standard TileLayer to handle
+ * the EPSG:3395 projection used by Yandex. It performs the necessary
+ * conversions between coordinate systems to correctly display
+ * Yandex panorama coverage tiles on the map.
  * 
- * La principale complexité vient du fait que Yandex utilise une projection de Mercator
- * légèrement différente (EPSG:3395) de celle utilisée par Leaflet (EPSG:3857).
+ * The main complexity comes from the fact that Yandex uses a slightly
+ * different Mercator projection (EPSG:3395) than the one used by Leaflet (EPSG:3857).
  */
 
 import L from 'leaflet';
 import proj4 from 'proj4';
 
-// Définir les projections nécessaires pour la conversion
+// Define necessary projections for conversion
 proj4.defs('EPSG:3857', '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +no_defs');
 proj4.defs('EPSG:3395', '+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs');
 
 /**
- * Type pour les options du YandexTileLayer
+ * Type for YandexTileLayer options
  */
 export type YandexTileLayerOptions = L.TileLayerOptions;
 
 /**
- * Classe pour créer une couche de tuiles Yandex Panoramas avec support de la projection EPSG:3395
+ * Class to create a Yandex Panoramas tile layer with EPSG:3395 projection support
  */
 export class YandexTileLayer extends L.TileLayer {
   private urlTemplate: string;
@@ -36,32 +36,32 @@ export class YandexTileLayer extends L.TileLayer {
   }
 
   /**
-   * Surchargé de la classe parent pour gérer la conversion de projection
+   * Overridden from parent class to handle projection conversion
    * 
-   * Cette méthode convertit les coordonnées de tuile standard (EPSG:3857)
-   * vers le système utilisé par Yandex (EPSG:3395) avant de construire l'URL.
+   * This method converts standard tile coordinates (EPSG:3857)
+   * to the system used by Yandex (EPSG:3395) before building the URL.
    */
   getTileUrl(coords: L.Coords): string {
     const z = coords.z;
     let x = coords.x;
     let y = coords.y;
     
-    // Pour les zooms faibles, la différence entre les projections est négligeable
+    // For low zooms, the difference between projections is negligible
     if (z < 5) {
       return L.Util.template(this.urlTemplate, { x, y, z });
     }
     
     try {
-      // Convertir les coordonnées de tuile en coordonnées géographiques
+      // Convert tile coordinates to geographic coordinates
       const n = Math.pow(2, z);
       const lng = (x / n) * 360 - 180;
       const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI;
       
-      // Convertir entre les deux systèmes de projection
+      // Convert between the two projection systems
       const point3857 = proj4('EPSG:3857', [lng, lat]);
       const point3395 = proj4('EPSG:3857', 'EPSG:3395', point3857);
       
-      // Calculer les indices de tuile dans la projection de Yandex
+      // Calculate tile indices in Yandex projection
       const earthRadius3395 = 6378137.0;
       const earthCircumference3395 = 2 * Math.PI * earthRadius3395;
       const metersPerPixel3395 = earthCircumference3395 / (256 * Math.pow(2, z));
@@ -73,8 +73,8 @@ export class YandexTileLayer extends L.TileLayer {
       x = Math.floor(xPixel3395 / tileSize);
       y = Math.floor(yPixel3395 / tileSize);
     } catch (error) {
-      console.error("Erreur de conversion de projection pour Yandex:", error);
-      // En cas d'erreur, utiliser les coordonnées originales
+      console.error("Projection conversion error for Yandex:", error);
+      // In case of error, use original coordinates
     }
     
     return L.Util.template(this.urlTemplate, { x, y, z });
@@ -82,11 +82,11 @@ export class YandexTileLayer extends L.TileLayer {
 }
 
 /**
- * Fonction d'aide pour créer une instance YandexTileLayer
+ * Helper function to create a YandexTileLayer instance
  * 
- * @param urlTemplate - Le modèle d'URL pour les tuiles Yandex
- * @param options - Options supplémentaires pour le TileLayer
- * @returns Une nouvelle instance de YandexTileLayer
+ * @param urlTemplate - The URL template for Yandex tiles
+ * @param options - Additional options for the TileLayer
+ * @returns A new YandexTileLayer instance
  */
 export function createYandexTileLayer(urlTemplate: string, options?: YandexTileLayerOptions): YandexTileLayer {
   return new YandexTileLayer(urlTemplate, options);

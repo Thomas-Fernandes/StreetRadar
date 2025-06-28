@@ -1,25 +1,24 @@
 /**
- * streetViewDetectionCanvas.ts
- * 
- * Détecte uniquement la présence de tuiles des fournisseurs
- * Version nettoyée sans affichage de debug visuel
+ * Street View detection service using Canvas API for visual tile analysis.
+ * Detects only the presence of tiles from providers
+ * Cleaned version without visual debug display
  */
 
 import L from 'leaflet';
 
 /**
- * Interface pour les résultats de détection
+ * Interface for detection results
  */
 export interface StreetViewDetectionResult {
   provider: 'google' | 'bing' | 'yandex' | 'apple';
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
-  tileUrl?: string;   // URL de la tuile trouvée (utile pour le debug console uniquement)
+  tileUrl?: string;   // URL of found tile (useful for console debug only)
 }
 
 /**
- * Interface pour les paramètres de détection spécifiques à chaque fournisseur
+ * Interface for provider-specific detection parameters
  */
 interface ProviderDetectionConfig {
   name: 'google' | 'bing' | 'yandex' | 'apple';
@@ -27,10 +26,10 @@ interface ProviderDetectionConfig {
 }
 
 /**
- * Classe pour la détection de Street View par présence de tuiles
+ * Class for Street View detection by tile presence
  */
 export class StreetViewDetectionCanvas {
-  // Configuration de détection pour chaque fournisseur
+  // Detection configuration for each provider
   private static providerConfigs: ProviderDetectionConfig[] = [
     {
       name: 'google',
@@ -46,13 +45,13 @@ export class StreetViewDetectionCanvas {
     },
     {
       name: 'apple',
-      urlPattern: 'apple.com'
+      urlPattern: 'streetradar.app'
     }
   ];
 
   /**
-   * Détecte les tuiles de Street View disponibles à un emplacement donné
-   * Version nettoyée sans debug visuel
+   * Detects available Street View tiles at a given location
+   * Cleaned version without visual debug
    */
   static async detectStreetViewAt(
     map: L.Map, 
@@ -61,34 +60,44 @@ export class StreetViewDetectionCanvas {
   ): Promise<StreetViewDetectionResult[]> {
     const results: StreetViewDetectionResult[] = [];
     
-    // Ne traiter que les fournisseurs actifs
+    // Only process active providers
     const activeConfigs = this.providerConfigs.filter(
       config => activeProviders.includes(config.name)
     );
     
-    // Pour chaque fournisseur actif
+    // For each active provider
     for (const config of activeConfigs) {
       try {
-        // Initialiser le résultat pour ce fournisseur
+        // Initialize result for this provider
         const result: StreetViewDetectionResult = {
           provider: config.name,
           available: false
         };
         
-        // Trouver la tuile correspondante dans les couches de la carte
-        const tileInfo = this.findTileForProvider(map, latlng, config);
-        
-        if (tileInfo) {
-          // Si une tuile est trouvée, considérer que le panorama est disponible
+        // Specialized logic for Apple MVT Layer
+        if (config.name === 'apple') {
+          // For Apple, since it's enabled in the panel, we consider it available
+          // (simplified logic as Apple MVT layer has a different architecture)
           result.available = true;
-          result.closestPoint = latlng; // Utiliser la position du clic comme position du panorama
+          result.closestPoint = latlng;
           result.distance = 0;
-          result.tileUrl = tileInfo.imgElement.src;
+          result.tileUrl = 'Apple MVT Layer Active';
+        } else {
+          // Standard logic for other providers
+          const tileInfo = this.findTileForProvider(map, latlng, config);
+          
+          if (tileInfo) {
+            // If a tile is found, consider the panorama available
+            result.available = true;
+                          result.closestPoint = latlng; // Use click position as panorama position
+            result.distance = 0;
+            result.tileUrl = tileInfo.imgElement.src;
+          }
         }
         
         results.push(result);
       } catch (error) {
-        console.error(`Erreur lors de la détection pour ${config.name}:`, error);
+        console.error(`Error during detection for ${config.name}:`, error);
         results.push({
           provider: config.name,
           available: false
@@ -100,8 +109,8 @@ export class StreetViewDetectionCanvas {
   }
 
   /**
-   * Trouve la tuile et l'élément image pour un fournisseur spécifique
-   * à l'emplacement du clic - VERSION NETTOYÉE
+   * Finds the tile and image element for a specific provider
+   * at the click location - CLEANED VERSION
    */
   private static findTileForProvider(
     map: L.Map,
@@ -118,9 +127,9 @@ export class StreetViewDetectionCanvas {
       clickPositionOnTile: { x: number; y: number };
     } | null = null;
   
-    // Parcourir toutes les couches de la carte
+    // Iterate through all layers on the map
     map.eachLayer((layer: L.Layer) => {
-      // Vérifier si c'est une couche de tuiles correspondant au fournisseur
+      // Check if it's a tile layer corresponding to the provider
       const tileLayer = layer as L.TileLayer & { 
         _url?: string; 
         _tiles?: Record<string, { coords: { x: number; y: number; z: number }; el: HTMLImageElement; complete: boolean }> 
@@ -134,7 +143,7 @@ export class StreetViewDetectionCanvas {
       ) {
         const zoom = map.getZoom();
         
-        // Utiliser les méthodes Leaflet pour convertir directement
+        // Use Leaflet methods to convert directly
         const point = map.project(latlng, zoom);
         const tileCoords = {
           x: Math.floor(point.x / 256),
@@ -142,11 +151,11 @@ export class StreetViewDetectionCanvas {
           z: zoom
         };
         
-        // Chercher la tuile dans le cache de la couche
+        // Find the tile in the layer cache
         for (const key in tileLayer._tiles) {
           const tile = tileLayer._tiles[key];
           
-          // Si on trouve une tuile qui correspond à nos coordonnées
+          // If we find a tile that matches our coordinates
           if (
             tile.coords.x === tileCoords.x && 
             tile.coords.y === tileCoords.y && 
@@ -154,7 +163,7 @@ export class StreetViewDetectionCanvas {
             tile.el && 
             tile.el.complete
           ) {
-            // Calculer la position du clic à l'intérieur de la tuile (en pixels)
+            // Calculate click position inside the tile (in pixels)
             const clickPositionOnTile = {
               x: Math.floor(point.x % 256),
               y: Math.floor(point.y % 256)
@@ -166,8 +175,8 @@ export class StreetViewDetectionCanvas {
               clickPositionOnTile
             };
             
-            // SUPPRESSION DE TOUT L'AFFICHAGE VISUEL DE DEBUG
-            // Plus de debugDiv, plus d'éléments visuels créés dans le DOM
+            // REMOVED ALL VISUAL DEBUG DISPLAY
+            // No more debugDiv, no more visual elements created in the DOM
             
             return result;
           }
@@ -180,7 +189,7 @@ export class StreetViewDetectionCanvas {
   }
 
   /**
-   * Convertit des coordonnées géographiques en coordonnées de pixel sur la carte
+   * Converts geographic coordinates to pixel coordinates on the map
    */
   private static latLngToTilePoint(latlng: L.LatLng, zoom: number): L.Point {
     const projectedPoint = L.CRS.EPSG3857.latLngToPoint(latlng, zoom);
@@ -188,7 +197,31 @@ export class StreetViewDetectionCanvas {
   }
 
   /**
-   * Crée une clé d'identification pour une tuile
+   * Checks if the Apple MVT layer is present and active on the map
+   * (Method for future use - currently not used)
+   */
+  private static checkAppleMVTLayer(map: L.Map): boolean {
+    let hasAppleMVTLayer = false;
+    
+    map.eachLayer((layer: L.Layer) => {
+        // Check if it's the Apple MVT layer (AppleMVTLayer)
+  // We can identify the layer by its attribution or properties
+      const layerWithOptions = layer as L.Layer & { 
+        options?: { attribution?: string };
+        getTileJSONMetadata?: () => unknown;
+      };
+      
+      if (layerWithOptions.options?.attribution?.includes('Apple Look Around') ||
+          layerWithOptions.getTileJSONMetadata) {
+        hasAppleMVTLayer = true;
+      }
+    });
+    
+    return hasAppleMVTLayer;
+  }
+
+  /**
+   * Creates an identification key for a tile
    */
   private static getTileId(coords: { x: number; y: number; z: number }): string {
     return `${coords.x}:${coords.y}:${coords.z}`;

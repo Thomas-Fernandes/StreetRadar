@@ -1,15 +1,15 @@
 /**
  * StreetViewLayer.tsx
  * 
- * Composant React pour gérer l'affichage des couches de couverture Street View sur la carte.
+ * React component to manage the display of Street View coverage layers on the map.
  * 
- * Ce composant est responsable de l'ajout et la suppression des couches de tuiles
- * représentant la couverture Street View des différents fournisseurs (Google, Apple, etc.)
- * sur la carte Leaflet. Il gère l'état de visibilité des couches et s'occupe de nettoyer
- * les ressources lorsque les propriétés changent ou que le composant est démonté.
+ * This component is responsible for adding and removing tile layers
+ * representing Street View coverage from different providers (Google, Apple, etc.)
+ * on the Leaflet map. It manages layer visibility state and handles cleaning up
+ * resources when properties change or when the component is unmounted.
  * 
- * Il n'a pas de rendu visuel propre (retourne null) car il manipule directement
- * l'instance de carte Leaflet via ses effets.
+ * It has no visual rendering of its own (returns null) as it directly manipulates
+ * the Leaflet map instance through its effects.
  */
 
 'use client';
@@ -19,12 +19,13 @@ import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
+import { createAppleMVTLayer } from './appleMVTLayer';
 
 /**
- * Propriétés pour le composant StreetViewLayer
- * @property map - L'instance de la carte Leaflet
- * @property provider - Le fournisseur de Street View à afficher
- * @property visible - Si la couche doit être visible ou non
+ * Properties for the StreetViewLayer component
+ * @property map - The Leaflet map instance
+ * @property provider - The Street View provider to display
+ * @property visible - Whether the layer should be visible or not
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
@@ -33,9 +34,9 @@ interface StreetViewLayerProps {
 }
 
 /**
- * Obtient l'attribution appropriée pour chaque fournisseur
- * @param provider - Le fournisseur de Street View
- * @returns La chaîne d'attribution HTML
+ * Gets the appropriate attribution for each provider
+ * @param provider - The Street View provider
+ * @returns The HTML attribution string
  */
 const getAttribution = (provider: string): string => {
   switch (provider) {
@@ -53,21 +54,21 @@ const getAttribution = (provider: string): string => {
 };
 
 /**
- * Composant qui ajoute une couche de tuiles représentant la couverture Street View
- * d'un fournisseur spécifique à la carte Leaflet.
+ * Component that adds a tile layer representing Street View coverage
+ * from a specific provider to the Leaflet map.
  */
 const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visible }) => {
   useEffect(() => {
-    // Ne rien faire si la carte n'est pas initialisée
+    // Do nothing if the map is not initialized
     if (!map) return;
 
-    // Variable pour stocker la référence à la couche créée
-    let tileLayer: L.TileLayer | null = null;
+    // Variable to store the reference to the created layer
+    let tileLayer: L.TileLayer | L.GridLayer | null = null;
     
-    // Obtenir l'attribution pour ce fournisseur
+    // Get attribution for this provider
     const attribution = getAttribution(provider);
 
-    // Sélectionner l'URL appropriée selon le fournisseur
+    // Select appropriate URL based on provider
     if (visible) {
       switch (provider) {
         case 'google':
@@ -79,7 +80,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           });
           break;
         case 'bing':
-          // Utiliser notre TileLayer personnalisé pour Bing qui gère les quadkeys
+          // Use our custom TileLayer for Bing that handles quadkeys
           tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
             maxZoom: 19,
             opacity: 0.9,
@@ -96,35 +97,39 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           });
           break;
         case 'apple':
-          // Implémentation future pour Apple Look Around
+          // Use custom MVT layer for Apple
           const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
-          if (appleUrl) {
-            tileLayer = L.tileLayer(appleUrl, {
-              maxZoom: 19,
+          if (appleUrl === 'APPLE_MVT_LAYER') {
+            tileLayer = createAppleMVTLayer({
               opacity: 0.9,
               pane: 'overlayPane',
-              attribution: attribution
+              attribution: attribution,
+              style: {
+                color: '#e74c3c',
+                weight: 2,
+                opacity: 0.8
+              }
             });
           }
           break;
       }
       
-      // Ajouter la couche à la carte si elle a été créée
+      // Add layer to map if it was created
       if (tileLayer) {
         tileLayer.addTo(map);
       }
     }
 
-    // Fonction de nettoyage exécutée lors du démontage ou changement des dépendances
+    // Cleanup function executed on unmount or dependency changes
     return () => {
-      // Supprimer la couche de la carte si elle existe
+      // Remove layer from map if it exists
       if (tileLayer && map.hasLayer(tileLayer)) {
         map.removeLayer(tileLayer);
       }
     };
-  }, [map, provider, visible]); // Dépendances de l'effet
+  }, [map, provider, visible]); // Effect dependencies
 
-  // Ce composant ne rend rien directement dans le DOM
+  // This component renders nothing directly in the DOM
   return null;
 };
 
