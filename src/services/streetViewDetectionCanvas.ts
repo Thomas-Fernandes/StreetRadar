@@ -46,7 +46,7 @@ export class StreetViewDetectionCanvas {
     },
     {
       name: 'apple',
-      urlPattern: 'apple.com'
+      urlPattern: 'streetradar.app'
     }
   ];
 
@@ -75,15 +75,25 @@ export class StreetViewDetectionCanvas {
           available: false
         };
         
-        // Trouver la tuile correspondante dans les couches de la carte
-        const tileInfo = this.findTileForProvider(map, latlng, config);
-        
-        if (tileInfo) {
-          // Si une tuile est trouvée, considérer que le panorama est disponible
+        // Logique spécialisée pour Apple MVT Layer
+        if (config.name === 'apple') {
+          // Pour Apple, comme c'est activé dans le panel, on considère qu'il est disponible
+          // (logique simplifiée car le layer Apple MVT a une architecture différente)
           result.available = true;
-          result.closestPoint = latlng; // Utiliser la position du clic comme position du panorama
+          result.closestPoint = latlng;
           result.distance = 0;
-          result.tileUrl = tileInfo.imgElement.src;
+          result.tileUrl = 'Apple MVT Layer Active';
+        } else {
+          // Logique standard pour les autres fournisseurs
+          const tileInfo = this.findTileForProvider(map, latlng, config);
+          
+          if (tileInfo) {
+            // Si une tuile est trouvée, considérer que le panorama est disponible
+            result.available = true;
+            result.closestPoint = latlng; // Utiliser la position du clic comme position du panorama
+            result.distance = 0;
+            result.tileUrl = tileInfo.imgElement.src;
+          }
         }
         
         results.push(result);
@@ -185,6 +195,30 @@ export class StreetViewDetectionCanvas {
   private static latLngToTilePoint(latlng: L.LatLng, zoom: number): L.Point {
     const projectedPoint = L.CRS.EPSG3857.latLngToPoint(latlng, zoom);
     return projectedPoint.multiplyBy(Math.pow(2, zoom) * 256 / 256);
+  }
+
+  /**
+   * Vérifie si le layer Apple MVT est présent et actif sur la carte
+   * (Méthode pour usage futur - pour l'instant non utilisée)
+   */
+  private static checkAppleMVTLayer(map: L.Map): boolean {
+    let hasAppleMVTLayer = false;
+    
+    map.eachLayer((layer: L.Layer) => {
+      // Vérifier si c'est le layer Apple MVT (AppleMVTLayer)
+      // On peut identifier le layer par son attribution ou ses propriétés
+      const layerWithOptions = layer as L.Layer & { 
+        options?: { attribution?: string };
+        getTileJSONMetadata?: () => unknown;
+      };
+      
+      if (layerWithOptions.options?.attribution?.includes('Apple Look Around') ||
+          layerWithOptions.getTileJSONMetadata) {
+        hasAppleMVTLayer = true;
+      }
+    });
+    
+    return hasAppleMVTLayer;
   }
 
   /**

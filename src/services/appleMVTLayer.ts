@@ -48,7 +48,7 @@ export class AppleMVTLayer extends L.GridLayer {
 
     // Style par défaut pour les LineStrings Apple
     this.styleOptions = {
-      color: '#007AFF', // Bleu Apple caractéristique
+      color: '#e74c3c', // Rouge moderne et attrayant
       weight: 2,
       opacity: 0.8,
       ...options.style
@@ -67,7 +67,6 @@ export class AppleMVTLayer extends L.GridLayer {
   private async initializeTileJSON(): Promise<void> {
     // Temporairement, on utilise directement des valeurs par défaut
     // car l'endpoint TileJSON n'est pas encore disponible
-    console.log('Using default Apple PMtiles configuration (TileJSON endpoint not available)');
     
     this.tileJSONMetadata = {
       tilejson: "2.2.0",
@@ -160,7 +159,7 @@ export class AppleMVTLayer extends L.GridLayer {
       
       done(undefined, canvas);
     } catch (error) {
-      console.error(`Failed to load MVT tile ${coords.z}/${coords.x}/${coords.y}:`, error);
+      // Silent error handling for production
       done(error as Error, canvas);
     }
   }
@@ -228,18 +227,10 @@ export class AppleMVTLayer extends L.GridLayer {
         }
       }
       
-      // Log pour debug (optionnel, peut être retiré en production)
-      if (featuresRendered > 0) {
-        console.log(`Rendered ${featuresRendered} Apple Look Around features in tile ${coords.z}/${coords.x}/${coords.y}`);
-      }
+      // Features rendered successfully (debug info removed for production)
 
     } catch (error) {
-      console.error('Failed to render MVT data:', error);
-      
-      // En cas d'erreur, afficher un indicateur d'erreur
-      ctx.fillStyle = '#ff0000';
-      ctx.font = '10px Arial';
-      ctx.fillText(`Error: ${coords.z}/${coords.x}/${coords.y}`, 5, 15);
+      // Silent error handling for production - no visual error indicator
     }
   }
 

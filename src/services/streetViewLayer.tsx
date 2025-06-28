@@ -105,7 +105,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
               pane: 'overlayPane',
               attribution: attribution,
               style: {
-                color: '#007AFF',
+                color: '#e74c3c',
                 weight: 2,
                 opacity: 0.8
               }

@@ -11,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import Image from 'next/image';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
+import { AppleLookAroundService } from '@/services/appleLookAroundService';
 
 interface PanoramaBubbleProps {
   map: L.Map | null;
@@ -36,8 +37,11 @@ function getPanoramaUrl(result: StreetViewDetectionResult): string {
     case 'yandex':
       return `https://yandex.com/maps/?panorama%5Bpoint%5D=${lng}%2C${lat}&l=stv`;
     case 'apple':
-      // Apple n'a pas d'URL publique pour Look Around, rediriger vers Maps
-      return `https://maps.apple.com/?ll=${lat},${lng}&spn=0.001,0.001`;
+      // Utiliser le service Apple Look Around pour générer un lien optimisé
+      return AppleLookAroundService.buildOptimizedLookAroundLink(
+        parseFloat(lat),
+        parseFloat(lng)
+      );
     default:
       return '#';
   }

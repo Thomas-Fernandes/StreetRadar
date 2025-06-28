@@ -89,18 +89,18 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       color: '#4285F4'
     },
     {
+      key: 'appleLookAround',
+      name: 'Look Around',
+      shortName: 'Apple',
+      logo: '/images/providers/apple.svg',
+      color: '#e74c3c'
+    },
+    {
       key: 'yandexPanoramas',
       name: 'Panoramas',
       shortName: 'Yandex',
       logo: '/images/providers/yandex.svg',
       color: '#8661C5'
-    },
-    {
-      key: 'appleLookAround',
-      name: 'Look Around',
-      shortName: 'Apple',
-      logo: '/images/providers/apple.svg',
-      color: '#007AFF'
     }
   ];
 
@@ -448,7 +448,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                     ? `3px solid ${provider.color}` 
                     : '1px solid transparent',
                   ...(visibleLayers[provider.key as keyof typeof visibleLayers] && {
-                    background: `rgba(${provider.color === '#4285F4' ? '66, 133, 244' : '134, 97, 197'}, 0.1)`,
+                    background: `rgba(${
+                      provider.color === '#4285F4' ? '66, 133, 244' : 
+                      provider.color === '#8661C5' ? '134, 97, 197' :
+                      provider.color === '#e74c3c' ? '231, 76, 60' : '134, 97, 197'
+                    }, 0.1)`,
                     boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)'
                   })
                 }}
