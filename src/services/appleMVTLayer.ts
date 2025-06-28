@@ -1,11 +1,9 @@
 /**
- * AppleMVTLayer.ts
- * 
- * Layer Leaflet personnalisé pour gérer l'affichage des tuiles vectorielles MVT d'Apple Look Around.
- * 
- * Ce layer étend GridLayer de Leaflet pour créer des tuiles personnalisées qui récupèrent
- * et affichent les données vectorielles au format MVT depuis le CDN PMtiles.
- * Il gère les réponses 200 (données), 204 (tuile vide) et 404 (hors limites).
+ * Custom Leaflet layer to manage the display of Apple Look Around MVT vector tiles.
+ *
+ * This layer extends Leaflet's GridLayer to create custom tiles that fetch
+ * and display vector data in MVT format from the PMtiles CDN.
+ * It handles 200 (data), 204 (empty tile) and 404 (out of bounds) responses.
  */
 
 import L from 'leaflet';
@@ -14,7 +12,7 @@ import { VectorTile } from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 
 /**
- * Options pour le layer MVT Apple
+ * Options for the MVT Apple layer
  */
 export interface AppleMVTLayerOptions extends L.GridLayerOptions {
   style?: {
@@ -25,7 +23,7 @@ export interface AppleMVTLayerOptions extends L.GridLayerOptions {
 }
 
 /**
- * Layer personnalisé pour afficher les tuiles vectorielles MVT d'Apple
+ * Custom layer to display Apple MVT vector tiles
  */
 export class AppleMVTLayer extends L.GridLayer {
   private tileJSONMetadata: TileJSONMetadata | null = null;
@@ -36,7 +34,7 @@ export class AppleMVTLayer extends L.GridLayer {
   };
 
   constructor(options: AppleMVTLayerOptions = {}) {
-    // Configuration par défaut du layer
+    // Default layer configuration
     const defaultOptions: L.GridLayerOptions = {
       maxZoom: 16,
       minZoom: 3,
@@ -46,27 +44,27 @@ export class AppleMVTLayer extends L.GridLayer {
 
     super(defaultOptions);
 
-    // Style par défaut pour les LineStrings Apple
+    // Default style for Apple LineStrings
     this.styleOptions = {
-      color: '#e74c3c', // Rouge moderne et attrayant
+      color: '#e74c3c', // Modern and attractive red
       weight: 2,
       opacity: 0.8,
       ...options.style
     };
 
-    // Nettoyer le cache pour utiliser les URLs finales (tiles.streetradar.app)
+    // Clear cache to use final URLs (tiles.streetradar.app)
     ApplePMTilesService.clearCache();
     
-    // Initialiser les métadonnées TileJSON
+    // Initialize TileJSON metadata
     this.initializeTileJSON();
   }
 
   /**
-   * Initialise les métadonnées TileJSON de manière asynchrone
+   * Initializes TileJSON metadata asynchronously
    */
   private async initializeTileJSON(): Promise<void> {
-    // Temporairement, on utilise directement des valeurs par défaut
-    // car l'endpoint TileJSON n'est pas encore disponible
+    // Temporarily, use default values directly
+    // because the TileJSON endpoint is not yet available
     
     this.tileJSONMetadata = {
       tilejson: "2.2.0",
@@ -76,7 +74,7 @@ export class AppleMVTLayer extends L.GridLayer {
       attribution: "© Apple Look Around"
     };
     
-    // Mettre à jour les options avec les limites par défaut
+    // Update options with default limits
     (this.options as L.GridLayerOptions).minZoom = 3;
     (this.options as L.GridLayerOptions).maxZoom = 16;
     
@@ -86,27 +84,27 @@ export class AppleMVTLayer extends L.GridLayer {
   }
 
   /**
-   * Crée une tuile personnalisée pour afficher les données MVT
-   * Cette méthode est appelée par Leaflet pour chaque tuile visible
+   * Creates a custom tile to display MVT data
+   * This method is called by Leaflet for each visible tile
    */
   createTile(coords: L.Coords, done: L.DoneCallback): HTMLElement {
-    // Créer un élément canvas pour dessiner les LineStrings
+    // Create canvas element to draw LineStrings
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d')!;
     
-    // Définir la taille du canvas selon tileSize
+    // Set canvas size based on tileSize
     const tileSize = this.getTileSize();
     canvas.width = tileSize.x;
     canvas.height = tileSize.y;
 
-    // Récupérer et afficher les données MVT de manière asynchrone
+    // Retrieve and display MVT data asynchronously
     this.loadAndRenderMVTData(canvas, ctx, coords, done);
 
     return canvas;
   }
 
   /**
-   * Charge et affiche les données MVT pour une tuile donnée
+   * Loads and displays MVT data for a given tile
    */
   private async loadAndRenderMVTData(
     canvas: HTMLCanvasElement,
@@ -115,19 +113,19 @@ export class AppleMVTLayer extends L.GridLayer {
     done: L.DoneCallback
   ): Promise<void> {
     try {
-      // Vérifier si le zoom est dans les limites avant de faire l'appel
+      // Check if zoom is within limits before making the call
       if (this.tileJSONMetadata) {
         if (coords.z < this.tileJSONMetadata.minzoom || coords.z > this.tileJSONMetadata.maxzoom) {
-          // Hors limites : ne pas faire d'appel
+          // Out of bounds: don't make call
           done(undefined, canvas);
           return;
         }
       }
 
-      // Construire l'URL de la tuile MVT
+      // Build MVT tile URL
       const url = ApplePMTilesService.getMVTTileUrl(coords.x, coords.y, coords.z);
       
-      // Récupérer la tuile MVT
+      // Retrieve MVT tile
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -136,13 +134,13 @@ export class AppleMVTLayer extends L.GridLayer {
       });
 
       if (response.status === 204) {
-        // Tuile vide : ne rien dessiner
+        // Empty tile: draw nothing
         done(undefined, canvas);
         return;
       }
 
       if (response.status === 404) {
-        // Hors limites : ne rien dessiner
+        // Out of bounds: draw nothing
         done(undefined, canvas);
         return;
       }
@@ -151,10 +149,10 @@ export class AppleMVTLayer extends L.GridLayer {
         throw new Error(`MVT request failed: ${response.status} ${response.statusText}`);
       }
 
-      // Récupérer les données binaires MVT
+      // Retrieve binary MVT data
       const arrayBuffer = await response.arrayBuffer();
       
-      // Parser et afficher les données MVT
+      // Parse and display MVT data
       await this.renderMVTData(ctx, arrayBuffer, coords);
       
       done(undefined, canvas);
@@ -165,9 +163,9 @@ export class AppleMVTLayer extends L.GridLayer {
   }
 
   /**
-   * Parse et affiche les données MVT sur le canvas
-   * 
-   * Cette méthode parse les vraies données vectorielles MVT et affiche les LineStrings.
+   * Parses and displays MVT data on the canvas
+   *
+   * This method parses the actual MVT vector data and displays the LineStrings.
    */
   private async renderMVTData(
     ctx: CanvasRenderingContext2D,
@@ -176,39 +174,39 @@ export class AppleMVTLayer extends L.GridLayer {
     _coords: L.Coords
   ): Promise<void> {
     try {
-      // Configuration du style de dessin
+      // Drawing style configuration
       ctx.strokeStyle = this.styleOptions.color;
       ctx.lineWidth = this.styleOptions.weight;
       ctx.globalAlpha = this.styleOptions.opacity;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
 
-      // Parser les données MVT
+      // Parse MVT data
       const tile = new VectorTile(new Protobuf(arrayBuffer));
       
-      // Parcourir tous les layers dans la tuile MVT
+      // Iterate through all layers in the MVT tile
       for (const layerName in tile.layers) {
         const layer = tile.layers[layerName];
         
-        // Parcourir toutes les features dans le layer
+        // Iterate through all features in the layer
         for (let i = 0; i < layer.length; i++) {
           const feature = layer.feature(i);
           
-          // Ne traiter que les LineStrings (type 2)
+          // Only process LineStrings (type 2)
           if (feature.type === 2) {
             const geometry = feature.loadGeometry();
             
-            // Dessiner chaque ring de la géométrie
+            // Draw each ring of the geometry
             for (const ring of geometry) {
-              if (ring.length < 2) continue; // Ignorer les rings avec moins de 2 points
+              if (ring.length < 2) continue; // Ignore rings with less than 2 points
               
               ctx.beginPath();
               
-              // Dessiner la ligne
+              // Draw the line
               for (let j = 0; j < ring.length; j++) {
                 const point = ring[j];
                 
-                // Convertir les coordonnées de la tuile (0-4096) vers pixels canvas (0-256)
+                // Convert tile coordinates (0-4096) to canvas pixels (0-256)
                 const x = (point.x / 4096) * 256;
                 const y = (point.y / 4096) * 256;
                 
@@ -233,7 +231,7 @@ export class AppleMVTLayer extends L.GridLayer {
   }
 
   /**
-   * Met à jour le style du layer
+   * Updates the layer style
    */
   setStyle(style: Partial<AppleMVTLayerOptions['style']>): this {
     this.styleOptions = {
@@ -250,7 +248,7 @@ export class AppleMVTLayer extends L.GridLayer {
   }
 
   /**
-   * Récupère les métadonnées TileJSON
+   * Retrieves TileJSON metadata
    */
   getTileJSONMetadata(): TileJSONMetadata | null {
     return this.tileJSONMetadata;
@@ -258,8 +256,7 @@ export class AppleMVTLayer extends L.GridLayer {
 }
 
 /**
- * Factory function pour créer une instance d'AppleMVTLayer
- * Compatible avec le pattern Leaflet
+ * Factory function to create an AppleMVTLayer instance
  */
 export function createAppleMVTLayer(options?: AppleMVTLayerOptions): AppleMVTLayer {
   return new AppleMVTLayer(options);

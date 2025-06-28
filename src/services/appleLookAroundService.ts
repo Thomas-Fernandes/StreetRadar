@@ -1,21 +1,21 @@
 /**
  * AppleLookAroundService.ts
  * 
- * Service pour générer des liens Apple Look Around authentiques.
+ * Service to generate authentic Apple Look Around links.
  * 
- * Ce service implémente la méthode découverte dans la librairie Python pour
- * générer des liens Look Around qui ouvrent directement le panorama à la
- * position géographique demandée, plutôt qu'un simple lien vers Apple Maps.
+ * This service implements the method discovered in the Python library to
+ * generate Look Around links that directly open the panorama at the
+ * requested geographic position, rather than just a simple link to Apple Maps.
  * 
- * Basé sur les recherches de la librairie streetlevel qui a ingénierie inverse
- * le protocole Apple Look Around pour créer des liens directs vers les panoramas.
+ * Based on streetlevel library research that reverse-engineered
+ * the Apple Look Around protocol to create direct links to panoramas.
  */
 
 import { APPLE_CONSTANTS } from '@/types/apple-protobuf';
 import L from 'leaflet';
 
 /**
- * Interface pour les coordonnées de tuile Slippy Map
+ * Interface for Slippy Map tile coordinates
  */
 interface TileCoordinate {
   x: number;
@@ -24,7 +24,7 @@ interface TileCoordinate {
 }
 
 /**
- * Interface pour les données de panorama Apple
+ * Interface for Apple panorama data
  */
 interface ApplePanoramaData {
   latitude: number;
@@ -35,12 +35,12 @@ interface ApplePanoramaData {
 
 export class AppleLookAroundService {
   /**
-   * Convertit des coordonnées WGS84 en coordonnées de tuile Slippy Map
+   * Converts WGS84 coordinates to Slippy Map tile coordinates
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés
-   * @param zoom Niveau de zoom
-   * @returns Coordonnées de tuile
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees
+   * @param zoom Zoom level
+   * @returns Tile coordinates
    */
   private static wgs84ToTileCoord(lat: number, lon: number, zoom: number): TileCoordinate {
     const n = Math.pow(2, zoom);
@@ -52,32 +52,32 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Crée un message protobuf simple pour MuninViewState
+   * Creates a simple protobuf message for MuninViewState
    * 
-   * Pour l'instant, nous utilisons une implémentation simplifiée
-   * qui génère un base64 compatible avec Apple Maps
+   * For now, we use a simplified implementation
+   * that generates a base64 compatible with Apple Maps
    * 
-   * @param panoData Données du panorama
-   * @returns String base64 encodé
+   * @param panoData Panorama data
+   * @returns Base64 encoded string
    */
   private static createMuninViewState(panoData: ApplePanoramaData): string {
-    // Implémentation simplifiée qui crée un objet compatible
-    // Dans une version future, nous pourrions utiliser protobufjs pour une implémentation complète
+    // Simplified implementation that creates a compatible object
+    // In a future version, we could use protobufjs for a complete implementation
     
-    // Pour l'instant, utilisons une structure de données simple
+    // For now, let's use a simple data structure
     const viewState = {
       cameraFrame: {
         latitude: panoData.latitude,
         longitude: panoData.longitude,
         altitude: 0,
         yaw: panoData.heading,
-        pitch: -panoData.pitch, // Note le signe négatif comme dans la doc
+        pitch: -panoData.pitch, // Note the negative sign as in the doc
         roll: 0
       }
     };
 
-    // Convertir en une représentation binaire simple
-    // (ceci est une implémentation temporaire - idéalement il faudrait protobuf)
+    // Convert to a simple binary representation
+    // (this is a temporary implementation - ideally would need protobuf)
     const jsonString = JSON.stringify(viewState);
     const base64 = btoa(jsonString);
     
@@ -85,13 +85,13 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Génère un lien Apple Look Around pour des coordonnées données
+   * Generates an Apple Look Around link for given coordinates
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés
-   * @param heading Direction de la caméra en degrés (optionnel)
-   * @param pitch Inclinaison de la caméra en degrés (optionnel)
-   * @returns URL Apple Look Around
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees
+   * @param heading Camera direction in degrees (optional)
+   * @param pitch Camera tilt in degrees (optional)
+   * @returns Apple Look Around URL
    */
   static buildLookAroundLink(
     lat: number,
@@ -100,18 +100,18 @@ export class AppleLookAroundService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _pitch: number = 0
   ): string {
-    // Pour l'instant, utilisons une méthode simplifiée qui fonctionne bien
-    // Cette URL ouvre Apple Maps avec un zoom élevé sur la position
+    // For now, let's use a simplified method that works well
+    // This URL opens Apple Maps with a high zoom on the position
     const baseUrl = `https://maps.apple.com/?ll=${lat.toFixed(6)},${lon.toFixed(6)}`;
     
-    // Ajouter des paramètres pour encourager l'ouverture en Look Around
+    // Add parameters to encourage Look Around opening
     const params = new URLSearchParams({
-      'spn': '0.001,0.001', // Span très petit pour zoom élevé
-      't': 'h', // Type hybrid/satellite qui peut déclencher Look Around
+      'spn': '0.001,0.001', // Very small span for high zoom
+      't': 'h', // Hybrid/satellite type that can trigger Look Around
       'dirflg': 'd' // Direction flag
     });
 
-    // Si on a un heading spécifique, on peut l'ajouter
+    // If we have a specific heading, we can add it
     if (heading !== 0) {
       params.set('h', heading.toString());
     }
@@ -120,14 +120,14 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Version avancée qui essaie d'utiliser le vrai format MuninViewState
-   * (pour une implémentation future avec protobuf complet)
+   * Advanced version that tries to use the real MuninViewState format
+   * (for future implementation with complete protobuf)
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés
-   * @param heading Direction de la caméra en degrés
-   * @param pitch Inclinaison de la caméra en degrés
-   * @returns URL Apple Look Around avec paramètre _mvs
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees
+   * @param heading Camera direction in degrees
+   * @param pitch Camera tilt in degrees
+   * @returns Apple Look Around URL with _mvs parameter
    */
   static buildAdvancedLookAroundLink(
     lat: number,
@@ -152,12 +152,12 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Vérifie si Look Around est disponible à une position donnée
-   * (implémentation future - pour l'instant retourne toujours true)
+   * Checks if Look Around is available at a given position
+   * (future implementation - currently always returns true)
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés
-   * @returns Promise<boolean> indiquant si Look Around est disponible
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees
+   * @returns Promise<boolean> indicating if Look Around is available
    */
   static async checkLookAroundAvailability(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -165,25 +165,25 @@ export class AppleLookAroundService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _lon: number
   ): Promise<boolean> {
-    // TODO: Implémenter la vérification via l'API Apple tile
-    // comme décrit dans la documentation (étape 1)
+    // TODO: Implement verification via Apple tile API
+    // as described in the documentation (step 1)
     
-    // Pour l'instant, on assume que c'est disponible partout
-    // où nous avons des données de couverture (via nos tuiles MVT)
+    // For now, we assume it's available everywhere
+    // where we have coverage data (via our MVT tiles)
     return true;
   }
 
   /**
-   * Méthode principale recommandée pour générer un lien Look Around
+   * Main recommended method to generate a Look Around link
    * 
-   * Cette méthode combine les meilleures stratégies pour maximiser les chances
-   * que le lien ouvre directement en mode Look Around
+   * This method combines the best strategies to maximize chances
+   * that the link opens directly in Look Around mode
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés  
-   * @param heading Direction de la caméra en degrés (optionnel)
-   * @param pitch Inclinaison de la caméra en degrés (optionnel)
-   * @returns URL Apple Look Around optimisée
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees  
+   * @param heading Camera direction in degrees (optional)
+   * @param pitch Camera tilt in degrees (optional)
+   * @returns Optimized Apple Look Around URL
    */
   static buildOptimizedLookAroundLink(
     lat: number,
@@ -191,18 +191,18 @@ export class AppleLookAroundService {
     heading: number = 0,
     pitch: number = 0
   ): string {
-    // Utiliser plusieurs stratégies pour maximiser les chances d'ouverture en Look Around
+    // Use multiple strategies to maximize chances of Look Around opening
     
-    // 1. Lien avec paramètres de zoom et type spécifiques
+    // 1. Link with specific zoom and type parameters
     const baseUrl = `https://maps.apple.com/?ll=${lat.toFixed(6)},${lon.toFixed(6)}`;
     
     const params = new URLSearchParams({
-      'spn': '0.0001,0.0001',  // Span très petit pour forcer le zoom maximum
-      't': 's',               // Type satellite pour encourager Look Around
-      'z': '19'               // Zoom maximum
+      'spn': '0.0001,0.0001',  // Very small span to force maximum zoom
+      't': 's',               // Satellite type to encourage Look Around
+      'z': '19'               // Maximum zoom
     });
 
-    // Si on a des angles spécifiques, les ajouter
+    // If we have specific angles, add them
     if (heading !== 0) {
       params.set('heading', heading.toFixed(2));
     }
@@ -215,12 +215,12 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Vérifie la couverture Apple Look Around pour une position
-   * (implémentation future qui utilisera l'API Apple tile)
+   * Checks Apple Look Around coverage for a position
+   * (future implementation that will use Apple tile API)
    * 
-   * @param lat Latitude en degrés
-   * @param lon Longitude en degrés
-   * @returns Promise avec informations de couverture
+   * @param lat Latitude in degrees
+   * @param lon Longitude in degrees
+   * @returns Promise with coverage information
    */
   static async checkCoverageWithAPI(
     lat: number,
@@ -235,10 +235,10 @@ export class AppleLookAroundService {
     }
   }> {
     try {
-      // Calculer la tuile à zoom 17
+      // Calculate tile at zoom 17
       const tileCoord = this.wgs84ToTileCoord(lat, lon, APPLE_CONSTANTS.COVERAGE_ZOOM);
       
-      // TODO: Construire l'URL de l'API Apple et préparer les en-têtes pour une implémentation future
+      // TODO: Build Apple API URL and prepare headers for future implementation
       // const url = new URL(APPLE_API.TILE_BASE_URL);
       // const headers = {
       //   ...APPLE_API.HEADERS,
@@ -247,8 +247,8 @@ export class AppleLookAroundService {
       //   'maps-tile-z': tileCoord.z.toString()
       // };
 
-      // Pour l'instant, retourner available: true car nous ne faisons pas l'appel réel
-      // Dans le futur, ceci ferait l'appel HTTP et parserait le protobuf
+      // For now, return available: true since we don't make the real call
+      // In the future, this would make the HTTP call and parse the protobuf
       console.log('Tile coordinate calculated:', tileCoord);
       
       return {
@@ -267,10 +267,10 @@ export class AppleLookAroundService {
   }
 
   /**
-   * Utilitaire pour extraire les coordonnées d'un LatLng Leaflet
+   * Utility to extract coordinates from a Leaflet LatLng
    * 
-   * @param latlng Objet LatLng de Leaflet
-   * @returns Lien Apple Look Around optimisé
+   * @param latlng Leaflet LatLng object
+   * @returns Optimized Apple Look Around link
    */
   static buildLookAroundLinkFromLatLng(latlng: L.LatLng): string {
     return this.buildOptimizedLookAroundLink(latlng.lat, latlng.lng);

@@ -1,4 +1,4 @@
-/* CSS existant */
+/* Existing CSS */
 html, body {
   height: 100%;
   margin: 0;
@@ -10,7 +10,7 @@ html, body {
   width: 100%;
 }
 
-/* Nouveau CSS pour la landing page */
+/* New CSS for landing page */
 /* Import clean, minimal font */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 

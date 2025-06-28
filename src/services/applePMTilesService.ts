@@ -1,11 +1,11 @@
 /**
  * ApplePMTilesService.ts
  * 
- * Service dédié à la gestion des tuiles PMtiles d'Apple Look Around.
+ * Service dedicated to managing Apple Look Around PMtiles.
  * 
- * Ce service gère l'interaction avec le CDN PMtiles hébergé sur tiles.streetradar.app
- * et fournit des méthodes pour récupérer le TileJSON et construire les URLs des tuiles MVT.
- * Il respecte les bonnes pratiques en ne téléchargeant jamais l'archive complète de 6 Go.
+ * This service handles interaction with the PMtiles CDN hosted on tiles.streetradar.app
+ * and provides methods to retrieve TileJSON and build MVT tile URLs.
+ * It follows best practices by never downloading the complete 6 GB archive.
  */
 
 export interface TileJSONMetadata {
@@ -34,31 +34,31 @@ export class ApplePMTilesService {
   private static readonly TILEJSON_URL = `${ApplePMTilesService.BASE_URL}/tiles.json`;
   private static readonly MVT_URL_TEMPLATE = `${ApplePMTilesService.BASE_URL}/tiles/{z}/{x}/{y}.mvt`;
   
-  // Cache pour éviter de refaire l'appel TileJSON à chaque fois
+  // Cache to avoid repeating TileJSON call every time
   private static tileJSONCache: TileJSONMetadata | null = null;
   private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
 
   /**
-   * Récupère les métadonnées TileJSON du PMtiles d'Apple
+   * Retrieves TileJSON metadata from Apple PMtiles
    * 
-   * Cette méthode appelle l'endpoint TileJSON une seule fois au démarrage
-   * et met en cache le résultat pour éviter les appels répétés.
+   * This method calls the TileJSON endpoint only once at startup
+   * and caches the result to avoid repeated calls.
    * 
-   * @returns Promise<TileJSONMetadata> Les métadonnées du PMtiles
-   * @throws Error Si l'appel TileJSON échoue
+   * @returns Promise<TileJSONMetadata> The PMtiles metadata
+   * @throws Error If the TileJSON call fails
    */
   static async getTileJSON(): Promise<TileJSONMetadata> {
-    // Si on a déjà les données en cache, les retourner
+    // If we already have data in cache, return it
     if (ApplePMTilesService.tileJSONCache) {
       return ApplePMTilesService.tileJSONCache;
     }
 
-    // Si un appel est déjà en cours, attendre son résultat
+    // If a call is already in progress, wait for its result
     if (ApplePMTilesService.tileJSONPromise) {
       return ApplePMTilesService.tileJSONPromise;
     }
 
-    // Lancer un nouvel appel TileJSON
+    // Launch a new TileJSON call
     ApplePMTilesService.tileJSONPromise = ApplePMTilesService.fetchTileJSON();
     
     try {
@@ -66,17 +66,17 @@ export class ApplePMTilesService {
       ApplePMTilesService.tileJSONCache = result;
       return result;
     } catch (error) {
-      // En cas d'erreur, nettoyer la promesse pour permettre un nouvel essai
+      // In case of error, clean up promise to allow retry
       ApplePMTilesService.tileJSONPromise = null;
       throw error;
     }
   }
 
   /**
-   * Effectue l'appel HTTP pour récupérer le TileJSON
+   * Performs HTTP call to retrieve TileJSON
    * 
-   * @returns Promise<TileJSONMetadata> Les métadonnées du PMtiles
-   * @throws Error Si l'appel HTTP échoue
+   * @returns Promise<TileJSONMetadata> The PMtiles metadata
+   * @throws Error If the HTTP call fails
    */
   private static async fetchTileJSON(): Promise<TileJSONMetadata> {
     try {
@@ -93,7 +93,7 @@ export class ApplePMTilesService {
 
       const tileJSON: TileJSONMetadata = await response.json();
       
-      // Validation des données essentielles
+      // Validation of essential data
       if (!tileJSON.tiles || !Array.isArray(tileJSON.tiles) || tileJSON.tiles.length === 0) {
         throw new Error('Invalid TileJSON: missing or empty tiles array');
       }
@@ -110,12 +110,12 @@ export class ApplePMTilesService {
   }
 
   /**
-   * Génère l'URL pour une tuile MVT spécifique
+   * Generates URL for a specific MVT tile
    * 
-   * @param x - Coordonnée X de la tuile
-   * @param y - Coordonnée Y de la tuile
-   * @param z - Niveau de zoom
-   * @returns L'URL complète de la tuile MVT
+   * @param x - X coordinate of the tile
+   * @param y - Y coordinate of the tile
+   * @param z - Zoom level
+   * @returns The complete MVT tile URL
    */
   static getMVTTileUrl(x: number, y: number, z: number): string {
     return ApplePMTilesService.MVT_URL_TEMPLATE
@@ -125,20 +125,20 @@ export class ApplePMTilesService {
   }
 
   /**
-   * Génère le template d'URL pour Leaflet
+   * Generates URL template for Leaflet
    * 
-   * @returns Le template d'URL avec les placeholders {x}, {y}, {z}
+   * @returns The URL template with {x}, {y}, {z} placeholders
    */
   static getMVTUrlTemplate(): string {
     return ApplePMTilesService.MVT_URL_TEMPLATE;
   }
 
   /**
-   * Vérifie si un niveau de zoom est valide selon les limites du PMtiles
+   * Checks if a zoom level is valid according to PMtiles limits
    * 
-   * @param zoom - Le niveau de zoom à vérifier
-   * @param tileJSON - Les métadonnées TileJSON (optionnel, sera récupéré si non fourni)
-   * @returns Promise<boolean> True si le zoom est valide
+   * @param zoom - The zoom level to check
+   * @param tileJSON - TileJSON metadata (optional, will be retrieved if not provided)
+   * @returns Promise<boolean> True if zoom is valid
    */
   static async isZoomLevelValid(zoom: number, tileJSON?: TileJSONMetadata): Promise<boolean> {
     const metadata = tileJSON || await ApplePMTilesService.getTileJSON();
@@ -146,9 +146,9 @@ export class ApplePMTilesService {
   }
 
   /**
-   * Récupère les limites de zoom du PMtiles
+   * Retrieves zoom limits from PMtiles
    * 
-   * @returns Promise<{minzoom: number, maxzoom: number}> Les limites de zoom
+   * @returns Promise<{minzoom: number, maxzoom: number}> The zoom limits
    */
   static async getZoomLimits(): Promise<{minzoom: number, maxzoom: number}> {
     const tileJSON = await ApplePMTilesService.getTileJSON();
@@ -159,7 +159,7 @@ export class ApplePMTilesService {
   }
 
   /**
-   * Nettoie le cache (utile pour les tests ou le rechargement)
+   * Clears the cache (useful for tests or reloading)
    */
   static clearCache(): void {
     ApplePMTilesService.tileJSONCache = null;

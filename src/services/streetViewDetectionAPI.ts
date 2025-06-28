@@ -1,60 +1,57 @@
 /**
- * 
- * PLACEHOLDER pour la détection de panoramas Street View via API
- * 
- * Ce fichier est un template qui explique comment implémenter la détection
- * de panoramas Street View en utilisant les API officielles des fournisseurs
- * au lieu de l'analyse d'image des tuiles.
- * 
- * DIFFÉRENCE AVEC streetViewDetectionCanvas.ts:
- * - streetViewDetectionCanvas.ts analyse les TUILES déjà chargées sur la carte
- *   en utilisant l'API Canvas pour détecter visuellement les lignes de Street View.
- * - streetViewDetectionAPI.ts utilise les API OFFICIELLES des fournisseurs
- *   pour vérifier l'existence de panoramas aux coordonnées demandées.
- * 
- * AVANTAGES DE L'APPROCHE API:
- * - Plus précise: retourne la position exacte des panoramas
- * - Plus fiable: ne dépend pas de l'analyse visuelle qui peut être fragile
- * - Plus d'informations: peut obtenir des métadonnées supplémentaires sur les panoramas
- * 
- * INCONVÉNIENTS:
- * - Nécessite des clés API pour la plupart des fournisseurs
- * - Plus lente: nécessite des requêtes HTTP supplémentaires
- * - Limites d'usage: quotas et restrictions des API
+ * PLACEHOLDER for Street View panorama detection via API
+ *
+ * This file is a template that explains how to implement detection
+ * via API calls instead of visual analysis.
+ *
+ * DIFFERENCE WITH streetViewDetectionCanvas.ts:
+ * - streetViewDetectionCanvas.ts analyzes TILES already loaded on the map
+ *   using the Canvas API to visually detect Street View lines.
+ * - This file would make DIRECT API CALLS to providers
+ *   to verify the existence of panoramas at requested coordinates.
+ *
+ * ADVANTAGES:
+ * - More precise: returns exact position of panoramas
+ * - More reliable: doesn't depend on visual analysis which can be fragile
+ * - More information: can obtain additional metadata about panoramas
+ *
+ * DISADVANTAGES:
+ * - Requires API keys for most providers
+ * - Slower: requires additional HTTP requests
  */
 
 import L from 'leaflet';
 
 /**
- * Interface pour les résultats de détection (identique à celle de Canvas)
+ * Interface for detection results (identical to Canvas one)
  */
 export interface StreetViewDetectionResult {
   provider: 'google' | 'bing' | 'yandex' | 'apple';
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
-  panoId?: string;      // ID unique du panorama (utile pour la création de liens directs)
-  heading?: number;     // Direction de la caméra vers le point de clic
-  metadata?: Record<string, unknown>;       // Métadonnées supplémentaires du panorama
+  panoId?: string;      // Unique panorama ID (useful for creating direct links)
+  heading?: number;     // Camera direction towards click point
+  metadata?: Record<string, unknown>;       // Additional panorama metadata
 }
 
 /**
- * Configuration des API pour chaque fournisseur
+ * Configuration of APIs for each provider
  */
 interface ProviderAPIConfig {
   name: 'google' | 'bing' | 'yandex' | 'apple';
-  apiKey?: string;      // Clé API requise
-  searchRadius: number; // Rayon de recherche en mètres
-  maxResults: number;   // Nombre maximum de résultats à retourner
+  apiKey?: string;      // Required API key
+  searchRadius: number; // Search radius in meters
+  maxResults: number;   // Maximum number of results to return
 }
 
 /**
- * Classe principale pour la détection de Street View via API
+ * Main class for Street View detection via API
  */
 export class StreetViewDetectionAPI {
   /**
-   * Configuration par défaut des API
-   * À compléter avec les clés API réelles dans un fichier .env
+   * Default API configuration
+   * To complete with actual API keys in a .env file
    */
   private static providerConfigs: ProviderAPIConfig[] = [
     {
@@ -84,12 +81,12 @@ export class StreetViewDetectionAPI {
   ];
 
   /**
-   * Détecte les panoramas Street View disponibles à un emplacement donné
-   * en utilisant les API officielles des fournisseurs
+   * Detects available Street View panoramas at a given location
+   * using official provider APIs
    * 
-   * @param latlng Le point où l'utilisateur a cliqué/déposé le chat
-   * @param activeProviders Liste des fournisseurs actifs sur la carte
-   * @returns Promesse avec les résultats de détection pour chaque fournisseur
+   * @param latlng The point where user clicked/dropped the cat
+   * @param activeProviders List of active providers on the map
+   * @returns Promise with detection results for each provider
    */
   static async detectStreetViewAt(
     latlng: L.LatLng,
@@ -97,12 +94,12 @@ export class StreetViewDetectionAPI {
   ): Promise<StreetViewDetectionResult[]> {
     const results: StreetViewDetectionResult[] = [];
     
-    // Ne traiter que les fournisseurs actifs
+    // Only process active providers
     const activeConfigs = this.providerConfigs.filter(
       config => activeProviders.includes(config.name)
     );
     
-    // Pour chaque fournisseur actif
+    // For each active provider
     for (const config of activeConfigs) {
       try {
         let result: StreetViewDetectionResult = {
@@ -110,7 +107,7 @@ export class StreetViewDetectionAPI {
           available: false
         };
         
-        // Appeler la méthode appropriée selon le fournisseur
+        // Call appropriate method based on provider
         switch (config.name) {
           case 'google':
             result = await this.checkGoogleStreetView(latlng, config);
@@ -128,7 +125,7 @@ export class StreetViewDetectionAPI {
         
         results.push(result);
       } catch (error) {
-        console.error(`Erreur lors de la détection pour ${config.name}:`, error);
+        console.error(`Error during detection for ${config.name}:`, error);
         results.push({
           provider: config.name,
           available: false
@@ -140,10 +137,10 @@ export class StreetViewDetectionAPI {
   }
 
   /**
-   * Vérifie la disponibilité d'un panorama Google Street View
+   * Checks availability of a Google Street View panorama
    * 
-   * IMPLÉMENTATION:
-   * - Utilise l'API Google Street View Metadata
+   * IMPLEMENTATION:
+   * - Uses Google Street View Metadata API
    * - Endpoint: https://maps.googleapis.com/maps/api/streetview/metadata
    * - Documentation: https://developers.google.com/maps/documentation/streetview/metadata
    */
@@ -153,30 +150,30 @@ export class StreetViewDetectionAPI {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
-    // Code à implémenter en se basant sur le projet streetlevel
-    // Exemple de requête:
+    // Code to implement based on streetlevel project
+    // Example request:
     // const url = `https://maps.googleapis.com/maps/api/streetview/metadata?location=${latlng.lat},${latlng.lng}&radius=${config.searchRadius}&key=${config.apiKey}`;
     // const response = await fetch(url);
     // const data = await response.json();
     
-    // À implémenter:
-    // 1. Vérifier le statut de la réponse (OK = panorama disponible)
-    // 2. Extraire les coordonnées exactes, l'ID du panorama, etc.
-    // 3. Calculer la distance entre le clic et le panorama
+    // To implement:
+    // 1. Check response status (OK = panorama available)
+    // 2. Extract exact coordinates, panorama ID, etc.
+    // 3. Calculate distance between click and panorama
 
     return {
       provider: 'google',
-      available: false, // À remplacer par la logique réelle
+      available: false, // To be replaced with real logic
     };
   }
 
   /**
-   * Vérifie la disponibilité d'un panorama Bing Streetside
+   * Checks availability of a Bing Streetside panorama
    * 
-   * IMPLÉMENTATION:
-   * - Utilise l'API Bing Maps Imagery
-   * - La détection est plus complexe car il n'y a pas d'API directe
-   * - S'inspirera du projet streetlevel qui implémente cette logique
+   * IMPLEMENTATION:
+   * - Uses Bing Maps Imagery API
+   * - Detection is more complex as there's no direct API
+   * - Will be inspired by the streetlevel project that implements this logic
    */
   private static async checkBingStreetside(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -184,21 +181,21 @@ export class StreetViewDetectionAPI {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
-    // Code à implémenter en se basant sur le projet streetlevel
-    // Voir: https://github.com/sk-zk/streetlevel/blob/master/streetlevel/streetview/bing.py
+    // Code to implement based on streetlevel project
+    // See: https://github.com/sk-zk/streetlevel/blob/master/streetlevel/streetview/bing.py
     
     return {
       provider: 'bing',
-      available: false, // À remplacer par la logique réelle
+      available: false, // To be replaced with real logic
     };
   }
 
   /**
-   * Vérifie la disponibilité d'un panorama Yandex
+   * Checks availability of a Yandex panorama
    * 
-   * IMPLÉMENTATION:
-   * - Utilise l'API Yandex Maps
-   * - S'inspirera du projet streetlevel qui implémente cette logique
+   * IMPLEMENTATION:
+   * - Uses Yandex Maps API
+   * - Will be inspired by the streetlevel project that implements this logic
    */
   private static async checkYandexPanoramas(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -206,21 +203,21 @@ export class StreetViewDetectionAPI {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
-    // Code à implémenter en se basant sur le projet streetlevel
-    // Voir: https://github.com/sk-zk/streetlevel/blob/master/streetlevel/streetview/yandex.py
+    // Code to implement based on streetlevel project
+    // See: https://github.com/sk-zk/streetlevel/blob/master/streetlevel/streetview/yandex.py
     
     return {
       provider: 'yandex',
-      available: false, // À remplacer par la logique réelle
+      available: false, // To be replaced with real logic
     };
   }
 
   /**
-   * Vérifie la disponibilité d'un panorama Apple Look Around
+   * Checks availability of an Apple Look Around panorama
    * 
-   * IMPLÉMENTATION:
-   * - Cette fonctionnalité sera plus difficile car Apple n'a pas d'API publique
-   * - S'inspirera du projet streetlevel s'il implémente cette fonctionnalité
+   * IMPLEMENTATION:
+   * - This feature will be more difficult as Apple has no public API
+   * - Will be inspired by the streetlevel project if it implements this feature
    */
   private static async checkAppleLookAround(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -228,36 +225,36 @@ export class StreetViewDetectionAPI {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     config: ProviderAPIConfig
   ): Promise<StreetViewDetectionResult> {
-    // À rechercher si une API ou méthode est disponible
+    // To research if an API or method is available
     
     return {
       provider: 'apple',
-      available: false, // À remplacer par la logique réelle
+      available: false, // To be replaced with real logic
     };
   }
 
   /**
-   * NOTES POUR ADAPTER DEPUIS STREETLEVEL:
+   * NOTES FOR ADAPTING FROM STREETLEVEL:
    * 
-   * Le projet streetlevel (https://github.com/sk-zk/streetlevel) contient
-   * des implémentations Python pour la détection de panoramas via API pour
-   * plusieurs fournisseurs. Pour adapter ce code à Next.js:
+   * The streetlevel project (https://github.com/sk-zk/streetlevel) contains
+   * Python implementations for panorama detection via API for
+   * multiple providers. To adapt this code to Next.js:
    * 
-   * 1. Étudier la logique des requêtes HTTP dans les fichiers Python
-   * 2. Adapter les requêtes pour utiliser fetch() au lieu des bibliothèques Python
-   * 3. Conserver la logique de traitement des réponses
-   * 4. Adapter le format des résultats à notre interface StreetViewDetectionResult
+   * 1. Study HTTP request logic in Python files
+   * 2. Adapt requests to use fetch() instead of Python libraries
+   * 3. Keep response processing logic
+   * 4. Adapt result format to our StreetViewDetectionResult interface
    * 
-   * MODULES STREETLEVEL À ADAPTER:
-   * - google.py: Relativement simple, utilise l'API officielle
-   * - bing.py: Plus complexe, nécessite plusieurs requêtes
-   * - yandex.py: API peu documentée, s'appuyer sur l'implémentation existante
+   * STREETLEVEL MODULES TO ADAPT:
+   * - google.py: Relatively simple, uses official API
+   * - bing.py: More complex, requires multiple requests
+   * - yandex.py: Poorly documented API, rely on existing implementation
    * 
-   * POUR CHAQUE FOURNISSEUR, NOUS AURONS BESOIN DE:
-   * 1. Construire l'URL de requête appropriée
-   * 2. Gérer les headers et paramètres spécifiques
-   * 3. Analyser la réponse JSON/XML
-   * 4. Extraire les coordonnées, ID et autres métadonnées
-   * 5. Calculer la distance et formater le résultat
+   * FOR EACH PROVIDER, WE WILL NEED TO:
+   * 1. Build appropriate request URL
+   * 2. Handle specific headers and parameters
+   * 3. Parse JSON/XML response
+   * 4. Extract coordinates, ID and other metadata
+   * 5. Calculate distance and format result
    */
 }

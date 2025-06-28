@@ -1,8 +1,6 @@
 /**
- * LayerControl.tsx
- * 
- * Composant pour afficher et gérer les contrôles de couches Street View
- * Stylisé avec Tailwind CSS pour s'intégrer harmonieusement avec le reste de l'interface
+ * Component to display and manage Street View layer controls
+ * Styled with Tailwind CSS to integrate seamlessly with the rest of the interface
  */
 
 import React from 'react';
@@ -21,7 +19,7 @@ const LayerControl: React.FC<LayerControlProps> = ({ visibleLayers, toggleLayer 
   return (
     <div className="absolute top-3 right-3 z-10 bg-white bg-opacity-90 rounded-lg shadow-md p-3 w-64">
       <h3 className="text-gray-800 font-medium mb-2 text-sm">
-        Couches de Street View
+        Street View Layers
       </h3>
       
       <div className="space-y-2">

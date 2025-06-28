@@ -1,8 +1,8 @@
 /**
  * PanoramaBubble.tsx
  * 
- * Afficher les fournisseurs disponibles à l'utilisateur avec un design amélioré.
- * Le popup est maintenant fixe sur la position géographique et suit les mouvements de la carte.
+ * Display available providers to the user with improved design.
+ * The popup is now fixed on geographic position and follows map movements.
  */
 
 'use client';
@@ -21,7 +21,7 @@ interface PanoramaBubbleProps {
 }
 
 /**
- * Génère l'URL pour ouvrir un panorama chez un fournisseur spécifique
+ * Generates URL to open a panorama from a specific provider
  */
 function getPanoramaUrl(result: StreetViewDetectionResult): string {
   if (!result.closestPoint) return '#';
@@ -37,7 +37,7 @@ function getPanoramaUrl(result: StreetViewDetectionResult): string {
     case 'yandex':
       return `https://yandex.com/maps/?panorama%5Bpoint%5D=${lng}%2C${lat}&l=stv`;
     case 'apple':
-      // Utiliser le service Apple Look Around pour générer un lien optimisé
+      // Use the Apple Look Around service to generate an optimized link
       return AppleLookAroundService.buildOptimizedLookAroundLink(
         parseFloat(lat),
         parseFloat(lng)
@@ -48,8 +48,8 @@ function getPanoramaUrl(result: StreetViewDetectionResult): string {
 }
 
 /**
- * Composant de bulle pour les panoramas détectés
- * Maintenant avec position géographique fixe et design amélioré
+ * Bubble component for detected panoramas
+ * Now with fixed geographic position and improved design
  */
 const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({ 
   map, 
@@ -57,12 +57,12 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
   position,
   onClose
 }) => {
-  // État pour la position en pixels sur l'écran
+  // State for the position in pixels on screen
   const [screenPosition, setScreenPosition] = useState<{x: number, y: number} | null>(null);
-  // État pour l'animation d'apparition
+  // State for the appearance animation
   const [isVisible, setIsVisible] = useState(false);
 
-  // Effet pour mettre à jour la position du popup quand la carte bouge
+  // Effect to update popup position when the map moves
   useEffect(() => {
     if (!map) return;
 
@@ -71,20 +71,20 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         const point = map.latLngToContainerPoint(position);
         setScreenPosition({ x: point.x, y: point.y });
       } catch (error) {
-        console.error('Erreur lors de la conversion des coordonnées:', error);
+        console.error('Error during coordinate conversion:', error);
       }
     };
 
-    // Mettre à jour la position initiale
+    // Update initial position
     updatePosition();
 
-    // Écouter les événements de mouvement de la carte
+    // Listen to map movement events
     const events: (keyof L.LeafletEventHandlerFnMap)[] = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
     events.forEach(event => {
       map.on(event, updatePosition);
     });
 
-    // Nettoyage des event listeners
+    // Cleanup event listeners
     return () => {
       events.forEach(event => {
         map.off(event, updatePosition);
@@ -92,10 +92,10 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     };
   }, [map, position]);
 
-  // Effet pour l'animation d'apparition
+  // Effect for appearance animation
   useEffect(() => {
     if (screenPosition) {
-      // Petit délai pour déclencher l'animation
+      // Small delay to trigger animation
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 50);
@@ -103,15 +103,15 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     }
   }, [screenPosition]);
 
-  // Ne pas rendre si on n'a pas encore la position à l'écran
+  // Don't render if we don't have the screen position yet
   if (!map || !screenPosition) {
     return null;
   }
 
-  // Filtrer pour ne garder que les fournisseurs disponibles
+  // Filter to keep only available providers
   const availableProviders = detectionResults.filter(result => result.available);
   
-  // Si aucun fournisseur n'est disponible
+  // If no provider is available
   if (availableProviders.length === 0) {
     return (
       <div
@@ -174,7 +174,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     );
   }
   
-  // Sinon, afficher les fournisseurs disponibles
+  // Otherwise, display available providers
   return (
     <div
       className="panorama-bubble"
@@ -217,14 +217,14 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
               alignItems: 'center',
               padding: '12px',
               borderRadius: '8px',
-              background: '#fefbf1', // Même couleur que le fond du popup
-              border: '1px solid rgba(155, 68, 52, 0.1)',
-              textDecoration: 'none',
-              color: 'inherit',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-              width: '80px', // Largeur fixe pour tous les providers
-              minHeight: '70px' // Hauteur minimale pour éviter les variations
+                          background: '#fefbf1', // Same color as popup background
+            border: '1px solid rgba(155, 68, 52, 0.1)',
+            textDecoration: 'none',
+            color: 'inherit',
+            transition: 'all 0.2s ease',
+            cursor: 'pointer',
+            width: '80px', // Fixed width for all providers
+            minHeight: '70px' // Minimum height to avoid variations
             }}
             onMouseOver={(e) => {
               e.currentTarget.style.transform = 'translateY(-3px)';
@@ -290,7 +290,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
         </button>
       </div>
       
-      {/* Flèche pointant vers la position exacte */}
+              {/* Arrow pointing to the exact position */}
       <div
         style={{
           position: 'absolute',

@@ -1,20 +1,20 @@
-// src/app/map/page.tsx - Version mise à jour avec métadonnées
+// src/app/map/page.tsx - Updated version with metadata
 
 /**
  * map/page.tsx
  * 
- * Page principale de la carte interactive de StreetRadar.
+ * Main page of StreetRadar's interactive map.
  * 
- * Cette page affiche la carte en plein écran et permet aux utilisateurs
- * d'explorer la couverture des différents services de Street View.
- * Elle utilise le composant MapWrapper qui charge de manière dynamique
- * le composant de carte côté client pour éviter les problèmes de SSR.
+ * This page displays the full-screen map and allows users
+ * to explore coverage from different Street View services.
+ * It uses the MapWrapper component which dynamically loads
+ * the map component on the client side to avoid SSR issues.
  */
 
 import MapWrapper from '@/components/map/mapWrapper';
 import type { Metadata } from 'next';
 
-// Métadonnées spécifiques à la page de carte
+// Map page specific metadata
 export const metadata: Metadata = {
   title: 'StreetRadar - Interactive Map',
   description: 'Explore worldwide Street View coverage from Google, Bing, Yandex and Apple. Click anywhere to find available panoramas and discover street-level imagery around the world.',
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * Composant de la page de carte qui occupe tout l'écran
+ * Map page component that occupies the full screen
  */
 export default function MapPage() {
   return (

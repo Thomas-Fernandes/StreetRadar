@@ -13,7 +13,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@/styles/leafletStyles.css'; // Import our custom styles
 import StreetViewLayer from '@/services/streetViewLayer';
-import PegcatControl from './pegcatControl'; // Import du nouveau contrôle PegCat
+import PegcatControl from './pegcatControl'; // Import of the new PegCat control
 import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
@@ -50,33 +50,33 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [isBasemapSelectorOpen, setIsBasemapSelectorOpen] = useState(false);
   // References to the basemap layers
   const basemapLayersRef = useRef<{[key: string]: L.TileLayer}>({});
-  // Information sur le dernier clic/drop
+  // Information about the last click/drop
   const [clickInfo, setClickInfo] = useState<{
     position: L.LatLng | null;
     type: 'click' | 'drop';
     timestamp: number;
   } | null>(null);
-  // Résultats de détection des panoramas
+  // Panorama detection results
   const [detectionResults, setDetectionResults] = useState<StreetViewDetectionResult[]>([]);
-  // Position détectée pour afficher la bulle
+  // Detected position to display the bubble
   const [detectedPosition, setDetectedPosition] = useState<L.LatLng | null>(null);
-  // État indiquant si une détection est en cours
+  // State indicating if detection is in progress
   const [isDetecting, setIsDetecting] = useState<boolean>(false);
-  // Position en pixels pour les bulles temporaires
+  // Pixel position for temporary bubbles
   const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{x: number, y: number} | null>(null);
-  // État pour le popup d'avertissement Yandex
+  // State for Yandex warning popup
   const [showYandexWarning, setShowYandexWarning] = useState<boolean>(false);
-  // Flag pour savoir si l'avertissement Yandex a déjà été montré
+  // Flag to know if Yandex warning has already been shown
   const [yandexWarningShown, setYandexWarningShown] = useState<boolean>(false);
-  // État pour le popup d'avertissement Apple
+  // State for Apple warning popup
   const [showAppleWarning, setShowAppleWarning] = useState<boolean>(false);
-  // Flag pour savoir si l'avertissement Apple a déjà été montré
+  // Flag to know if Apple warning has already been shown
   const [appleWarningShown, setAppleWarningShown] = useState<boolean>(false);
   
-  // Niveau de zoom minimum pour activer Street View - réduit de 6 niveaux au total (16 -> 13 -> 10)
+  // Minimum zoom level to activate Street View - reduced by 6 levels total (16 -> 13 -> 10)
   const MIN_ZOOM_FOR_STREETVIEW = 10;
 
-  // Configuration des providers avec leurs informations
+  // Provider configuration with their information
   const providers = [
     {
       key: 'googleStreetView',
@@ -187,7 +187,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     };
   }, [center, zoom]);
 
-  // Ajout de l'effet pour gérer le curseur de la carte selon le niveau de zoom
+  // Effect to manage map cursor based on zoom level
   useEffect(() => {
     if (!mapInstance) return;
     
@@ -201,7 +201,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     };
     
     mapInstance.on('zoomend', handleZoom);
-    // Initialiser au chargement
+    // Initialize on load
     handleZoom();
     
     return () => {
@@ -209,7 +209,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     };
   }, [mapInstance]);
 
-  // Effet pour mettre à jour la position des bulles temporaires
+  // Effect to update temporary bubble positions
   useEffect(() => {
     if (!mapInstance || !clickInfo?.position) {
       setTempBubbleScreenPos(null);
@@ -221,21 +221,21 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         const point = mapInstance.latLngToContainerPoint(clickInfo.position!);
         setTempBubbleScreenPos({ x: point.x, y: point.y });
       } catch (error) {
-        console.error('Erreur lors de la conversion des coordonnées:', error);
+        console.error('Error during coordinate conversion:', error);
         setTempBubbleScreenPos(null);
       }
     };
 
-    // Mettre à jour la position initiale
+    // Update initial position
     updateTempBubblePosition();
 
-    // Écouter les événements de mouvement de la carte
+    // Listen to map movement events
     const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
     events.forEach(event => {
       mapInstance.on(event as keyof L.LeafletEventHandlerFnMap, updateTempBubblePosition);
     });
 
-    // Nettoyage des event listeners
+    // Cleanup event listeners
     return () => {
       events.forEach(event => {
         mapInstance.off(event as keyof L.LeafletEventHandlerFnMap, updateTempBubblePosition);
@@ -243,29 +243,29 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     };
   }, [mapInstance, clickInfo?.position]);
 
-  // Effet pour faire disparaître la bulle d'info après un délai
+  // Effect to make info bubble disappear after a delay
   useEffect(() => {
     if (!clickInfo) return;
     
     const timer = setTimeout(() => {
       setClickInfo(null);
-    }, 5000); // 5 secondes
+    }, 5000); // 5 seconds
     
     return () => clearTimeout(timer);
   }, [clickInfo]);
 
   // Function to toggle layer visibility
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
-    // Si on active Yandex et qu'il n'était pas déjà activé ET que l'avertissement n'a jamais été montré
+    // If activating Yandex and it wasn't already activated AND the warning has never been shown
     if (layer === 'yandexPanoramas' && !visibleLayers.yandexPanoramas && !yandexWarningShown) {
       setShowYandexWarning(true);
-      setYandexWarningShown(true); // Marquer comme montré pour ne plus jamais le montrer
+      setYandexWarningShown(true); // Mark as shown to never show it again
     }
     
-    // Si on active Apple et qu'il n'était pas déjà activé ET que l'avertissement n'a jamais été montré
+    // If activating Apple and it wasn't already activated AND the warning has never been shown
     if (layer === 'appleLookAround' && !visibleLayers.appleLookAround && !appleWarningShown) {
       setShowAppleWarning(true);
-      setAppleWarningShown(true); // Marquer comme montré pour ne plus jamais le montrer
+      setAppleWarningShown(true); // Mark as shown to never show it again
     }
     
     setVisibleLayers(prev => ({
@@ -324,50 +324,50 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   };
 
   /**
-   * Gère l'événement de dépôt du PegCat sur la carte
+   * Handles PegCat drop event on the map
    */
   const handlePegcatDrop = async (latlng: L.LatLng) => {
-    // Commencer la détection
+    // Start detection
     await detectPanoramas(latlng, 'drop');
   };
 
   /**
-   * Gère le clic sur la carte quand le zoom est suffisant
+   * Handles map click when zoom is sufficient
    */
   const handleMapClick = async (latlng: L.LatLng) => {
-    // Si un popup est déjà ouvert, le fermer au lieu d'en ouvrir un nouveau
+    // If a popup is already open, close it instead of opening a new one
     if (detectedPosition) {
       closePanoramaBubble();
       return;
     }
     
-    // Commencer la détection
+    // Start detection
     await detectPanoramas(latlng, 'click');
   };
 
   /**
-   * Fonction commune pour détecter les panoramas
+   * Common function to detect panoramas
    */
   const detectPanoramas = async (latlng: L.LatLng, type: 'click' | 'drop') => {
     if (!mapInstance) return;
     
-    // Afficher une indication que la détection est en cours
+    // Show indication that detection is in progress
     setClickInfo({
       position: latlng,
       type,
       timestamp: Date.now()
     });
     
-    // Marquer qu'on est en train de détecter
+    // Mark that we're detecting
     setIsDetecting(true);
     
     try {
-      // Récupérer la liste des fournisseurs actifs
+      // Get list of active providers
       const activeProviders = Object.entries(visibleLayers)
         .filter(([, isVisible]) => isVisible)
         .map(([provider]) => provider.replace('StreetView', '').replace('Streetside', '').replace('Panoramas', '').replace('LookAround', '').toLowerCase());
       
-      // Détecter les panoramas disponibles
+      // Detect available panoramas
       const results = await PanoramaService.detectPanoramasAt(
         mapInstance,
         latlng,
@@ -375,28 +375,28 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         { method: 'canvas' }
       );
       
-      // Stocker les résultats
+      // Store results
       setDetectionResults(results);
       
-      // Trouver le premier point disponible pour positionner la bulle
+      // Find first available point to position the bubble
       const availableResult = results.find((r: StreetViewDetectionResult) => r.available && r.closestPoint);
       if (availableResult && availableResult.closestPoint) {
         setDetectedPosition(availableResult.closestPoint);
       } else {
-        // Si aucun point trouvé, utiliser la position du clic
+        // If no point found, use click position
         setDetectedPosition(latlng);
       }
       
-      // Effacer l'info du clic
+      // Clear click info
       setClickInfo(null);
     } catch (error) {
-      console.error('Erreur lors de la détection des panoramas:', error);
+      console.error('Error during panorama detection:', error);
       
-      // En cas d'erreur, utiliser la position du clic
+      // In case of error, use click position
       setDetectedPosition(latlng);
       setDetectionResults([]);
       
-      // Effacer l'info du clic
+      // Clear click info
       setClickInfo(null);
     } finally {
       setIsDetecting(false);
@@ -404,7 +404,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   };
 
   /**
-   * Ferme la bulle de panorama
+   * Closes the panorama bubble
    */
   const closePanoramaBubble = () => {
     setDetectedPosition(null);
@@ -412,14 +412,14 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   };
 
   /**
-   * Ferme le popup d'avertissement Yandex
+   * Closes the Yandex warning popup
    */
   const closeYandexWarning = () => {
     setShowYandexWarning(false);
   };
 
   /**
-   * Ferme le popup d'avertissement Apple
+   * Closes the Apple warning popup
    */
   const closeAppleWarning = () => {
     setShowAppleWarning(false);
@@ -484,7 +484,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                   }
                 }}
               >
-                {/* Logo du provider */}
+                {/* Provider logo */}
                 <div style={{ 
                   width: '24px', 
                   height: '24px', 
@@ -526,7 +526,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
                   />
                 </div>
 
-                {/* Nom du provider */}
+                {/* Provider name */}
                 <span 
                   style={{
                     cursor: 'pointer',
@@ -620,7 +620,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         />
       )}
 
-      {/* Bulle d'information temporaire (pour l'indication du clic/drop) */}
+      {/* Temporary information bubble (for click/drop indication) */}
       {clickInfo && clickInfo.position && mapInstance && !isDetecting && !detectedPosition && tempBubbleScreenPos && (
         <div
           className="info-bubble"
@@ -662,7 +662,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         </div>
       )}
 
-      {/* Indicateur pendant la détection */}
+              {/* Indicator during detection */}
       {isDetecting && clickInfo && clickInfo.position && mapInstance && tempBubbleScreenPos && (
         <div
           className="detecting-bubble"
@@ -701,7 +701,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         </div>
       )}
 
-      {/* Bulle de panorama avec les résultats */}
+              {/* Panorama bubble with results */}
       {detectedPosition && !isDetecting && mapInstance && (
         <PanoramaBubble
           map={mapInstance}
@@ -711,7 +711,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         />
       )}
 
-      {/* Popup d'avertissement pour Yandex */}
+      {/* Yandex warning popup */}
       {showYandexWarning && (
         <div
           style={{
@@ -789,7 +789,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         </div>
       )}
 
-      {/* Popup d'avertissement pour Apple */}
+      {/* Apple warning popup */}
       {showAppleWarning && (
         <div
           style={{
@@ -873,7 +873,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
         </div>
       )}
 
-      {/* Style pour l'animation de chargement */}
+      {/* Loading animation styles */}
       <style jsx>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }

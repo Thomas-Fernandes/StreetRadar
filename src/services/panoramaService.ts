@@ -1,8 +1,8 @@
 /**
- * panoramaService.ts
- * 
- * Service responsable de la gestion des liens vers les panoramas Street View
- * Version simplifiée temporaire qui se concentre uniquement sur la détection des tuiles.
+ * Panorama detection and URL generation service
+ *
+ * Temporary simplified version that focuses only on tile detection.
+ * Uses StreetViewDetectionCanvas for actual detection.
  */
 
 import L from 'leaflet';
@@ -10,25 +10,25 @@ import { StreetViewDetectionCanvas, StreetViewDetectionResult } from './streetVi
 import { AppleLookAroundService } from './appleLookAroundService';
 
 /**
- * Interface pour les options de détection
+ * Interface for detection options
  */
 export interface PanoramaDetectionOptions {
-  method: 'canvas' | 'api';  // Méthode de détection à utiliser
-  showDebugInfo?: boolean;   // Afficher les informations de débogage
+  method: 'canvas' | 'api';  // Detection method to use
+  showDebugInfo?: boolean;   // Show debug information
 }
 
 /**
- * Service principal pour la gestion des panoramas
+ * Service principal for panorama management
  */
 export class PanoramaService {
   /**
-   * Détecte les panoramas disponibles à un emplacement donné
-   * 
-   * @param map La carte Leaflet
-   * @param latlng Position géographique où chercher des panoramas
-   * @param activeProviders Liste des fournisseurs actifs
-   * @param _options Options de détection (non utilisées pour l'instant)
-   * @returns Promesse avec les résultats de détection
+   * Detects available panoramas at a given location
+   *
+   * This method uses tile-based detection via StreetViewDetectionCanvas.
+   * @param latlng Geographic position where to search for panoramas
+   * @param map Leaflet map instance for tile access
+   * @param _options Detection options (not used for now)
+   * @returns Promise with detection results
    */
   static async detectPanoramasAt(
     map: L.Map,
@@ -37,7 +37,7 @@ export class PanoramaService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _options: PanoramaDetectionOptions = { method: 'canvas' }
   ): Promise<StreetViewDetectionResult[]> {
-    // Pour l'instant, utiliser uniquement la méthode Canvas
+    // For now, use only the Canvas method
     return StreetViewDetectionCanvas.detectStreetViewAt(
       map,
       latlng,
@@ -46,10 +46,11 @@ export class PanoramaService {
   }
 
   /**
-   * Génère l'URL pour ouvrir un panorama chez un fournisseur spécifique
-   * 
-   * @param result Résultat de détection pour un fournisseur
-   * @returns URL vers le panorama
+   * Generates URL to open a panorama for a specific provider
+   *
+   * @param result Detection result for a provider
+   * @param latlng Geographic coordinates
+   * @returns URL to open the panorama
    */
   static getPanoramaUrl(result: StreetViewDetectionResult): string {
     if (!result.closestPoint) return '#';
@@ -68,7 +69,7 @@ export class PanoramaService {
         return `https://yandex.com/maps/?panorama%5Bpoint%5D=${lng}%2C${lat}&l=stv`;
       
       case 'apple':
-        // Utiliser le service Apple Look Around pour générer un lien optimisé
+        // Use Apple Look Around service to generate an optimized link
         return AppleLookAroundService.buildOptimizedLookAroundLink(
           parseFloat(lat), 
           parseFloat(lng)
@@ -80,10 +81,10 @@ export class PanoramaService {
   }
 
   /**
-   * Retourne le nom complet d'un fournisseur à partir de son identifiant
+   * Returns the full name of a provider from its identifier
    * 
-   * @param provider Identifiant du fournisseur
-   * @returns Nom complet du fournisseur
+   * @param provider Provider identifier
+   * @returns Full provider name
    */
   static getProviderName(provider: string): string {
     switch (provider) {
