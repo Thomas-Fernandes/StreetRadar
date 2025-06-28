@@ -18,6 +18,7 @@ import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
 import Image from 'next/image';
+import { analytics } from '@/services/analyticsService';
 
 /**
  * Props accepted by the MapContainer component
@@ -256,6 +257,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
 
   // Function to toggle layer visibility
   const toggleLayer = (layer: keyof typeof visibleLayers) => {
+    // Track layer toggle
+    const providerName = layer.replace('StreetView', '').replace('Streetside', '').replace('Panoramas', '').replace('LookAround', '').toLowerCase() as 'google' | 'bing' | 'yandex' | 'apple';
+    const newState = !visibleLayers[layer];
+    analytics.trackLayerToggle(providerName, newState);
+    
     // If activating Yandex and it wasn't already activated AND the warning has never been shown
     if (layer === 'yandexPanoramas' && !visibleLayers.yandexPanoramas && !yandexWarningShown) {
       setShowYandexWarning(true);
@@ -327,6 +333,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
    * Handles PegCat drop event on the map
    */
   const handlePegcatDrop = async (latlng: L.LatLng) => {
+    // Track PegCat drop
+    if (mapInstance) {
+      analytics.trackPegcatDrop(latlng.lat, latlng.lng, mapInstance.getZoom());
+    }
+    
     // Start detection
     await detectPanoramas(latlng, 'drop');
   };
@@ -335,6 +346,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
    * Handles map click when zoom is sufficient
    */
   const handleMapClick = async (latlng: L.LatLng) => {
+    // Track map click
+    if (mapInstance) {
+      analytics.trackMapClick(latlng.lat, latlng.lng, mapInstance.getZoom());
+    }
+    
     // If a popup is already open, close it instead of opening a new one
     if (detectedPosition) {
       closePanoramaBubble();
