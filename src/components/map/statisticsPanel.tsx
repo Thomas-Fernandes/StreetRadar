@@ -9,6 +9,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { StatisticsService } from '../../services/statisticsService';
+import CoverageChart from '../charts/CoverageChart';
 
 interface StatisticsPanelProps {
   isOpen: boolean;
@@ -185,8 +186,7 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
               title="Click to view chart in full screen"
             >
               <div className="chart-preview-content">
-                <span className="chart-icon">📈</span>
-                <p className="chart-description">Coverage evolution over time</p>
+                <CoverageChart height={120} showLegend={false} interactive={false} title="" />
                 <div className="chart-expand-hint">Click to expand</div>
               </div>
             </div>
@@ -209,10 +209,8 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
               </button>
             </div>
             <div className="chart-modal-body">
-              <div className="chart-full-display">
-                <span className="chart-icon-large">📈</span>
-                <p className="chart-description-large">Detailed coverage evolution over time</p>
-                <p className="chart-placeholder-text">Interactive chart will be displayed here</p>
+              <div style={{ width: '100%', height: '100%' }}>
+                <CoverageChart height={0} showLegend={true} interactive={true} title="" />
               </div>
             </div>
           </div>

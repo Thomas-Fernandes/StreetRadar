@@ -15,6 +15,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import CoverageChart from '@/components/charts/CoverageChart';
 
 export default function AnalyticsPage() {
   const upcomingFeatures = [
@@ -69,34 +70,25 @@ export default function AnalyticsPage() {
             </h1>
           </div>
 
-          {/* Coming Soon Notice */}
+          {/* Coverage Evolution Chart */}
           <div style={{
-            background: 'rgba(155, 68, 52, 0.05)',
-            border: '2px solid var(--primary, #9b4434)',
-            borderRadius: '12px',
-            padding: '40px',
-            textAlign: 'center',
-            marginBottom: '60px'
+            background: 'rgba(255, 255, 255, 0.6)',
+            border: '1px solid rgba(0, 0, 0, 0.05)',
+            borderRadius: '16px',
+            padding: '32px',
+            marginBottom: '60px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)'
           }}>
-            <div style={{ fontSize: '64px', marginBottom: '20px' }}>🚧</div>
             <h2 style={{ 
               fontSize: '28px', 
               fontWeight: '600', 
-              marginBottom: '16px',
-              color: 'var(--primary, #9b4434)'
+              marginBottom: '24px',
+              color: 'var(--primary, #9b4434)',
+              textAlign: 'center'
             }}>
-              Coming Soon
+              Street View Coverage Evolution
             </h2>
-            <p style={{ 
-              fontSize: '16px', 
-              color: 'var(--text-light, #666666)',
-              marginBottom: '20px',
-              lineHeight: '1.5'
-            }}>
-              We&apos;re working hard to bring you comprehensive analytics and data visualizations. 
-              <br />
-              <strong>Apple Look Around coverage analysis</strong> will be the first feature to launch!
-            </p>
+            <CoverageChart height={500} showLegend={true} interactive={true} title="" />
           </div>
 
           {/* Upcoming Features */}
