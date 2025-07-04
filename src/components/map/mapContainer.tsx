@@ -17,6 +17,7 @@ import PegcatControl from './pegcatControl'; // Import of the new PegCat control
 import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
+import StatisticsPanel from '@/components/map/statisticsPanel';
 import Image from 'next/image';
 import { analytics } from '@/services/analyticsService';
 
@@ -73,6 +74,8 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
   const [showAppleWarning, setShowAppleWarning] = useState<boolean>(false);
   // Flag to know if Apple warning has already been shown
   const [appleWarningShown, setAppleWarningShown] = useState<boolean>(false);
+  // Statistics panel open state
+  const [isStatisticsPanelOpen, setIsStatisticsPanelOpen] = useState<boolean>(false);
   
   // Minimum zoom level to activate Street View - reduced by 6 levels total (16 -> 13 -> 10)
   const MIN_ZOOM_FOR_STREETVIEW = 10;
@@ -329,6 +332,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     setIsBasemapSelectorOpen(!isBasemapSelectorOpen);
   };
 
+  // Toggle statistics panel
+  const toggleStatisticsPanel = () => {
+    setIsStatisticsPanelOpen(!isStatisticsPanelOpen);
+  };
+
   /**
    * Handles PegCat drop event on the map
    */
@@ -448,7 +456,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       
       {/* Custom layer control with improved design */}
       {mapInstance && (
-        <div className="control-panel">
+        <div className={`control-panel ${isStatisticsPanelOpen ? 'stats-open' : ''}`}>
           <div 
             className={`control-panel-header ${isPanelCollapsed ? 'collapsed' : ''}`}
             onClick={togglePanel}
@@ -558,6 +566,14 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             ))}
           </div>
         </div>
+      )}
+
+      {/* Statistics Panel */}
+      {mapInstance && (
+        <StatisticsPanel
+          isOpen={isStatisticsPanelOpen}
+          onToggle={toggleStatisticsPanel}
+        />
       )}
 
       {/* Custom basemap selector */}
