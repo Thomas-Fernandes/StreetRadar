@@ -7,7 +7,8 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { StatisticsService } from '../../services/statisticsService';
 
 interface StatisticsPanelProps {
   isOpen: boolean;
@@ -18,6 +19,64 @@ interface StatisticsPanelProps {
  * Statistics panel component that displays coverage metrics and analytics
  */
 export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelProps) {
+  const [totalKilometers, setTotalKilometers] = useState<string>('--');
+  const [totalPanoramaCount, setTotalPanoramaCount] = useState<string>('--');
+  const [providerBreakdown, setProviderBreakdown] = useState<{ [provider: string]: { kilometers: string; panoramaCount: string } }>({});
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isChartModalOpen, setIsChartModalOpen] = useState<boolean>(false);
+
+  // Load statistics when component mounts or when panel opens
+  useEffect(() => {
+    if (isOpen && loading) {
+      loadStatistics();
+    }
+  }, [isOpen, loading]);
+
+  const loadStatistics = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const [kilometers, panoramaCount, breakdown] = await Promise.all([
+        StatisticsService.getTotalKilometers(),
+        StatisticsService.getTotalPanoramaCount(),
+        StatisticsService.getProviderBreakdown()
+      ]);
+      
+      setTotalKilometers(kilometers);
+      setTotalPanoramaCount(panoramaCount);
+      setProviderBreakdown(breakdown);
+    } catch (err) {
+      console.error('Error loading statistics:', err);
+      setError('Failed to load statistics');
+      setTotalKilometers('Error');
+      setTotalPanoramaCount('Error');
+      setProviderBreakdown({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Toggle chart modal
+  const toggleChartsExpansion = () => {
+    setIsChartModalOpen(!isChartModalOpen);
+  };
+
+  // Add/remove body class when chart modal opens/closes
+  useEffect(() => {
+    if (isChartModalOpen) {
+      document.body.classList.add('chart-modal-open');
+    } else {
+      document.body.classList.remove('chart-modal-open');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('chart-modal-open');
+    };
+  }, [isChartModalOpen]);
+
   return (
     <>
       {/* Statistics button - shows when panel is closed */}
@@ -57,11 +116,15 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
             <div className="stats-metrics">
               <div className="stat-item">
                 <span className="stat-label">Total Kilometers</span>
-                <span className="stat-value">-- km</span>
+                <span className="stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : `${totalKilometers} km`}
+                </span>
               </div>
               <div className="stat-item">
                 <span className="stat-label">Panorama Count</span>
-                <span className="stat-value">--</span>
+                <span className="stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : totalPanoramaCount}
+                </span>
               </div>
             </div>
           </div>
@@ -75,74 +138,81 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
                   <span className="provider-color-indicator google"></span>
                   <span className="provider-stat-name">Google</span>
                 </div>
-                <span className="provider-stat-value">-- km</span>
+                <span className="provider-stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : 
+                    providerBreakdown.Google ? providerBreakdown.Google.kilometers : 'Coming Soon'}
+                </span>
               </div>
               <div className="provider-stat-item">
                 <div className="provider-stat-header">
                   <span className="provider-color-indicator bing"></span>
                   <span className="provider-stat-name">Bing</span>
                 </div>
-                <span className="provider-stat-value">-- km</span>
-              </div>
-              <div className="provider-stat-item">
-                <div className="provider-stat-header">
-                  <span className="provider-color-indicator yandex"></span>
-                  <span className="provider-stat-name">Yandex</span>
-                </div>
-                <span className="provider-stat-value">-- km</span>
+                <span className="provider-stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : 
+                    providerBreakdown.Bing ? providerBreakdown.Bing.kilometers : 'Coming Soon'}
+                </span>
               </div>
               <div className="provider-stat-item">
                 <div className="provider-stat-header">
                   <span className="provider-color-indicator apple"></span>
                   <span className="provider-stat-name">Apple</span>
                 </div>
-                <span className="provider-stat-value">-- km</span>
+                <span className="provider-stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : 
+                    providerBreakdown.Apple ? `${providerBreakdown.Apple.kilometers} km` : '-- km'}
+                </span>
+              </div>
+              <div className="provider-stat-item">
+                <div className="provider-stat-header">
+                  <span className="provider-color-indicator yandex"></span>
+                  <span className="provider-stat-name">Yandex</span>
+                </div>
+                <span className="provider-stat-value">
+                  {loading ? 'Loading...' : error ? 'Error' : 
+                    providerBreakdown.Yandex ? providerBreakdown.Yandex.kilometers : 'Coming Soon'}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Filters Section */}
-          <div className="stats-section">
-            <h3 className="stats-section-title">Filters</h3>
-            <div className="filter-controls">
-              <div className="filter-group">
-                <label className="filter-label">Country</label>
-                <select className="filter-select" disabled>
-                  <option>All Countries</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label className="filter-label">Continent</label>
-                <select className="filter-select" disabled>
-                  <option>All Continents</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label className="filter-label">Year</label>
-                <select className="filter-select" disabled>
-                  <option>All Years</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label className="filter-label">Provider</label>
-                <select className="filter-select" disabled>
-                  <option>All Providers</option>
-                </select>
+          {/* Charts Section */}
+          <div className="stats-section charts-section">
+            <h3 className="stats-section-title">Coverage Trends</h3>
+            <div 
+              className="chart-preview"
+              onClick={toggleChartsExpansion}
+              title="Click to view chart in full screen"
+            >
+              <div className="chart-preview-content">
+                <span className="chart-icon">📈</span>
+                <p className="chart-description">Coverage evolution over time</p>
+                <div className="chart-expand-hint">Click to expand</div>
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Charts Placeholder */}
-          <div className="stats-section">
-            <h3 className="stats-section-title">Charts</h3>
-            <div className="charts-placeholder">
-              <div className="chart-placeholder">
-                <span>📈 Coverage Trends</span>
-                <p>Chart will be displayed here</p>
-              </div>
-              <div className="chart-placeholder">
-                <span>🗺️ Geographic Distribution</span>
-                <p>Chart will be displayed here</p>
+      {/* Chart Modal */}
+      {isChartModalOpen && (
+        <div className="chart-modal-overlay" onClick={toggleChartsExpansion}>
+          <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="chart-modal-header">
+              <h2 className="chart-modal-title">Coverage Trends</h2>
+              <button 
+                className="chart-modal-close"
+                onClick={toggleChartsExpansion}
+                title="Close chart"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="chart-modal-body">
+              <div className="chart-full-display">
+                <span className="chart-icon-large">📈</span>
+                <p className="chart-description-large">Detailed coverage evolution over time</p>
+                <p className="chart-placeholder-text">Interactive chart will be displayed here</p>
               </div>
             </div>
           </div>
