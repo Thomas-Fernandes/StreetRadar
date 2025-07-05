@@ -147,7 +147,7 @@
     "month":5,
     "year":2019,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":949.18,
     "trace_count":2736,
     "panorama_count":198287
@@ -228,7 +228,7 @@
     "month":6,
     "year":2019,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":2885.11,
     "trace_count":7012,
     "panorama_count":598574
@@ -264,7 +264,7 @@
     "month":6,
     "year":2019,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":9622.59,
     "trace_count":12355,
     "panorama_count":1956049
@@ -309,7 +309,7 @@
     "month":7,
     "year":2019,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":1135.21,
     "trace_count":3015,
     "panorama_count":236252
@@ -435,7 +435,7 @@
     "month":8,
     "year":2019,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":9259.96,
     "trace_count":28756,
     "panorama_count":1938397
@@ -534,7 +534,7 @@
     "month":9,
     "year":2019,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":750.89,
     "trace_count":2512,
     "panorama_count":157780
@@ -1011,7 +1011,7 @@
     "month":8,
     "year":2020,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":480.26,
     "trace_count":2400,
     "panorama_count":141337
@@ -1065,7 +1065,7 @@
     "month":8,
     "year":2020,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":93.07,
     "trace_count":120,
     "panorama_count":81958
@@ -1128,7 +1128,7 @@
     "month":9,
     "year":2020,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":3397.5,
     "trace_count":13219,
     "panorama_count":1420545
@@ -1182,7 +1182,7 @@
     "month":9,
     "year":2020,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":431.74,
     "trace_count":628,
     "panorama_count":360731
@@ -1227,7 +1227,7 @@
     "month":10,
     "year":2020,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":64.41,
     "trace_count":308,
     "panorama_count":42902
@@ -1722,7 +1722,7 @@
     "month":5,
     "year":2021,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":189.69,
     "trace_count":803,
     "panorama_count":39011
@@ -1902,7 +1902,7 @@
     "month":6,
     "year":2021,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":943.11,
     "trace_count":4034,
     "panorama_count":193988
@@ -2019,7 +2019,7 @@
     "month":7,
     "year":2021,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":16.35,
     "trace_count":82,
     "panorama_count":3237
@@ -2127,7 +2127,7 @@
     "month":7,
     "year":2021,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":108.86,
     "trace_count":218,
     "panorama_count":20496
@@ -2199,7 +2199,7 @@
     "month":8,
     "year":2021,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":1.69,
     "trace_count":4,
     "panorama_count":295
@@ -2352,7 +2352,7 @@
     "month":9,
     "year":2021,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":3.13,
     "trace_count":5,
     "panorama_count":638
@@ -2739,7 +2739,7 @@
     "month":4,
     "year":2022,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":1740.63,
     "trace_count":7216,
     "panorama_count":358029
@@ -2883,7 +2883,7 @@
     "month":5,
     "year":2022,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":758.08,
     "trace_count":2299,
     "panorama_count":428178
@@ -3063,7 +3063,7 @@
     "month":6,
     "year":2022,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":43.26,
     "trace_count":267,
     "panorama_count":8917
@@ -3153,7 +3153,7 @@
     "month":7,
     "year":2022,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":1.62,
     "trace_count":20,
     "panorama_count":336
@@ -3468,7 +3468,7 @@
     "month":3,
     "year":2023,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":6619.73,
     "trace_count":7520,
     "panorama_count":1311626
@@ -3567,7 +3567,7 @@
     "month":4,
     "year":2023,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":5795.53,
     "trace_count":6163,
     "panorama_count":1123935
@@ -3702,7 +3702,7 @@
     "month":5,
     "year":2023,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":106.58,
     "trace_count":41,
     "panorama_count":18036
@@ -3855,7 +3855,7 @@
     "month":6,
     "year":2023,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":149.51,
     "trace_count":144,
     "panorama_count":30251
@@ -4080,7 +4080,7 @@
     "month":7,
     "year":2023,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":383.66,
     "trace_count":1116,
     "panorama_count":73691
@@ -4755,7 +4755,7 @@
     "month":6,
     "year":2024,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":15.6,
     "trace_count":10,
     "panorama_count":11420
@@ -4899,7 +4899,7 @@
     "month":7,
     "year":2024,
     "country":"england",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":735.22,
     "trace_count":398,
     "panorama_count":645563
@@ -4989,7 +4989,7 @@
     "month":7,
     "year":2024,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":608.09,
     "trace_count":308,
     "panorama_count":117313
@@ -5124,7 +5124,7 @@
     "month":8,
     "year":2024,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":1978.86,
     "trace_count":1281,
     "panorama_count":374138
@@ -5169,7 +5169,7 @@
     "month":9,
     "year":2024,
     "country":"scotland",
-    "continent":"Unknown",
+    "continent":"Europe",
     "km_traces":11.62,
     "trace_count":1,
     "panorama_count":1788

@@ -23,6 +23,7 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import 'chartjs-adapter-date-fns';
+import { ChartFilters } from './ChartControls';
 
 // Register Chart.js components
 ChartJS.register(
@@ -52,13 +53,15 @@ interface CoverageChartProps {
   title?: string;
   showLegend?: boolean;
   interactive?: boolean;
+  filters?: ChartFilters;
 }
 
 const CoverageChart: React.FC<CoverageChartProps> = ({ 
   height = 400, 
   title = "Street View Coverage Evolution",
   showLegend = true,
-  interactive = true 
+  interactive = true,
+  filters
 }) => {
   const [chartData, setChartData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +88,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
 
   useEffect(() => {
     loadCoverageData();
-  }, []);
+  }, [filters]);
 
   const loadCoverageData = async () => {
     try {
@@ -101,7 +104,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
       const data: CoverageData[] = await response.json();
       
       // Process data for the chart
-      const processedData = processDataForChart(data);
+      const processedData = processDataForChart(data, filters);
       setChartData(processedData);
     } catch (err) {
       console.error('Error loading coverage data:', err);
@@ -111,55 +114,95 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
     }
   };
 
-  const processDataForChart = (data: CoverageData[]) => {
-    // Group data by date and country
-    const groupedByDate: { [key: string]: { [country: string]: number } } = {};
+  const processDataForChart = (data: CoverageData[], filters?: ChartFilters) => {
+    // Apply filters to data
+    let filteredData = data;
+
+    // Filter by period
+    if (filters?.period && filters.period !== 'all') {
+      const currentDate = new Date();
+      let cutoffDate = new Date();
+      
+      switch (filters.period) {
+        case 'last12months':
+          cutoffDate.setMonth(currentDate.getMonth() - 12);
+          break;
+        case 'last24months':
+          cutoffDate.setMonth(currentDate.getMonth() - 24);
+          break;
+        case 'last3years':
+          cutoffDate.setFullYear(currentDate.getFullYear() - 3);
+          break;
+      }
+      
+      filteredData = filteredData.filter(item => {
+        const itemDate = new Date(item.year, item.month - 1, 1);
+        return itemDate >= cutoffDate;
+      });
+    }
+
+    // Filter by countries if specific countries are selected
+    if (filters?.countries && filters.countries.length > 0) {
+      filteredData = filteredData.filter(item => 
+        filters.countries.includes(item.country)
+      );
+    }
+
+    // Group data by date and region (country or continent)
+    const groupedByDate: { [key: string]: { [region: string]: number } } = {};
+    const groupByField = filters?.groupBy || 'country';
     
-    data.forEach(item => {
+    filteredData.forEach(item => {
       const date = new Date(item.year, item.month - 1, 1);
       const dateKey = date.toISOString().substring(0, 7); // YYYY-MM format
+      const regionKey = groupByField === 'continent' ? item.continent : item.country;
       
       if (!groupedByDate[dateKey]) {
         groupedByDate[dateKey] = {};
       }
       
-      if (!groupedByDate[dateKey][item.country]) {
-        groupedByDate[dateKey][item.country] = 0;
+      if (!groupedByDate[dateKey][regionKey]) {
+        groupedByDate[dateKey][regionKey] = 0;
       }
       
-      groupedByDate[dateKey][item.country] += item.km_traces;
+      groupedByDate[dateKey][regionKey] += item.km_traces;
     });
 
-    // Get top 7 countries by total coverage
-    const countryTotals: { [country: string]: number } = {};
+    // Get top regions by total coverage
+    const regionTotals: { [region: string]: number } = {};
     Object.values(groupedByDate).forEach(dateData => {
-      Object.entries(dateData).forEach(([country, km]) => {
-        countryTotals[country] = (countryTotals[country] || 0) + km;
+      Object.entries(dateData).forEach(([region, km]) => {
+        regionTotals[region] = (regionTotals[region] || 0) + km;
       });
     });
 
-    const topCountries = Object.entries(countryTotals)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 7)
-      .map(([country]) => country);
+    // Determine how many regions to show based on filters
+    const maxRegions = (filters?.countries && filters.countries.length > 0 && filters.countries.length <= 10) 
+      ? filters.countries.length 
+      : Math.min(7, Object.keys(regionTotals).length);
 
-    // Create datasets for each top country
+    const topRegions = Object.entries(regionTotals)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, maxRegions)
+      .map(([region]) => region);
+
+    // Create datasets for each top region
     const labels = Object.keys(groupedByDate).sort();
-    const datasets = topCountries.map((country, index) => {
-      const countryData = labels.map(date => {
+    const datasets = topRegions.map((region: string, index: number) => {
+      const regionData = labels.map(date => {
         let cumulativeTotal = 0;
         // Calculate cumulative total up to this date
         for (const labelDate of labels) {
           if (labelDate <= date) {
-            cumulativeTotal += groupedByDate[labelDate][country] || 0;
+            cumulativeTotal += groupedByDate[labelDate][region] || 0;
           }
         }
         return cumulativeTotal;
       });
 
       return {
-        label: country.charAt(0).toUpperCase() + country.slice(1),
-        data: countryData,
+        label: region.charAt(0).toUpperCase() + region.slice(1),
+        data: regionData,
         backgroundColor: colors.countries[index] || colors.countries[colors.countries.length - 1],
         borderColor: colors.countries[index]?.replace('0.8', '1') || colors.countries[colors.countries.length - 1].replace('0.8', '1'),
         borderWidth: 2,

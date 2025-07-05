@@ -10,6 +10,7 @@
 import React, { useEffect, useState } from 'react';
 import { StatisticsService } from '../../services/statisticsService';
 import CoverageChart from '../charts/CoverageChart';
+import CoverageChartWithControls from '../charts/CoverageChartWithControls';
 
 interface StatisticsPanelProps {
   isOpen: boolean;
@@ -209,8 +210,14 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
               </button>
             </div>
             <div className="chart-modal-body">
-              <div style={{ width: '100%', height: '100%' }}>
-                <CoverageChart height={0} showLegend={true} interactive={true} title="" />
+              <div style={{ 
+                width: '100%', 
+                height: '100%', 
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: 0
+              }}>
+                <CoverageChartWithControls height={0} showLegend={true} interactive={true} title="" />
               </div>
             </div>
           </div>

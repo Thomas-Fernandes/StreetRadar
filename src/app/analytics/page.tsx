@@ -15,7 +15,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import CoverageChart from '@/components/charts/CoverageChart';
+import CoverageChartWithControls from '@/components/charts/CoverageChartWithControls';
 
 export default function AnalyticsPage() {
   const upcomingFeatures = [
@@ -88,7 +88,7 @@ export default function AnalyticsPage() {
             }}>
               Street View Coverage Evolution
             </h2>
-            <CoverageChart height={500} showLegend={true} interactive={true} title="" />
+            <CoverageChartWithControls height={500} showLegend={true} interactive={true} title="" />
           </div>
 
           {/* Upcoming Features */}

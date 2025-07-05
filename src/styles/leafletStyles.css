@@ -922,9 +922,9 @@
     flex: 1;
     padding: 24px;
     display: flex;
-    align-items: stretch;
-    justify-content: stretch;
+    flex-direction: column;
     overflow: hidden;
+    min-height: 0;
   }
 
   .chart-full-display {
