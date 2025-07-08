@@ -292,6 +292,21 @@ a {
   100% { transform: rotate(360deg); }
 }
 
+/* Chart container styles for better integration */
+.chart-container {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.chart-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(155, 68, 52, 0.15);
+}
+
 .stats-error {
   color: var(--text-light);
   font-size: 14px;
