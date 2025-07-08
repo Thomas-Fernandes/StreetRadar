@@ -2,7 +2,7 @@
  * CountryBarChart.tsx
  * 
  * Horizontal bar chart component for displaying Street View coverage by country
- * Filtered by selected continent
+ * Filtered by selected continent with scrollable list to show all countries
  */
 
 'use client';
@@ -53,7 +53,7 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
   filters,
   selectedContinent
 }) => {
-  const [chartData, setChartData] = useState<any>(null);
+  const [allCountries, setAllCountries] = useState<{country: string, total: number}[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,7 +92,7 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
 
       const data: CoverageData[] = await response.json();
       const processedData = processDataForChart(data);
-      setChartData(processedData);
+      setAllCountries(processedData);
     } catch (err) {
       console.error('Error loading coverage data:', err);
       setError('Failed to load coverage data');
@@ -120,116 +120,23 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
       countryTotals[item.country] += item.km_traces;
     });
 
-    // Sort countries by total coverage (descending) and limit to top 10
+    // Sort countries by total coverage (descending) - show ALL countries
     const sortedCountries = Object.entries(countryTotals)
       .sort(([,a], [,b]) => b - a)
-      .slice(0, 10);
+      .map(([country, total]) => ({
+        country: country.charAt(0).toUpperCase() + country.slice(1),
+        total
+      }));
 
-    const labels = sortedCountries.map(([country]) => 
-      country.charAt(0).toUpperCase() + country.slice(1)
-    );
-    const dataValues = sortedCountries.map(([,total]) => total);
-
-    // Create gradient colors
-    const backgroundColors = labels.map((_, index) => 
-      colors.countries[index % colors.countries.length]
-    );
-
-    const borderColors = backgroundColors.map(color => 
-      color.replace('0.8', '1')
-    );
-
-    return {
-      labels,
-      datasets: [{
-        label: 'Coverage (km)',
-        data: dataValues,
-        backgroundColor: backgroundColors,
-        borderColor: borderColors,
-        borderWidth: 2,
-        borderRadius: 4,
-        barThickness: 30,
-      }]
-    };
+    return sortedCountries;
   };
 
-  const options = {
-    indexAxis: 'y' as const,
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: {
-        display: false,
-      },
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        backgroundColor: colors.background,
-        titleColor: colors.primary,
-        bodyColor: colors.text,
-        borderColor: colors.primary,
-        borderWidth: 1,
-        cornerRadius: 8,
-        titleFont: {
-          family: 'var(--font-geist-sans, sans-serif)',
-          size: 14,
-          weight: 'bold' as const,
-        },
-        bodyFont: {
-          family: 'var(--font-geist-sans, sans-serif)',
-          size: 12,
-          weight: 'normal' as const,
-        },
-        callbacks: {
-          label: (context: any) => {
-            const value = context.parsed.x;
-            return `${value.toLocaleString()} km coverage`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-        grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
-        },
-        ticks: {
-          font: {
-            family: 'var(--font-geist-sans, sans-serif)',
-            size: 11,
-            weight: 'normal' as const,
-          },
-          color: colors.textLight,
-          callback: function(value: any) {
-            return value.toLocaleString() + ' km';
-          },
-        },
-        border: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-      },
-      y: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          font: {
-            family: 'var(--font-geist-sans, sans-serif)',
-            size: 12,
-            weight: 'bold' as const,
-          },
-          color: colors.text,
-        },
-        border: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-      },
-    },
-    interaction: {
-      intersect: false,
-    },
+  const getCountryColor = (index: number) => {
+    return colors.countries[index % colors.countries.length];
+  };
+
+  const getCountryBorderColor = (index: number) => {
+    return getCountryColor(index).replace('0.8', '1');
   };
 
   if (loading) {
@@ -302,12 +209,149 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
     );
   }
 
+  // Find the maximum value for percentage calculation
+  const maxValue = Math.max(...allCountries.map(c => c.total));
+
   return (
     <div style={{ 
       height: height === 0 ? '100%' : `${height}px`, 
       width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: colors.background,
+      borderRadius: '12px',
+      padding: '16px',
+      border: '1px solid rgba(155, 68, 52, 0.1)',
     }}>
-      {chartData && <Bar data={chartData} options={options} />}
+      {/* Header */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '12px',
+        paddingBottom: '8px',
+        borderBottom: '1px solid rgba(155, 68, 52, 0.1)',
+      }}>
+        <h4 style={{
+          margin: 0,
+          fontSize: '14px',
+          fontWeight: 'bold',
+          color: colors.primary,
+          fontFamily: 'var(--font-geist-sans, sans-serif)',
+        }}>
+          {selectedContinent.charAt(0).toUpperCase() + selectedContinent.slice(1)} Countries
+        </h4>
+        <span style={{
+          fontSize: '12px',
+          color: colors.textLight,
+          fontFamily: 'var(--font-geist-sans, sans-serif)',
+        }}>
+          {allCountries.length} countries
+        </span>
+      </div>
+
+      {/* Scrollable country list */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        paddingRight: '4px',
+        scrollbarWidth: 'thin',
+        scrollbarColor: `${colors.primary} transparent`,
+      }}>
+        <style>
+          {`
+            div::-webkit-scrollbar {
+              width: 6px;
+            }
+            div::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            div::-webkit-scrollbar-thumb {
+              background: ${colors.primary};
+              border-radius: 3px;
+            }
+            div::-webkit-scrollbar-thumb:hover {
+              background: ${colors.secondary};
+            }
+          `}
+        </style>
+        {allCountries.map((countryData, index) => {
+          const percentage = (countryData.total / maxValue) * 100;
+          const color = getCountryColor(index);
+          const borderColor = getCountryBorderColor(index);
+          
+          return (
+            <div
+              key={countryData.country}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: '8px',
+                padding: '8px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                border: '1px solid rgba(155, 68, 52, 0.1)',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(155, 68, 52, 0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              {/* Country name */}
+              <div style={{
+                width: '120px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                color: colors.text,
+                fontFamily: 'var(--font-geist-sans, sans-serif)',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+              }}>
+                {countryData.country}
+              </div>
+
+              {/* Progress bar */}
+              <div style={{
+                flex: 1,
+                margin: '0 12px',
+                height: '16px',
+                backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                position: 'relative',
+              }}>
+                <div style={{
+                  width: `${percentage}%`,
+                  height: '100%',
+                  backgroundColor: color,
+                  borderRadius: '8px',
+                  transition: 'width 0.3s ease',
+                  border: `1px solid ${borderColor}`,
+                }} />
+              </div>
+
+              {/* Value */}
+              <div style={{
+                width: '80px',
+                fontSize: '11px',
+                fontWeight: 'normal',
+                color: colors.textLight,
+                fontFamily: 'var(--font-geist-sans, sans-serif)',
+                textAlign: 'right',
+              }}>
+                {countryData.total.toLocaleString()} km
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

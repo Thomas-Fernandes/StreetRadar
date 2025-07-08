@@ -145,12 +145,14 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
       });
     });
 
-    // Show top 7 countries by coverage
-    const maxCountries = Math.min(7, Object.keys(countryTotals).length);
-    const topCountries = Object.entries(countryTotals)
+    // Show all countries by coverage, but only display top 10 in the chart
+    // Keep all data for the scrollable legend
+    const allCountries = Object.entries(countryTotals)
       .sort(([,a], [,b]) => b - a)
-      .slice(0, maxCountries)
       .map(([country]) => country);
+
+    // Use top 10 for the actual chart display to maintain readability
+    const topCountries = allCountries.slice(0, 10);
 
     // Create datasets for each top country
     const labels = Object.keys(groupedByDate).sort();
@@ -178,6 +180,11 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         pointHoverRadius: 6,
         pointBackgroundColor: colors.background,
         pointBorderWidth: 2,
+        // Store all countries info for custom legend
+        allCountries: allCountries.map(country => ({
+          name: country.charAt(0).toUpperCase() + country.slice(1),
+          total: countryTotals[country]
+        }))
       };
     });
 
@@ -186,7 +193,12 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         const [year, month] = label.split('-');
         return new Date(parseInt(year), parseInt(month) - 1, 1);
       }),
-      datasets
+      datasets,
+      // Store all countries for custom legend
+      allCountriesData: allCountries.map(country => ({
+        name: country.charAt(0).toUpperCase() + country.slice(1),
+        total: countryTotals[country]
+      }))
     };
   };
 
@@ -213,20 +225,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         },
       },
       legend: {
-        display: showLegend,
-        position: 'top' as const,
-        align: 'end' as const,
-        labels: {
-          font: {
-            family: 'var(--font-geist-sans, sans-serif)',
-            size: 12,
-            weight: 'normal' as const,
-          },
-          color: colors.text,
-          padding: 15,
-          usePointStyle: true,
-          pointStyle: 'circle',
-        },
+        display: false, // Disabled standard legend, using custom scrollable legend
       },
       tooltip: {
         enabled: interactive,
@@ -374,9 +373,120 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
     <div style={{ 
       height: height === 0 ? '100%' : `${height}px`, 
       width: '100%',
-      position: 'relative' 
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column' 
     }}>
-      {chartData && <Line data={chartData} options={options} />}
+      {/* Chart area */}
+      <div style={{ 
+        flex: 1, 
+        minHeight: 0,
+        marginBottom: showLegend ? '12px' : 0 
+      }}>
+        {chartData && <Line data={chartData} options={options} />}
+      </div>
+      
+      {/* Custom scrollable legend showing all countries */}
+      {showLegend && chartData?.allCountriesData && (
+        <div style={{
+          height: '120px',
+          backgroundColor: colors.background,
+          borderRadius: '8px',
+          border: '1px solid rgba(155, 68, 52, 0.1)',
+          padding: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: 'bold',
+            color: colors.primary,
+            marginBottom: '8px',
+            fontFamily: 'var(--font-geist-sans, sans-serif)',
+          }}>
+            All Countries ({chartData.allCountriesData.length})
+          </div>
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            paddingRight: '4px',
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${colors.primary} transparent`,
+          }}>
+            <style>
+              {`
+                div::-webkit-scrollbar {
+                  width: 4px;
+                }
+                div::-webkit-scrollbar-track {
+                  background: transparent;
+                }
+                div::-webkit-scrollbar-thumb {
+                  background: ${colors.primary};
+                  border-radius: 2px;
+                }
+                div::-webkit-scrollbar-thumb:hover {
+                  background: ${colors.secondary};
+                }
+              `}
+            </style>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+              gap: '6px',
+            }}>
+              {chartData.allCountriesData.map((country: any, index: number) => {
+                const colorIndex = index % colors.countries.length;
+                const isTopCountry = index < 10; // Highlight top 10 countries shown in chart
+                
+                return (
+                  <div
+                    key={country.name}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '4px 6px',
+                      borderRadius: '4px',
+                      backgroundColor: isTopCountry ? 'rgba(155, 68, 52, 0.05)' : 'transparent',
+                      border: isTopCountry ? '1px solid rgba(155, 68, 52, 0.2)' : '1px solid transparent',
+                      fontSize: '10px',
+                      fontFamily: 'var(--font-geist-sans, sans-serif)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        backgroundColor: colors.countries[colorIndex],
+                        marginRight: '6px',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{
+                      flex: 1,
+                      color: colors.text,
+                      fontWeight: isTopCountry ? 'bold' : 'normal',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {country.name}
+                    </span>
+                    <span style={{
+                      color: colors.textLight,
+                      marginLeft: '4px',
+                      fontSize: '9px',
+                    }}>
+                      {country.total.toLocaleString()}km
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
