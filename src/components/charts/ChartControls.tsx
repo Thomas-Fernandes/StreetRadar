@@ -11,6 +11,7 @@ import React from 'react';
 
 export interface ChartFilters {
   provider: string;
+  metric: 'distance' | 'panoramas';
 }
 
 interface ChartControlsProps {
@@ -99,8 +100,52 @@ const ChartControls: React.FC<ChartControlsProps> = ({
     { key: 'all', label: 'All', available: false },
   ];
 
+  const metrics = [
+    { key: 'distance', label: 'Distance (km)', icon: '📏', available: true },
+    { key: 'panoramas', label: 'Panoramas', icon: '📸', available: true },
+  ];
+
   return (
     <div className={className} style={containerStyle}>
+      {/* Metric Selection */}
+      <div style={sectionStyle}>
+        <label style={labelStyle}>Metric</label>
+        <div style={buttonGroupStyle}>
+          {metrics.map((metric) => (
+            <button
+              key={metric.key}
+              disabled={!metric.available}
+              onClick={() => metric.available && handleFilterChange('metric', metric.key)}
+              style={{
+                ...(filters.metric === metric.key ? activeControlStyle : controlStyle),
+                opacity: metric.available ? 1 : 0.5,
+                cursor: metric.available ? 'pointer' : 'not-allowed',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                minWidth: '140px',
+              }}
+              onMouseEnter={(e) => {
+                if (metric.available && filters.metric !== metric.key) {
+                  e.currentTarget.style.backgroundColor = 'rgba(155, 68, 52, 0.1)';
+                  e.currentTarget.style.borderColor = 'var(--sr-primary, #9b4434)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (metric.available && filters.metric !== metric.key) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                  e.currentTarget.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+                }
+              }}
+              title={`Show coverage by ${metric.label.toLowerCase()}`}
+            >
+              <span>{metric.icon}</span>
+              <span>{metric.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Provider Selection */}
       <div style={sectionStyle}>
         <label style={labelStyle}>Provider</label>

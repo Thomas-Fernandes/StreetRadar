@@ -842,7 +842,6 @@
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     width: 95vw;
     height: 95vh;
-    min-height: 1000px;
     max-height: 95vh;
     margin: 2.5vh 2.5vw;
     display: flex;
@@ -866,6 +865,28 @@
     
     .chart-modal-body {
       padding: 16px;
+    }
+  }
+
+  /* Additional responsive adjustments for very small screens */
+  @media (max-width: 480px) {
+    .chart-modal-content {
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      border-radius: 0;
+    }
+    
+    .chart-modal-header {
+      padding: 12px 16px;
+    }
+    
+    .chart-modal-title {
+      font-size: 20px;
+    }
+    
+    .chart-modal-body {
+      padding: 12px;
     }
   }
 
@@ -928,6 +949,27 @@
     overflow-x: hidden;
     min-height: 0;
     scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sr-primary, #9b4434) transparent;
+  }
+
+  /* Custom scrollbar styling for webkit browsers */
+  .chart-modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .chart-modal-body::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  .chart-modal-body::-webkit-scrollbar-thumb {
+    background: var(--sr-primary, #9b4434);
+    border-radius: 4px;
+  }
+
+  .chart-modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--sr-secondary, #337b81);
   }
 
   .chart-full-display {
@@ -1068,10 +1110,6 @@
       padding: 16px;
       height: 30vh;
       min-height: 250px;
-    }
-    
-    .chart-modal-content {
-      min-height: 98vh;
     }
   }
 

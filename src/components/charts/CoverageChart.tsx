@@ -58,7 +58,7 @@ interface CoverageChartProps {
 
 const CoverageChart: React.FC<CoverageChartProps> = ({ 
   height = 400, 
-  title = "Street View Coverage Evolution",
+  title,
   showLegend = true,
   interactive = true,
   filters
@@ -134,7 +134,9 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         groupedByDate[dateKey][countryKey] = 0;
       }
       
-      groupedByDate[dateKey][countryKey] += item.km_traces;
+      // Use the selected metric (distance or panoramas)
+      const value = filters?.metric === 'panoramas' ? item.panorama_count : item.km_traces;
+      groupedByDate[dateKey][countryKey] += value;
     });
 
     // Get top countries by total coverage
@@ -212,7 +214,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
     plugins: {
       title: {
         display: !!title,
-        text: title,
+        text: title || `Street View ${filters?.metric === 'panoramas' ? 'Panoramas' : 'Coverage'} Evolution`,
         font: {
           family: 'var(--font-geist-sans, sans-serif)',
           size: 18,
@@ -256,11 +258,13 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
           },
           label: (context: TooltipItem<'line'>) => {
             const value = context.parsed.y;
-            return `${context.dataset.label}: ${value.toLocaleString()} km`;
+            const unit = filters?.metric === 'panoramas' ? '' : ' km';
+            return `${context.dataset.label}: ${value.toLocaleString()}${unit}`;
           },
           footer: (tooltipItems: TooltipItem<'line'>[]) => {
             const total = tooltipItems.reduce((sum, item) => sum + item.parsed.y, 0);
-            return `Total: ${total.toLocaleString()} km`;
+            const unit = filters?.metric === 'panoramas' ? '' : ' km';
+            return `Total: ${total.toLocaleString()}${unit}`;
           },
         },
       },
@@ -304,7 +308,8 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
           },
           color: colors.textLight,
           callback: function(value: any) {
-            return value.toLocaleString() + ' km';
+            const unit = filters?.metric === 'panoramas' ? '' : ' km';
+            return value.toLocaleString() + unit;
           },
         },
         border: {
@@ -473,13 +478,13 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
                     }}>
                       {country.name}
                     </span>
-                    <span style={{
-                      color: colors.textLight,
-                      marginLeft: '4px',
-                      fontSize: '9px',
-                    }}>
-                      {country.total.toLocaleString()}km
-                    </span>
+                                         <span style={{
+                       color: colors.textLight,
+                       marginLeft: '4px',
+                       fontSize: '9px',
+                     }}>
+                       {country.total.toLocaleString()}{filters?.metric === 'panoramas' ? '' : 'km'}
+                     </span>
                   </div>
                 );
               })}

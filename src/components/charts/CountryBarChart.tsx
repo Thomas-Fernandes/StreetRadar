@@ -117,7 +117,9 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
       if (!countryTotals[item.country]) {
         countryTotals[item.country] = 0;
       }
-      countryTotals[item.country] += item.km_traces;
+      // Use the selected metric (distance or panoramas)
+      const value = filters?.metric === 'panoramas' ? item.panorama_count : item.km_traces;
+      countryTotals[item.country] += value;
     });
 
     // Sort countries by total coverage (descending) - show ALL countries
@@ -337,17 +339,17 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
                 }} />
               </div>
 
-              {/* Value */}
-              <div style={{
-                width: '80px',
-                fontSize: '11px',
-                fontWeight: 'normal',
-                color: colors.textLight,
-                fontFamily: 'var(--font-geist-sans, sans-serif)',
-                textAlign: 'right',
-              }}>
-                {countryData.total.toLocaleString()} km
-              </div>
+                             {/* Value */}
+               <div style={{
+                 width: '80px',
+                 fontSize: '11px',
+                 fontWeight: 'normal',
+                 color: colors.textLight,
+                 fontFamily: 'var(--font-geist-sans, sans-serif)',
+                 textAlign: 'right',
+               }}>
+                 {countryData.total.toFixed(1).replace(/\.0$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{filters?.metric === 'panoramas' ? '' : ' km'}
+               </div>
             </div>
           );
         })}

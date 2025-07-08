@@ -32,7 +32,8 @@ const DualBarCharts: React.FC<DualBarChartsProps> = ({
   className = ""
 }) => {
   const [filters, setFilters] = useState<ChartFilters>({
-    provider: 'apple'
+    provider: 'apple',
+    metric: 'distance'
   });
   const [selectedContinent, setSelectedContinent] = useState<string>('');
 

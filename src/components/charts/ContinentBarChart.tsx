@@ -83,14 +83,16 @@ const ContinentBarChart: React.FC<ContinentBarChartProps> = ({
   };
 
   const processDataForChart = (data: CoverageData[]) => {
-    // Group data by continent and sum total coverage
+    // Group data by continent and sum total coverage based on selected metric
     const continentTotals: { [continent: string]: number } = {};
     
     data.forEach(item => {
       if (!continentTotals[item.continent]) {
         continentTotals[item.continent] = 0;
       }
-      continentTotals[item.continent] += item.km_traces;
+      // Use the selected metric (distance or panoramas)
+      const value = filters?.metric === 'panoramas' ? item.panorama_count : item.km_traces;
+      continentTotals[item.continent] += value;
     });
 
     // Sort continents by total coverage (descending) - show ALL continents
@@ -307,17 +309,17 @@ const ContinentBarChart: React.FC<ContinentBarChartProps> = ({
                 }} />
               </div>
 
-              {/* Value */}
-              <div style={{
-                width: '80px',
-                fontSize: '11px',
-                fontWeight: 'normal',
-                color: isSelected ? colors.primary : colors.textLight,
-                fontFamily: 'var(--font-geist-sans, sans-serif)',
-                textAlign: 'right',
-              }}>
-                {continentData.total.toLocaleString()} km
-              </div>
+                             {/* Value */}
+               <div style={{
+                 width: '80px',
+                 fontSize: '11px',
+                 fontWeight: 'normal',
+                 color: isSelected ? colors.primary : colors.textLight,
+                 fontFamily: 'var(--font-geist-sans, sans-serif)',
+                 textAlign: 'right',
+               }}>
+                 {continentData.total.toFixed(1).replace(/\.0$/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}{filters?.metric === 'panoramas' ? '' : ' km'}
+               </div>
             </div>
           );
         })}
