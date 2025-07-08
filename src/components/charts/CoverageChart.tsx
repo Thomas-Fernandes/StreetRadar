@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -63,7 +63,24 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
   interactive = true,
   filters
 }) => {
-  const [chartData, setChartData] = useState<any>(null);
+  const [chartData, setChartData] = useState<{
+    labels: Date[];
+    datasets: Array<{
+      label: string;
+      data: number[];
+      backgroundColor: string;
+      borderColor: string;
+      borderWidth: number;
+      fill: string | number;
+      tension: number;
+      pointRadius: number;
+      pointHoverRadius: number;
+      pointBackgroundColor: string;
+      pointBorderWidth: number;
+      allCountries: Array<{ name: string; total: number }>;
+    }>;
+    allCountriesData: Array<{ name: string; total: number }>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,37 +103,9 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
     ]
   };
 
-  useEffect(() => {
-    loadCoverageData();
-  }, [filters]);
-
-  const loadCoverageData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Load coverage data from the JSON file
-      const response = await fetch('/data/coverage_stats.json');
-      if (!response.ok) {
-        throw new Error('Failed to load coverage data');
-      }
-
-      const data: CoverageData[] = await response.json();
-      
-      // Process data for the chart
-      const processedData = processDataForChart(data, filters);
-      setChartData(processedData);
-    } catch (err) {
-      console.error('Error loading coverage data:', err);
-      setError('Failed to load coverage data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const processDataForChart = (data: CoverageData[], filters?: ChartFilters) => {
+  const processDataForChart = useCallback((data: CoverageData[], filters?: ChartFilters) => {
     // For now, show all data - filters only affect provider selection (for future use)
-    let filteredData = data;
+    const filteredData = data;
 
     // Group data by date and country
     const groupedByDate: { [key: string]: { [country: string]: number } } = {};
@@ -202,7 +191,35 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         total: countryTotals[country]
       }))
     };
-  };
+  }, [filters]);
+
+  const loadCoverageData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Load coverage data from the JSON file
+      const response = await fetch('/data/coverage_stats.json');
+      if (!response.ok) {
+        throw new Error('Failed to load coverage data');
+      }
+
+      const data: CoverageData[] = await response.json();
+      
+      // Process data for the chart
+      const processedData = processDataForChart(data, filters);
+      setChartData(processedData);
+    } catch (err) {
+      console.error('Error loading coverage data:', err);
+      setError('Failed to load coverage data');
+    } finally {
+      setLoading(false);
+    }
+  }, [processDataForChart, filters]);
+
+  useEffect(() => {
+    loadCoverageData();
+  }, [loadCoverageData]);
 
   const options = {
     responsive: true,
@@ -307,7 +324,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
             weight: 'normal' as const,
           },
           color: colors.textLight,
-          callback: function(value: any) {
+          callback: function(value: string | number) {
             const unit = filters?.metric === 'panoramas' ? '' : ' km';
             return value.toLocaleString() + unit;
           },
@@ -440,7 +457,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
               gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
               gap: '6px',
             }}>
-              {chartData.allCountriesData.map((country: any, index: number) => {
+              {chartData.allCountriesData.map((country: { name: string; total: number }, index: number) => {
                 const colorIndex = index % colors.countries.length;
                 const isTopCountry = index < 10; // Highlight top 10 countries shown in chart
                 

@@ -32,7 +32,6 @@ interface DualBarChartsProps {
 }
 
 const DualBarCharts: React.FC<DualBarChartsProps> = ({
-  height = 500,
   className = "",
   filters,
   onFiltersChange,

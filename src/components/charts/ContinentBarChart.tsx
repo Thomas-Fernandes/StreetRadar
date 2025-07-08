@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { ChartFilters } from './ChartControls';
 
 interface CoverageData {
@@ -30,7 +30,6 @@ interface ContinentBarChartProps {
 
 const ContinentBarChart: React.FC<ContinentBarChartProps> = ({ 
   height = 400, 
-  title = "Coverage by Continent",
   filters,
   onContinentClick,
   selectedContinent
@@ -57,32 +56,7 @@ const ContinentBarChart: React.FC<ContinentBarChartProps> = ({
     ]
   };
 
-  useEffect(() => {
-    loadCoverageData();
-  }, [filters]);
-
-  const loadCoverageData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch('/data/coverage_stats.json');
-      if (!response.ok) {
-        throw new Error('Failed to load coverage data');
-      }
-
-      const data: CoverageData[] = await response.json();
-      const processedData = processDataForChart(data);
-      setAllContinents(processedData);
-    } catch (err) {
-      console.error('Error loading coverage data:', err);
-      setError('Failed to load coverage data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const processDataForChart = (data: CoverageData[]) => {
+  const processDataForChart = useCallback((data: CoverageData[]) => {
     // Group data by continent and sum total coverage based on selected metric
     const continentTotals: { [continent: string]: number } = {};
     
@@ -104,7 +78,32 @@ const ContinentBarChart: React.FC<ContinentBarChartProps> = ({
       }));
 
     return sortedContinents;
-  };
+  }, [filters]);
+
+  const loadCoverageData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/data/coverage_stats.json');
+      if (!response.ok) {
+        throw new Error('Failed to load coverage data');
+      }
+
+      const data: CoverageData[] = await response.json();
+      const processedData = processDataForChart(data);
+      setAllContinents(processedData);
+    } catch (err) {
+      console.error('Error loading coverage data:', err);
+      setError('Failed to load coverage data');
+    } finally {
+      setLoading(false);
+    }
+  }, [processDataForChart]);
+
+  useEffect(() => {
+    loadCoverageData();
+  }, [loadCoverageData]);
 
   const getContinentColor = (index: number) => {
     return colors.continents[index % colors.continents.length];

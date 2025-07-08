@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,7 +17,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
 import { ChartFilters } from './ChartControls';
 
 // Register Chart.js components
@@ -51,7 +50,6 @@ interface CountryBarChartProps {
 
 const CountryBarChart: React.FC<CountryBarChartProps> = ({ 
   height = 400, 
-  title = "Coverage by Country",
   filters,
   selectedContinent,
   selectedCountry,
@@ -80,32 +78,7 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
     ]
   };
 
-  useEffect(() => {
-    loadCoverageData();
-  }, [filters, selectedContinent]);
-
-  const loadCoverageData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch('/data/coverage_stats.json');
-      if (!response.ok) {
-        throw new Error('Failed to load coverage data');
-      }
-
-      const data: CoverageData[] = await response.json();
-      const processedData = processDataForChart(data);
-      setAllCountries(processedData);
-    } catch (err) {
-      console.error('Error loading coverage data:', err);
-      setError('Failed to load coverage data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const processDataForChart = (data: CoverageData[]) => {
+  const processDataForChart = useCallback((data: CoverageData[]) => {
     // Filter data by selected continent
     let filteredData = data;
     if (selectedContinent) {
@@ -135,7 +108,32 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
       }));
 
     return sortedCountries;
-  };
+  }, [filters, selectedContinent]);
+
+  const loadCoverageData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/data/coverage_stats.json');
+      if (!response.ok) {
+        throw new Error('Failed to load coverage data');
+      }
+
+      const data: CoverageData[] = await response.json();
+      const processedData = processDataForChart(data);
+      setAllCountries(processedData);
+    } catch (err) {
+      console.error('Error loading coverage data:', err);
+      setError('Failed to load coverage data');
+    } finally {
+      setLoading(false);
+    }
+  }, [processDataForChart]);
+
+  useEffect(() => {
+    loadCoverageData();
+  }, [loadCoverageData]);
 
   const getCountryColor = (index: number) => {
     return colors.countries[index % colors.countries.length];

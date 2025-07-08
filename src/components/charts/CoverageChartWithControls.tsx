@@ -7,20 +7,12 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import DualBarCharts from './DualBarCharts';
 import TimelineChart from './TimelineChart';
 import ChartControls, { ChartFilters } from './ChartControls';
 
-interface CoverageData {
-  month: number;
-  year: number;
-  country: string;
-  continent: string;
-  km_traces: number;
-  trace_count: number;
-  panorama_count: number;
-}
+
 
 interface CoverageChartWithControlsProps {
   height?: number;
@@ -31,10 +23,6 @@ interface CoverageChartWithControlsProps {
 }
 
 const CoverageChartWithControls: React.FC<CoverageChartWithControlsProps> = ({
-  height = 500,
-  showLegend = true,
-  interactive = true,
-  title = "Street View Coverage Analysis",
   className = ""
 }) => {
   const [filters, setFilters] = useState<ChartFilters>({
@@ -84,7 +72,7 @@ const CoverageChartWithControls: React.FC<CoverageChartWithControlsProps> = ({
           height={0}
           title=""
           showLegend={true}
-          interactive={interactive}
+          interactive={true}
           className=""
           filters={filters}
           selectedCountry={selectedCountry}

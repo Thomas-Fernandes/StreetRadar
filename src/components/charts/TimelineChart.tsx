@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -67,7 +67,27 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
   filters,
   selectedCountry
 }) => {
-  const [chartData, setChartData] = useState<any>(null);
+  const [chartData, setChartData] = useState<{
+    labels: Date[];
+    datasets: Array<{
+      label: string;
+      data: number[];
+      borderColor: string;
+      backgroundColor: string;
+      fill: boolean | string;
+      tension: number;
+      borderWidth: number;
+      pointRadius: number;
+      pointHoverRadius: number;
+      pointBackgroundColor: string;
+      pointBorderColor: string;
+      pointBorderWidth: number;
+      pointHoverBackgroundColor?: string;
+      pointHoverBorderColor?: string;
+      pointHoverBorderWidth?: number;
+      borderDash?: number[];
+    }>;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,32 +104,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
     }
   };
 
-  useEffect(() => {
-    loadTimelineData();
-  }, [filters, selectedCountry]);
-
-  const loadTimelineData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch('/data/coverage_stats.json');
-      if (!response.ok) {
-        throw new Error('Failed to load coverage data');
-      }
-
-      const data: CoverageData[] = await response.json();
-      const processedData = processDataForTimeline(data);
-      setChartData(processedData);
-    } catch (err) {
-      console.error('Error loading timeline data:', err);
-      setError('Failed to load timeline data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const processDataForTimeline = (data: CoverageData[]) => {
+  const processDataForTimeline = useCallback((data: CoverageData[]) => {
     // Filter by country if one is selected
     let filteredData = data;
     if (selectedCountry) {
@@ -195,7 +190,32 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
         }
       ]
     };
-  };
+  }, [filters, selectedCountry]);
+
+  const loadTimelineData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/data/coverage_stats.json');
+      if (!response.ok) {
+        throw new Error('Failed to load coverage data');
+      }
+
+      const data: CoverageData[] = await response.json();
+      const processedData = processDataForTimeline(data);
+      setChartData(processedData);
+    } catch (err) {
+      console.error('Error loading timeline data:', err);
+      setError('Failed to load timeline data');
+    } finally {
+      setLoading(false);
+    }
+  }, [processDataForTimeline]);
+
+  useEffect(() => {
+    loadTimelineData();
+  }, [loadTimelineData]);
 
   const options = {
     responsive: true,
@@ -318,7 +338,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
             weight: 'normal' as const,
           },
           color: colors.textLight,
-          callback: function(value: any) {
+          callback: function(value: string | number) {
             const unit = filters?.metric === 'panoramas' ? '' : ' km';
             return value.toLocaleString() + unit;
           },
