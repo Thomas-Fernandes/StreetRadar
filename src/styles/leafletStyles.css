@@ -841,9 +841,10 @@
     border-radius: 16px;
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
     width: 95vw;
-    height: 90vh;
-    min-height: 600px;
-    margin: 5vh 2.5vw;
+    height: 95vh;
+    min-height: 1000px;
+    max-height: 95vh;
+    margin: 2.5vh 2.5vw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -923,8 +924,10 @@
     padding: 24px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
+    scroll-behavior: smooth;
   }
 
   .chart-full-display {
@@ -960,6 +963,116 @@
     color: var(--sr-text-light, #666);
     margin: 0;
     opacity: 0.8;
+  }
+
+  /* Chart Layout Styles */
+  .charts-container {
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+    width: 100%;
+    min-height: 0;
+    padding: 15px 0;
+  }
+
+  .charts-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    height: 60vh;
+    min-height: 550px;
+    max-height: 800px;
+  }
+
+  .chart-section {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(155, 68, 52, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 100%;
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .chart-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--sr-primary, #9b4434);
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+
+  .chart-section-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+    max-height: calc(100% - 60px);
+    overflow: hidden;
+  }
+
+  .timeline-chart-section {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(155, 68, 52, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    height: 25vh;
+    min-height: 250px;
+    max-height: 400px;
+    margin-top: 30px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .charts-row {
+      flex-direction: column;
+      gap: 20px;
+      height: auto;
+      min-height: 1000px;
+    }
+    
+    .chart-section {
+      height: 500px;
+      min-height: 500px;
+    }
+    
+    .timeline-chart-section {
+      height: 35vh;
+      min-height: 300px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .charts-container {
+      gap: 20px;
+    }
+    
+    .chart-section {
+      padding: 16px;
+      height: 450px;
+      min-height: 450px;
+    }
+    
+    .timeline-chart-section {
+      padding: 16px;
+      height: 30vh;
+      min-height: 250px;
+    }
+    
+    .chart-modal-content {
+      min-height: 98vh;
+    }
   }
 
 /* Statistics Button Styles */

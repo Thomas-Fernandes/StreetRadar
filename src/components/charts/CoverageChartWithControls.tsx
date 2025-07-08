@@ -1,15 +1,15 @@
 /**
  * CoverageChartWithControls.tsx
  * 
- * Container component that combines chart controls and coverage chart
- * Manages the filter state and passes it to both components
+ * Container component that displays dual horizontal bar charts and timeline
+ * Shows continent and country coverage with interactive selection plus evolution over time
  */
 
 'use client';
 
-import React, { useState } from 'react';
-import ChartControls, { ChartFilters } from './ChartControls';
-import CoverageChart from './CoverageChart';
+import React from 'react';
+import DualBarCharts from './DualBarCharts';
+import TimelineChart from './TimelineChart';
 
 interface CoverageChartWithControlsProps {
   height?: number;
@@ -20,46 +20,36 @@ interface CoverageChartWithControlsProps {
 }
 
 const CoverageChartWithControls: React.FC<CoverageChartWithControlsProps> = ({
-  height = 400,
+  height = 500,
   showLegend = true,
   interactive = true,
-  title = "Street View Coverage Evolution",
+  title = "Street View Coverage Analysis",
   className = ""
 }) => {
-  const [filters, setFilters] = useState<ChartFilters>({
-    provider: 'apple',
-    groupBy: 'country',
-    period: 'all',
-    countries: []
-  });
-
-  const handleFiltersChange = (newFilters: ChartFilters) => {
-    setFilters(newFilters);
-  };
-
   return (
-    <div className={className} style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      height: '100%',
-      minHeight: 0 
-    }}>
-      <ChartControls 
-        filters={filters} 
-        onFiltersChange={handleFiltersChange}
-      />
-      <div style={{ 
-        flex: 1, 
-        minHeight: 0,
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        <CoverageChart
-          height={height}
-          showLegend={showLegend}
+    <div className={`charts-container ${className}`}>
+      {/* Top row: Dual bar charts side by side */}
+      <div className="charts-row">
+        <div className="chart-section">
+          <h3 className="chart-section-title">Coverage by Region</h3>
+          <div className="chart-section-content">
+            <DualBarCharts
+              height={0}
+              className=""
+            />
+          </div>
+        </div>
+      </div>
+      
+      {/* Bottom row: Timeline chart */}
+      <div className="timeline-chart-section">
+        <h3 className="chart-section-title">Coverage Evolution Over Time</h3>
+        <TimelineChart
+          height={0}
+          title=""
+          showLegend={true}
           interactive={interactive}
-          title={title}
-          filters={filters}
+          className=""
         />
       </div>
     </div>
