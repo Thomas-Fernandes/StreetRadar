@@ -27,6 +27,7 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isChartModalOpen, setIsChartModalOpen] = useState<boolean>(false);
+  const [isModalClosing, setIsModalClosing] = useState<boolean>(false);
 
   // Load statistics when component mounts or when panel opens
   useEffect(() => {
@@ -62,7 +63,17 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
 
   // Toggle chart modal
   const toggleChartsExpansion = () => {
-    setIsChartModalOpen(!isChartModalOpen);
+    if (isChartModalOpen) {
+      // Start closing animation
+      setIsModalClosing(true);
+      // After animation duration, actually close the modal
+      setTimeout(() => {
+        setIsChartModalOpen(false);
+        setIsModalClosing(false);
+      }, 300); // Match the CSS animation duration
+    } else {
+      setIsChartModalOpen(true);
+    }
   };
 
   // Add/remove body class when chart modal opens/closes
@@ -197,8 +208,8 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
 
       {/* Chart Modal */}
       {isChartModalOpen && (
-        <div className="chart-modal-overlay" onClick={toggleChartsExpansion}>
-          <div className="chart-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className={`chart-modal-overlay ${isModalClosing ? 'closing' : ''}`} onClick={toggleChartsExpansion}>
+          <div className={`chart-modal-content ${isModalClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
             <div className="chart-modal-header">
               <h2 className="chart-modal-title">Coverage Trends</h2>
               <button 

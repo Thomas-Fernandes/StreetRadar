@@ -45,13 +45,17 @@ interface CountryBarChartProps {
   title?: string;
   filters?: ChartFilters;
   selectedContinent?: string;
+  selectedCountry?: string;
+  onCountryClick?: (country: string) => void;
 }
 
 const CountryBarChart: React.FC<CountryBarChartProps> = ({ 
   height = 400, 
   title = "Coverage by Country",
   filters,
-  selectedContinent
+  selectedContinent,
+  selectedCountry,
+  onCountryClick
 }) => {
   const [allCountries, setAllCountries] = useState<{country: string, total: number}[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,6 +143,19 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
 
   const getCountryBorderColor = (index: number) => {
     return getCountryColor(index).replace('0.8', '1');
+  };
+
+  const getContinentAdjective = (continent: string) => {
+    const adjectives: { [key: string]: string } = {
+      'europe': 'European',
+      'asia': 'Asian', 
+      'africa': 'African',
+      'north america': 'North American',
+      'south america': 'South American',
+      'oceania': 'Oceanic',
+      'antarctica': 'Antarctic'
+    };
+    return adjectives[continent.toLowerCase()] || continent.charAt(0).toUpperCase() + continent.slice(1);
   };
 
   if (loading) {
@@ -241,7 +258,7 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
           color: colors.primary,
           fontFamily: 'var(--font-geist-sans, sans-serif)',
         }}>
-          {selectedContinent.charAt(0).toUpperCase() + selectedContinent.slice(1)} Countries
+          {getContinentAdjective(selectedContinent)} Countries
         </h4>
         <span style={{
           fontSize: '12px',
@@ -281,6 +298,8 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
           const percentage = (countryData.total / maxValue) * 100;
           const color = getCountryColor(index);
           const borderColor = getCountryBorderColor(index);
+          const isSelected = selectedCountry && 
+            countryData.country.toLowerCase() === selectedCountry.toLowerCase();
           
           return (
             <div
@@ -291,33 +310,43 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
                 marginBottom: '8px',
                 padding: '8px',
                 borderRadius: '6px',
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                border: '1px solid rgba(155, 68, 52, 0.1)',
+                backgroundColor: isSelected 
+                  ? 'rgba(155, 68, 52, 0.1)' 
+                  : 'rgba(255, 255, 255, 0.5)',
+                border: isSelected 
+                  ? '2px solid rgba(155, 68, 52, 0.3)' 
+                  : '1px solid rgba(155, 68, 52, 0.1)',
                 transition: 'all 0.2s ease',
                 cursor: 'pointer',
+                boxShadow: isSelected ? '0 2px 8px rgba(155, 68, 52, 0.2)' : 'none',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(155, 68, 52, 0.15)';
+                if (!isSelected) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(155, 68, 52, 0.15)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
-                e.currentTarget.style.boxShadow = 'none';
+                if (!isSelected) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.5)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
               }}
+              onClick={() => onCountryClick?.(countryData.country)}
             >
-              {/* Country name */}
-              <div style={{
-                width: '120px',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                color: colors.text,
-                fontFamily: 'var(--font-geist-sans, sans-serif)',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-              }}>
-                {countryData.country}
-              </div>
+                             {/* Country name */}
+               <div style={{
+                 width: '120px',
+                 fontSize: '12px',
+                 fontWeight: 'bold',
+                 color: isSelected ? colors.primary : colors.text,
+                 fontFamily: 'var(--font-geist-sans, sans-serif)',
+                 textOverflow: 'ellipsis',
+                 overflow: 'hidden',
+                 whiteSpace: 'nowrap',
+               }}>
+                 {countryData.country}
+               </div>
 
               {/* Progress bar */}
               <div style={{
@@ -329,14 +358,14 @@ const CountryBarChart: React.FC<CountryBarChartProps> = ({
                 overflow: 'hidden',
                 position: 'relative',
               }}>
-                <div style={{
-                  width: `${percentage}%`,
-                  height: '100%',
-                  backgroundColor: color,
-                  borderRadius: '8px',
-                  transition: 'width 0.3s ease',
-                  border: `1px solid ${borderColor}`,
-                }} />
+                                 <div style={{
+                   width: `${percentage}%`,
+                   height: '100%',
+                   backgroundColor: isSelected ? colors.primary : color,
+                   borderRadius: '8px',
+                   transition: 'all 0.3s ease',
+                   border: `1px solid ${isSelected ? colors.primary : borderColor}`,
+                 }} />
               </div>
 
                              {/* Value */}

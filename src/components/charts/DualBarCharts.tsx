@@ -25,17 +25,32 @@ interface CoverageData {
 interface DualBarChartsProps {
   height?: number;
   className?: string;
+  filters?: ChartFilters;
+  onFiltersChange?: (filters: ChartFilters) => void;
+  selectedCountry?: string;
+  onCountrySelect?: (country: string) => void;
 }
 
 const DualBarCharts: React.FC<DualBarChartsProps> = ({
   height = 500,
-  className = ""
+  className = "",
+  filters,
+  onFiltersChange,
+  selectedCountry,
+  onCountrySelect
 }) => {
-  const [filters, setFilters] = useState<ChartFilters>({
+  // Use internal state only if no filters prop is provided
+  const [internalFilters, setInternalFilters] = useState<ChartFilters>({
     provider: 'apple',
     metric: 'distance'
   });
+  
   const [selectedContinent, setSelectedContinent] = useState<string>('');
+  const [internalSelectedCountry, setInternalSelectedCountry] = useState<string>('');
+
+  // Use provided state or internal state
+  const currentFilters = filters || internalFilters;
+  const currentSelectedCountry = selectedCountry !== undefined ? selectedCountry : internalSelectedCountry;
 
   // Load data and set default continent (most covered one) on mount
   useEffect(() => {
@@ -71,11 +86,29 @@ const DualBarCharts: React.FC<DualBarChartsProps> = ({
   }, []);
 
   const handleFiltersChange = (newFilters: ChartFilters) => {
-    setFilters(newFilters);
+    if (onFiltersChange) {
+      onFiltersChange(newFilters);
+    } else {
+      setInternalFilters(newFilters);
+    }
   };
 
   const handleContinentClick = (continent: string) => {
     setSelectedContinent(continent);
+    // Reset country selection when continent changes
+    if (onCountrySelect) {
+      onCountrySelect('');
+    } else {
+      setInternalSelectedCountry('');
+    }
+  };
+
+  const handleCountryClick = (country: string) => {
+    if (onCountrySelect) {
+      onCountrySelect(currentSelectedCountry === country ? '' : country);
+    } else {
+      setInternalSelectedCountry(currentSelectedCountry === country ? '' : country);
+    }
   };
 
   return (
@@ -85,11 +118,13 @@ const DualBarCharts: React.FC<DualBarChartsProps> = ({
       height: '100%',
       minHeight: 0 
     }}>
-      {/* Controls */}
-      <ChartControls 
-        filters={filters} 
-        onFiltersChange={handleFiltersChange}
-      />
+      {/* Controls - only show if no external filters are provided */}
+      {!filters && (
+        <ChartControls 
+          filters={currentFilters} 
+          onFiltersChange={handleFiltersChange}
+        />
+      )}
       
       {/* Charts Container */}
       <div style={{
@@ -112,7 +147,7 @@ const DualBarCharts: React.FC<DualBarChartsProps> = ({
           <ContinentBarChart
             height={0}
             title=""
-            filters={filters}
+            filters={currentFilters}
             onContinentClick={handleContinentClick}
             selectedContinent={selectedContinent}
           />
@@ -129,8 +164,10 @@ const DualBarCharts: React.FC<DualBarChartsProps> = ({
           <CountryBarChart
             height={0}
             title=""
-            filters={filters}
+            filters={currentFilters}
             selectedContinent={selectedContinent}
+            selectedCountry={currentSelectedCountry}
+            onCountryClick={handleCountryClick}
           />
         </div>
       </div>

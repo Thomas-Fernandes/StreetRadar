@@ -66,7 +66,7 @@ const ChartControls: React.FC<ChartControlsProps> = ({
     borderWidth: '1px',
     borderStyle: 'solid',
     borderColor: 'rgba(0, 0, 0, 0.05)',
-    marginBottom: '16px',
+    marginBottom: '8px',
     flexWrap: 'wrap' as const,
     flexShrink: 0,
   };

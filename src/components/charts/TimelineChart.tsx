@@ -23,6 +23,7 @@ import {
   TooltipItem,
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import { ChartFilters } from './ChartControls';
 
 // Register Chart.js components
 ChartJS.register(
@@ -53,14 +54,18 @@ interface TimelineChartProps {
   showLegend?: boolean;
   interactive?: boolean;
   className?: string;
+  filters?: ChartFilters;
+  selectedCountry?: string;
 }
 
 const TimelineChart: React.FC<TimelineChartProps> = ({
   height = 400,
-  title = "Coverage Evolution Timeline",
+  title,
   showLegend = true,
   interactive = true,
-  className = ""
+  className = "",
+  filters,
+  selectedCountry
 }) => {
   const [chartData, setChartData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -81,7 +86,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
 
   useEffect(() => {
     loadTimelineData();
-  }, []);
+  }, [filters, selectedCountry]);
 
   const loadTimelineData = async () => {
     try {
@@ -105,10 +110,18 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
   };
 
   const processDataForTimeline = (data: CoverageData[]) => {
-    // Group data by month/year and calculate total coverage
+    // Filter by country if one is selected
+    let filteredData = data;
+    if (selectedCountry) {
+      filteredData = data.filter(item => 
+        item.country.toLowerCase() === selectedCountry.toLowerCase()
+      );
+    }
+
+    // Group data by month/year and calculate total coverage based on selected metric
     const monthlyTotals: { [key: string]: number } = {};
     
-    data.forEach(item => {
+    filteredData.forEach(item => {
       const date = new Date(item.year, item.month - 1, 1);
       const dateKey = date.toISOString().substring(0, 7); // YYYY-MM format
       
@@ -116,7 +129,9 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
         monthlyTotals[dateKey] = 0;
       }
       
-      monthlyTotals[dateKey] += item.km_traces;
+      // Use the selected metric (distance or panoramas)
+      const value = filters?.metric === 'panoramas' ? item.panorama_count : item.km_traces;
+      monthlyTotals[dateKey] += value;
     });
 
     // Sort dates and calculate cumulative totals
@@ -137,11 +152,17 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
       });
     });
 
+    // Dynamic labels based on metric and country selection
+    const isPanoramas = filters?.metric === 'panoramas';
+    const countryPrefix = selectedCountry ? `${selectedCountry} - ` : '';
+    const totalLabel = isPanoramas ? `${countryPrefix}Total Panoramas` : `${countryPrefix}Total Coverage`;
+    const monthlyLabel = isPanoramas ? `${countryPrefix}Monthly Panoramas` : `${countryPrefix}Monthly Addition`;
+
     return {
       labels: cumulativeData.map(item => item.date),
       datasets: [
         {
-          label: 'Total Coverage',
+          label: totalLabel,
           data: cumulativeData.map(item => item.total),
           borderColor: colors.primary,
           backgroundColor: colors.gradient.start,
@@ -158,7 +179,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
           pointHoverBorderWidth: 3,
         },
         {
-          label: 'Monthly Addition',
+          label: monthlyLabel,
           data: cumulativeData.map(item => item.monthly),
           borderColor: colors.secondary,
           backgroundColor: 'rgba(51, 123, 129, 0.1)',
@@ -186,7 +207,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
     plugins: {
       title: {
         display: !!title,
-        text: title,
+        text: title || `${selectedCountry ? `${selectedCountry} - ` : ''}${filters?.metric === 'panoramas' ? 'Panoramas' : 'Coverage'} Evolution Timeline`,
         font: {
           family: 'var(--font-geist-sans, sans-serif)',
           size: 20,
@@ -244,7 +265,8 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
           label: (context: TooltipItem<'line'>) => {
             const value = context.parsed.y;
             const label = context.dataset.label;
-            return `${label}: ${value.toLocaleString()} km`;
+            const unit = filters?.metric === 'panoramas' ? '' : ' km';
+            return `${label}: ${value.toLocaleString()}${unit}`;
           },
         },
       },
@@ -297,7 +319,8 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
           },
           color: colors.textLight,
           callback: function(value: any) {
-            return value.toLocaleString() + ' km';
+            const unit = filters?.metric === 'panoramas' ? '' : ' km';
+            return value.toLocaleString() + unit;
           },
         },
         border: {
