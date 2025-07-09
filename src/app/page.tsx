@@ -5,7 +5,7 @@
  * 
  * This page serves as the entry point for users and presents the main features
  * of the application. It includes several sections:
- * - A header with logo (navigation removed)
+ * - A header with logo and navigation
  * - A hero section with title and description
  * - A visual preview of the map that links to the full map page
  * - A presentation of supported Street View providers
@@ -145,7 +145,7 @@ export default function Home() {
                 <div className="stats-display">
                   <div className="stats-main">
                     <span className="stats-number">{visitorStats.thisMonth.toLocaleString()}</span>
-                    <span className="stats-label">Unique Visitors</span>
+                    <span className="stats-label">Page Views</span>
                   </div>
                   <div className="stats-breakdown">
                     <div className="stat-item">

@@ -1,7 +1,7 @@
 /**
  * layout.tsx
  * 
- * Main layout of the StreetRadar application with analytics tracking.
+ * Main layout of the StreetRadar application.
  * 
  * This file defines the base HTML structure that wraps all application pages.
  * It includes:
@@ -9,7 +9,6 @@
  * - Font imports
  * - Base HTML structure (html, body)
  * - Global CSS classes
- * - Analytics tracking component
  * 
  * In Next.js, this layout is applied to all routes within the app/ directory.
  */
@@ -17,7 +16,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import AnalyticsTracker from '@/components/AnalyticsTracker';
 
 // Configuration of Geist fonts (sans-serif) and Geist Mono (monospace)
 // These fonts will be available via CSS variables --font-geist-sans and --font-geist-mono
@@ -53,7 +51,6 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <AnalyticsTracker />
                 {children}
             </body>
         </html>
