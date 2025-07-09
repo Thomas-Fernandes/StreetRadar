@@ -33,7 +33,6 @@ streetradar/
 │   ├── services/             # Business logic and APIs
 │   │   ├── streetViewService.ts      # Provider tile URLs
 │   │   ├── panoramaService.ts        # Panorama detection
-│   │   ├── analyticsService.ts       # Usage tracking
 │   │   └── appleLookAroundService.ts # Apple-specific logic
 │   ├── hooks/                # Custom React hooks
 │   ├── lib/                  # Utilities and configurations
