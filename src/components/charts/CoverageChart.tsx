@@ -268,7 +268,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         callbacks: {
           title: (context: TooltipItem<'line'>[]) => {
             const date = context[0].parsed.x;
-            return new Date(date).toLocaleDateString('fr-FR', { 
+            return new Date(date).toLocaleDateString('en-US', { 
               year: 'numeric', 
               month: 'long' 
             });
@@ -364,7 +364,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
             margin: '0 auto 16px'
           }}></div>
           <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>
-            Chargement des données...
+            Loading data...
           </p>
         </div>
       </div>

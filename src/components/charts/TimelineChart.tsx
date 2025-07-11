@@ -277,7 +277,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
         callbacks: {
           title: (context: TooltipItem<'line'>[]) => {
             const date = context[0].parsed.x;
-            return new Date(date).toLocaleDateString('fr-FR', { 
+            return new Date(date).toLocaleDateString('en-US', { 
               year: 'numeric', 
               month: 'long' 
             });
