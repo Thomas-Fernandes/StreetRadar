@@ -58,7 +58,6 @@ streetradar/
 ├── public/
 │   ├── images/               # Static assets and provider logos
 │   └── data/                 # Geospatial data files
-└── docs/                     # Project documentation
 ```
 
 ## 🚀 Getting Started
