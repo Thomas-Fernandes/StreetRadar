@@ -1,12 +1,29 @@
-# StreetRadar 🗺️ <img src="public/images/logo_no_bg.png" alt="StreetRadar Logo" width="24" height="24">
+# StreetRadar
 
-**A worldwide interactive map centralizing Street View coverage from multiple providers in one unified interface.**
+StreetRadar is a Next.js web application that aims to display all coverage areas from existing Street View platforms on a single unified map. The application allows users to:
 
-Discover and explore street-level imagery from Google Street View, Bing Streetside, Yandex Panoramas, and Apple Look Around through an intuitive, modern web application.
+* Visualize coverage areas by provider
+* Access statistics on coverage areas by provider
+
+**Disclaimer:** This application has no commercial or advertising objectives, but serves purely informational purposes to provide data that is not readily available elsewhere.
 
 ## 🚀 Live Demo
 
-Visit **[streetradar.app](https://streetradar.app)** to explore the interactive map.
+The application is available at **[streetradar.app](https://streetradar.app)**
+
+## 📋 Coverage Statistics
+
+| Provider | Coverage Display | Panorama Detection | Direct Links | Statistics |
+|----------|------------------|-------------------|--------------|------------|
+| Google Street View | ✅ | ✅ | ✅ | ❌ |
+| Apple Look Around | ✅ | ⚠️ Alpha | ✅ | ✅ |
+| Bing Streetside | ✅ | ✅ | ✅ | ❌ |
+| Yandex Panoramas | ⚠️ Alpha | ⚠️ Alpha | ⚠️ Alpha | ❌ |
+| Baidu Panorama | ❌ | ❌ | ❌ | ❌ |
+| Kakao Road View | ❌ | ❌ | ❌ | ❌ |
+| Naver Street View | ❌ | ❌ | ❌ | ❌ |
+| Mapillary | ❌ | ❌ | ❌ | ❌ |
+| Mapy.cz Panorama | ❌ | ❌ | ❌ | ❌ |
 
 ## 🛠️ Technology Stack
 
@@ -22,15 +39,15 @@ Visit **[streetradar.app](https://streetradar.app)** to explore the interactive 
 ```
 streetradar/
 ├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── page.tsx           # Homepage with provider showcase
-│   │   ├── map/               # Interactive map page
-│   │   └── analytics/         # Analytics dashboard
-│   ├── components/            # React components
+│   ├── app/                  # Next.js App Router pages
+│   │   ├── page.tsx          # Homepage with provider showcase
+│   │   ├── map/              # Interactive map page
+│   │   └── analytics/        # Analytics dashboard
+│   ├── components/           # React components
 │   │   ├── map/              # Map-specific components
 │   │   ├── charts/           # Data visualization components
 │   │   └── ui/               # Reusable UI components
-│   ├── services/             # Business logic and APIs
+│   ├── services/             # Provider logic and APIs
 │   │   ├── streetViewService.ts      # Provider tile URLs
 │   │   ├── panoramaService.ts        # Panorama detection
 │   │   └── appleLookAroundService.ts # Apple-specific logic
@@ -47,14 +64,13 @@ streetradar/
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - **Node.js** 18+ and npm
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/streetradar.git
+   git clone https://github.com/Thomas-Fernandes/StreetRadar.git
    cd streetradar
    ```
 
@@ -71,33 +87,9 @@ streetradar/
 4. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
-### Build for Production
+## 🚧 Roadmap
 
-```bash
-npm run build
-npm start
-```
-
-## 🗺️ How It Works
-
-### Reverse Engineering & Data Reconstruction
-StreetRadar employs sophisticated reverse engineering techniques to extract panorama data from multiple Street View providers:
-
-#### Data Collection Process
-- **Panorama Discovery**: Systematic extraction of panorama locations and metadata from provider APIs and tile services
-- **Geographic Reconstruction**: Converting scattered panorama points into coherent geographic datasets
-- **Map Matching Algorithms**: Algorithms to reconstruct accurate linestrings representing street coverage
-- **Data Normalization**: Harmonizing different provider data formats into a unified structure
-
-#### Coverage Visualization
-- **Google**: Reverse-engineered Street View tile endpoints and metadata extraction
-- **Bing**: Processed Streetside coverage with quadkey system analysis  
-- **Yandex**: Extracted panorama data from Yandex Maps tile services (Alpha)
-- **Apple**: Vector tile (MVT/PMTiles) processing for Look Around coverage reconstruction
-
-## 🚧 Roadmap & Development Status
-
-## TODO
+*Coming soon...*
 
 ## 🙏 Acknowledgments
 

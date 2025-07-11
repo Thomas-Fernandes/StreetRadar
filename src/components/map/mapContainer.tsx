@@ -11,9 +11,9 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import '@/styles/leafletStyles.css'; // Import our custom styles
+import '@/styles/leafletStyles.css';
 import StreetViewLayer from '@/services/streetViewLayer';
-import PegcatControl from './pegcatControl'; // Import of the new PegCat control
+import PegcatControl from './pegcatControl';
 import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
@@ -180,8 +180,6 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     L.control.zoom({                          // Zoom control second
       position: 'topleft'
     }).addTo(map);
-
-    // No scale control as requested
 
     setMapInstance(map);
 

@@ -1,5 +1,3 @@
-// src/app/map/page.tsx - Updated version with metadata
-
 /**
  * map/page.tsx
  * 
