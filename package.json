@@ -8,7 +8,8 @@
         "start": "next start",
         "lint": "next lint",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "sync-stats": "tsx scripts/sync-daily-stats.ts"
     },
     "dependencies": {
         "@mapbox/point-geometry": "^1.1.0",
