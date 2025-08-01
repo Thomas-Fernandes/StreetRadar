@@ -144,7 +144,7 @@ export default function Home() {
               ) : (
                 <div className="stats-display">
                   <div className="stats-main">
-                    <span className="stats-number">{visitorStats.thisMonth.toLocaleString()}</span>
+                    <span className="stats-number">{visitorStats.total.toLocaleString()}</span>
                     <span className="stats-label">Page Views</span>
                   </div>
                   <div className="stats-breakdown">

@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
 interface VisitorStats {
+  total: number;
   thisMonth: number;
   thisWeek: number;
   loading: boolean;
@@ -16,6 +17,7 @@ interface VisitorStats {
 
 export function useVisitorStats(): VisitorStats {
   const [stats, setStats] = useState<VisitorStats>({
+    total: 0,
     thisMonth: 0,
     thisWeek: 0,
     loading: true,
@@ -37,6 +39,13 @@ export function useVisitorStats(): VisitorStats {
         const monthStart = startOfMonth.toISOString().split('T')[0];
         const weekStart = startOfWeek.toISOString().split('T')[0];
 
+        // Fetch all stats (total)
+        const { data: totalData, error: totalError } = await supabase
+          .from('daily_stats')
+          .select('page_views');
+
+        if (totalError) throw totalError;
+
         // Fetch monthly stats
         const { data: monthlyData, error: monthlyError } = await supabase
           .from('daily_stats')
@@ -54,10 +63,12 @@ export function useVisitorStats(): VisitorStats {
         if (weeklyError) throw weeklyError;
 
         // Sum page views
+        const totalSum = totalData?.reduce((sum, day) => sum + day.page_views, 0) || 0;
         const monthlyTotal = monthlyData?.reduce((sum, day) => sum + day.page_views, 0) || 0;
         const weeklyTotal = weeklyData?.reduce((sum, day) => sum + day.page_views, 0) || 0;
 
         setStats({
+          total: totalSum,
           thisMonth: monthlyTotal,
           thisWeek: weeklyTotal,
           loading: false,
