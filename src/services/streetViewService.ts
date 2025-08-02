@@ -90,4 +90,17 @@ export class StreetViewService {
   static getYandexPanoramasTileUrl(): string {
     return 'https://04.core-stv-renderer.maps.yandex.net/2.x/tiles?l=stv,sta&x={x}&y={y}&z={z}&scale=1&v=2025.04.14.22.49-1_25.04.11-0-24374&lang=en_UA&format=png&client_id=yandex-web-maps';
   }
+
+  /**
+   * Generates URL for Naver Street View coverage tiles
+   *
+   * This method returns a special identifier to indicate that we need to
+   * use the custom MVT layer instead of a standard TileLayer.
+   *
+   * @returns Special identifier for Naver MVT layer
+   */
+  static getNaverStreetViewTileUrl(): string {
+    // Return a special identifier to indicate MVT layer usage
+    return 'NAVER_MVT_LAYER';
+  }
 }

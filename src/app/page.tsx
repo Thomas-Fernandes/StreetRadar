@@ -45,6 +45,12 @@ export default function Home() {
       name: 'Yandex Panoramas', 
       logoSrc: '/images/providers/yandex.svg',
       logoAlt: 'Yandex Logo' 
+    },
+    { 
+      id: 'naver', 
+      name: 'Naver Street View', 
+      logoSrc: '/images/providers/naver.svg',
+      logoAlt: 'Naver Logo' 
     }
   ];
 

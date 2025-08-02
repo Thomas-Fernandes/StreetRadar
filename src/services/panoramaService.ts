@@ -75,6 +75,9 @@ export class PanoramaService {
           parseFloat(lng)
         );
       
+      case 'naver':
+        return `https://map.naver.com/v5/search/${lat},${lng}`;
+      
       default:
         return '#';
     }
@@ -92,6 +95,7 @@ export class PanoramaService {
       case 'bing': return 'Bing Streetside';
       case 'yandex': return 'Yandex Panoramas';
       case 'apple': return 'Apple Look Around';
+      case 'naver': return 'Naver Street View';
       default: return provider;
     }
   }
