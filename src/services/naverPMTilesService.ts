@@ -1,11 +1,11 @@
 /**
- * ApplePMTilesService.ts
+ * NaverPMTilesService.ts
  * 
- * Service dedicated to managing Apple Look Around PMtiles.
+ * Service dedicated to managing Naver Street View PMtiles.
  * 
  * This service handles interaction with the PMtiles CDN hosted on tiles.streetradar.app
  * and provides methods to retrieve TileJSON and build MVT tile URLs.
- * It follows best practices by never downloading the complete 6 GB archive.
+ * It follows best practices by never downloading the complete archive.
  */
 
 export interface TileJSONMetadata {
@@ -29,17 +29,17 @@ export interface TileJSONMetadata {
   }>;
 }
 
-export class ApplePMTilesService {
+export class NaverPMTilesService {
   private static readonly BASE_URL = 'https://tiles.streetradar.app';
-  private static readonly TILEJSON_URL = `${ApplePMTilesService.BASE_URL}/tiles.json`;
-  private static readonly MVT_URL_TEMPLATE = `${ApplePMTilesService.BASE_URL}/tiles/apple/{z}/{x}/{y}.mvt`;
+  private static readonly TILEJSON_URL = `${NaverPMTilesService.BASE_URL}/tiles.json`;
+  private static readonly MVT_URL_TEMPLATE = `${NaverPMTilesService.BASE_URL}/tiles/naver/{z}/{x}/{y}.mvt`;
   
   // Cache to avoid repeating TileJSON call every time
   private static tileJSONCache: TileJSONMetadata | null = null;
   private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
 
   /**
-   * Retrieves TileJSON metadata from Apple PMtiles
+   * Retrieves TileJSON metadata from Naver PMtiles
    * 
    * This method calls the TileJSON endpoint only once at startup
    * and caches the result to avoid repeated calls.
@@ -49,25 +49,25 @@ export class ApplePMTilesService {
    */
   static async getTileJSON(): Promise<TileJSONMetadata> {
     // If we already have data in cache, return it
-    if (ApplePMTilesService.tileJSONCache) {
-      return ApplePMTilesService.tileJSONCache;
+    if (NaverPMTilesService.tileJSONCache) {
+      return NaverPMTilesService.tileJSONCache;
     }
 
     // If a call is already in progress, wait for its result
-    if (ApplePMTilesService.tileJSONPromise) {
-      return ApplePMTilesService.tileJSONPromise;
+    if (NaverPMTilesService.tileJSONPromise) {
+      return NaverPMTilesService.tileJSONPromise;
     }
 
     // Launch a new TileJSON call
-    ApplePMTilesService.tileJSONPromise = ApplePMTilesService.fetchTileJSON();
+    NaverPMTilesService.tileJSONPromise = NaverPMTilesService.fetchTileJSON();
     
     try {
-      const result = await ApplePMTilesService.tileJSONPromise;
-      ApplePMTilesService.tileJSONCache = result;
+      const result = await NaverPMTilesService.tileJSONPromise;
+      NaverPMTilesService.tileJSONCache = result;
       return result;
     } catch (error) {
       // In case of error, clean up promise to allow retry
-      ApplePMTilesService.tileJSONPromise = null;
+      NaverPMTilesService.tileJSONPromise = null;
       throw error;
     }
   }
@@ -80,7 +80,7 @@ export class ApplePMTilesService {
    */
   private static async fetchTileJSON(): Promise<TileJSONMetadata> {
     try {
-      const response = await fetch(ApplePMTilesService.TILEJSON_URL, {
+      const response = await fetch(NaverPMTilesService.TILEJSON_URL, {
         method: 'GET',
         headers: {
           'Accept': 'application/json'
@@ -104,8 +104,8 @@ export class ApplePMTilesService {
 
       return tileJSON;
     } catch (error) {
-      console.error('Failed to fetch Apple PMtiles TileJSON:', error);
-      throw new Error(`Unable to load Apple PMtiles metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('Failed to fetch Naver PMtiles TileJSON:', error);
+      throw new Error(`Unable to load Naver PMtiles metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -118,7 +118,7 @@ export class ApplePMTilesService {
    * @returns The complete MVT tile URL
    */
   static getMVTTileUrl(x: number, y: number, z: number): string {
-    return ApplePMTilesService.MVT_URL_TEMPLATE
+    return NaverPMTilesService.MVT_URL_TEMPLATE
       .replace('{x}', x.toString())
       .replace('{y}', y.toString())
       .replace('{z}', z.toString());
@@ -130,7 +130,7 @@ export class ApplePMTilesService {
    * @returns The URL template with {x}, {y}, {z} placeholders
    */
   static getMVTUrlTemplate(): string {
-    return ApplePMTilesService.MVT_URL_TEMPLATE;
+    return NaverPMTilesService.MVT_URL_TEMPLATE;
   }
 
   /**
@@ -141,7 +141,7 @@ export class ApplePMTilesService {
    * @returns Promise<boolean> True if zoom is valid
    */
   static async isZoomLevelValid(zoom: number, tileJSON?: TileJSONMetadata): Promise<boolean> {
-    const metadata = tileJSON || await ApplePMTilesService.getTileJSON();
+    const metadata = tileJSON || await NaverPMTilesService.getTileJSON();
     return zoom >= metadata.minzoom && zoom <= metadata.maxzoom;
   }
 
@@ -151,7 +151,7 @@ export class ApplePMTilesService {
    * @returns Promise<{minzoom: number, maxzoom: number}> The zoom limits
    */
   static async getZoomLimits(): Promise<{minzoom: number, maxzoom: number}> {
-    const tileJSON = await ApplePMTilesService.getTileJSON();
+    const tileJSON = await NaverPMTilesService.getTileJSON();
     return {
       minzoom: tileJSON.minzoom,
       maxzoom: tileJSON.maxzoom
@@ -162,7 +162,7 @@ export class ApplePMTilesService {
    * Clears the cache (useful for tests or reloading)
    */
   static clearCache(): void {
-    ApplePMTilesService.tileJSONCache = null;
-    ApplePMTilesService.tileJSONPromise = null;
+    NaverPMTilesService.tileJSONCache = null;
+    NaverPMTilesService.tileJSONPromise = null;
   }
-} 
+}

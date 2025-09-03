@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import L from 'leaflet';
 import Image from 'next/image';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
-import { AppleLookAroundService } from '@/services/appleLookAroundService';
+import { PanoramaService } from '@/services/panoramaService';
 
 interface PanoramaBubbleProps {
   map: L.Map | null;
@@ -21,30 +21,11 @@ interface PanoramaBubbleProps {
 }
 
 /**
- * Generates URL to open a panorama from a specific provider
+ * Interface for provider button with URL
  */
-function getPanoramaUrl(result: StreetViewDetectionResult): string {
-  if (!result.closestPoint) return '#';
-  
-  const lat = result.closestPoint.lat.toFixed(6);
-  const lng = result.closestPoint.lng.toFixed(6);
-  
-  switch (result.provider) {
-    case 'google':
-      return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`;
-    case 'bing':
-      return `https://www.bing.com/maps?cp=${lat}~${lng}&lvl=19&style=x`;
-    case 'yandex':
-      return `https://yandex.com/maps/?panorama%5Bpoint%5D=${lng}%2C${lat}&l=stv`;
-    case 'apple':
-      // Use the Apple Look Around service to generate an optimized link
-      return AppleLookAroundService.buildOptimizedLookAroundLink(
-        parseFloat(lat),
-        parseFloat(lng)
-      );
-    default:
-      return '#';
-  }
+interface ProviderButton {
+  provider: StreetViewDetectionResult['provider'];
+  url: string;
 }
 
 /**
@@ -61,6 +42,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
   const [screenPosition, setScreenPosition] = useState<{x: number, y: number} | null>(null);
   // State for the appearance animation
   const [isVisible, setIsVisible] = useState(false);
+  // State for provider buttons with optimized URLs
+  const [providerButtons, setProviderButtons] = useState<ProviderButton[]>([]);
 
   // Effect to update popup position when the map moves
   useEffect(() => {
@@ -92,6 +75,36 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     };
   }, [map, position]);
 
+  // Effect to generate optimized URLs for available providers
+  useEffect(() => {
+    const generateOptimizedUrls = async () => {
+      const availableProviders = detectionResults.filter(result => result.available);
+      const buttons: ProviderButton[] = [];
+      
+      for (const result of availableProviders) {
+        try {
+          const url = await PanoramaService.getOptimizedPanoramaUrl(result);
+          buttons.push({
+            provider: result.provider,
+            url: url
+          });
+        } catch (error) {
+          console.error(`Error generating URL for ${result.provider}:`, error);
+          // Fallback to basic URL
+          const fallbackUrl = PanoramaService.getPanoramaUrl(result);
+          buttons.push({
+            provider: result.provider,
+            url: fallbackUrl
+          });
+        }
+      }
+      
+      setProviderButtons(buttons);
+    };
+
+    generateOptimizedUrls();
+  }, [detectionResults]);
+
   // Effect for appearance animation
   useEffect(() => {
     if (screenPosition) {
@@ -108,11 +121,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
     return null;
   }
 
-  // Filter to keep only available providers
-  const availableProviders = detectionResults.filter(result => result.available);
-  
   // If no provider is available
-  if (availableProviders.length === 0) {
+  if (providerButtons.length === 0) {
     return (
       <div
         className="no-panorama-bubble"
@@ -205,10 +215,10 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
       </div>
       
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-        {availableProviders.map((result) => (
+        {providerButtons.map((button) => (
           <a
-            key={result.provider}
-            href={getPanoramaUrl(result)}
+            key={button.provider}
+            href={button.url}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -239,8 +249,8 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
           >
             <div style={{ width: '32px', height: '32px', position: 'relative', marginBottom: '8px' }}>
               <Image
-                src={`/images/providers/${result.provider}.svg`}
-                alt={`${result.provider} Logo`}
+                src={`/images/providers/${button.provider}.svg`}
+                alt={`${button.provider} Logo`}
                 width={32}
                 height={32}
               />
@@ -255,10 +265,11 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
               whiteSpace: 'nowrap',
               width: '100%'
             }}>
-              {result.provider === 'google' && 'Google'}
-              {result.provider === 'bing' && 'Bing'}
-              {result.provider === 'yandex' && 'Yandex'}
-              {result.provider === 'apple' && 'Apple'}
+              {button.provider === 'google' && 'Google'}
+              {button.provider === 'bing' && 'Bing'}
+              {button.provider === 'yandex' && 'Yandex'}
+              {button.provider === 'apple' && 'Apple'}
+              {button.provider === 'naver' && 'Naver'}
             </div>
           </a>
         ))}

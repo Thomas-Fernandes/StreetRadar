@@ -20,6 +20,7 @@ import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
 import { createAppleMVTLayer } from './appleMVTLayer';
+import { createNaverMVTLayer } from './naverMVTLayer';
 
 /**
  * Properties for the StreetViewLayer component
@@ -29,7 +30,7 @@ import { createAppleMVTLayer } from './appleMVTLayer';
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing' | 'yandex';
+  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver';
   visible: boolean;
 }
 
@@ -48,6 +49,8 @@ const getAttribution = (provider: string): string => {
       return '&copy; <a href="https://yandex.com/maps/" target="_blank" rel="noopener noreferrer">Yandex Panoramas</a>';
     case 'apple':
       return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
+    case 'naver':
+      return '&copy; <a href="https://map.naver.com" target="_blank" rel="noopener noreferrer">Naver Street View</a>';
     default:
       return '';
   }
@@ -106,6 +109,22 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
               attribution: attribution,
               style: {
                 color: '#e74c3c',
+                weight: 2,
+                opacity: 0.8
+              }
+            });
+          }
+          break;
+        case 'naver':
+          // Use custom MVT layer for Naver
+          const naverUrl = StreetViewService.getNaverStreetViewTileUrl();
+          if (naverUrl === 'NAVER_MVT_LAYER') {
+            tileLayer = createNaverMVTLayer({
+              opacity: 0.9,
+              pane: 'overlayPane',
+              attribution: attribution,
+              style: {
+                color: '#00c851',
                 weight: 2,
                 opacity: 0.8
               }

@@ -11,6 +11,7 @@ interface LayerControlProps {
     bingStreetside: boolean;
     yandexPanoramas: boolean;
     appleLookAround: boolean;
+    naverStreetView: boolean;
   };
   toggleLayer: (layer: string) => void;
 }
@@ -59,6 +60,20 @@ const LayerControl: React.FC<LayerControlProps> = ({ visibleLayers, toggleLayer 
           />
           <label htmlFor="yandex-layer" className="ml-2 text-[#FF0000] cursor-pointer text-sm">
             Yandex Panoramas
+          </label>
+        </div>
+        
+        
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            id="naver-layer"
+            checked={visibleLayers.naverStreetView}
+            onChange={() => toggleLayer('naverStreetView')}
+            className="h-4 w-4 text-green-500 focus:ring-green-500 border-gray-300 rounded"
+          />
+          <label htmlFor="naver-layer" className="ml-2 text-[#00c851] cursor-pointer text-sm">
+            Naver Street View
           </label>
         </div>
       </div>

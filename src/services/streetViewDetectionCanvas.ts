@@ -10,7 +10,7 @@ import L from 'leaflet';
  * Interface for detection results
  */
 export interface StreetViewDetectionResult {
-  provider: 'google' | 'bing' | 'yandex' | 'apple';
+  provider: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
@@ -21,7 +21,7 @@ export interface StreetViewDetectionResult {
  * Interface for provider-specific detection parameters
  */
 interface ProviderDetectionConfig {
-  name: 'google' | 'bing' | 'yandex' | 'apple';
+  name: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
   urlPattern: string;
 }
 
@@ -45,6 +45,10 @@ export class StreetViewDetectionCanvas {
     },
     {
       name: 'apple',
+      urlPattern: 'streetradar.app'
+    },
+    {
+      name: 'naver',
       urlPattern: 'streetradar.app'
     }
   ];
@@ -82,6 +86,13 @@ export class StreetViewDetectionCanvas {
           result.closestPoint = latlng;
           result.distance = 0;
           result.tileUrl = 'Apple MVT Layer Active';
+        } else if (config.name === 'naver') {
+          // For Naver, since it's enabled in the panel, we consider it available
+          // (simplified logic as Naver MVT layer has a different architecture)
+          result.available = true;
+          result.closestPoint = latlng;
+          result.distance = 0;
+          result.tileUrl = 'Naver MVT Layer Active';
         } else {
           // Standard logic for other providers
           const tileInfo = this.findTileForProvider(map, latlng, config);

@@ -8,6 +8,7 @@
 import L from 'leaflet';
 import { StreetViewDetectionCanvas, StreetViewDetectionResult } from './streetViewDetectionCanvas';
 import { AppleLookAroundService } from './appleLookAroundService';
+import { NaverStreetViewService } from './naverStreetViewService';
 
 /**
  * Interface for detection options
@@ -75,6 +76,47 @@ export class PanoramaService {
           parseFloat(lng)
         );
       
+      case 'naver':
+        // For Naver, return fallback URL synchronously 
+        // The proper panorama link will be generated asynchronously
+        return `https://map.naver.com/v5/search/${lat},${lng}`;
+      
+      default:
+        return '#';
+    }
+  }
+
+  /**
+   * Generates an optimized URL to open a panorama for a specific provider
+   * This async version can fetch real panorama data for better links
+   *
+   * @param result Detection result for a provider
+   * @returns Promise<string> Optimized URL to open the panorama
+   */
+  static async getOptimizedPanoramaUrl(result: StreetViewDetectionResult): Promise<string> {
+    if (!result.closestPoint) return '#';
+    
+    const lat = result.closestPoint.lat;
+    const lng = result.closestPoint.lng;
+    
+    switch (result.provider) {
+      case 'google':
+        return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat.toFixed(6)},${lng.toFixed(6)}`;
+      
+      case 'bing':
+        return `https://www.bing.com/maps?cp=${lat.toFixed(6)}~${lng.toFixed(6)}&lvl=19&style=x`;
+      
+      case 'yandex':
+        return `https://yandex.com/maps/?panorama%5Bpoint%5D=${lng.toFixed(6)}%2C${lat.toFixed(6)}&l=stv`;
+      
+      case 'apple':
+        // Use Apple Look Around service to generate an optimized link
+        return AppleLookAroundService.buildOptimizedLookAroundLink(lat, lng);
+      
+      case 'naver':
+        // Use the new NaverStreetViewService for direct panorama links
+        return NaverStreetViewService.buildOptimizedNaverLink(lat, lng);
+      
       default:
         return '#';
     }
@@ -92,6 +134,7 @@ export class PanoramaService {
       case 'bing': return 'Bing Streetside';
       case 'yandex': return 'Yandex Panoramas';
       case 'apple': return 'Apple Look Around';
+      case 'naver': return 'Naver Street View';
       default: return provider;
     }
   }

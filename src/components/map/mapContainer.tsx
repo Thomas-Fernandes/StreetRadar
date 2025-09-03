@@ -43,6 +43,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     bingStreetside: true,
     yandexPanoramas: false,
     appleLookAround: false,
+    naverStreetView: false,
   });
   // Control panel collapsed state
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -109,6 +110,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       shortName: 'Yandex',
       logo: '/images/providers/yandex.svg',
       color: '#8661C5'
+    },
+    {
+      key: 'naverStreetView',
+      name: 'Street View',
+      shortName: 'Naver',
+      logo: '/images/providers/naver.svg',
+      color: '#00c851'
     }
   ];
 
@@ -622,6 +630,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             map={mapInstance} 
             provider="apple" 
             visible={visibleLayers.appleLookAround} 
+          />
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="naver" 
+            visible={visibleLayers.naverStreetView} 
           />
         </>
       )}
