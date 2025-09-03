@@ -239,7 +239,7 @@ export class NaverMVTLayer extends L.GridLayer {
       ...style
     };
     
-    // Redraw le layer si il est sur une carte
+    // Redraw the layer if it is on a map
     if (this._map) {
       this.redraw();
     }
