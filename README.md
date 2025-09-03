@@ -19,9 +19,9 @@ The application is available at **[streetradar.app](https://streetradar.app)**
 | Apple Look Around | ✅ | ⚠️ Alpha | ✅ | ✅ |
 | Bing Streetside | ✅ | ✅ | ✅ | ❌ |
 | Yandex Panoramas | ⚠️ Alpha | ⚠️ Alpha | ⚠️ Alpha | ❌ |
+| Naver Street View | ✅ | ❌ | ✅ | ❌ |
 | Baidu Panorama | ❌ | ❌ | ❌ | ❌ |
 | Kakao Road View | ❌ | ❌ | ❌ | ❌ |
-| Naver Street View | ❌ | ❌ | ❌ | ❌ |
 | Mapillary | ❌ | ❌ | ❌ | ❌ |
 | Mapy.cz Panorama | ❌ | ❌ | ❌ | ❌ |
 
