@@ -63,18 +63,6 @@ const LayerControl: React.FC<LayerControlProps> = ({ visibleLayers, toggleLayer 
           </label>
         </div>
         
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="apple-layer"
-            checked={visibleLayers.appleLookAround}
-            onChange={() => toggleLayer('appleLookAround')}
-            className="h-4 w-4 text-red-500 focus:ring-red-500 border-gray-300 rounded"
-          />
-          <label htmlFor="apple-layer" className="ml-2 text-[#e74c3c] cursor-pointer text-sm">
-            Apple Look Around
-          </label>
-        </div>
         
         <div className="flex items-center">
           <input
