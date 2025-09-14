@@ -103,4 +103,17 @@ export class StreetViewService {
     // Return a special identifier to indicate MVT layer usage
     return 'NAVER_MVT_LAYER';
   }
+
+  /**
+   * Generates URL for ja.is coverage tiles
+   *
+   * This URL displays the coverage indicating where ja.is panoramas are available.
+   * Since ja.is uses PNG tiles, we use a standard TileLayer.
+   * 
+   * @returns URL template for ja.is coverage tiles
+   */
+  static getJaIsTileUrl(): string {
+    // URL pattern for ja.is tiles hosted on tiles.streetradar.app
+    return 'https://tiles.streetradar.app/tiles/ja/{z}/{x}/{y}.png';
+  }
 }

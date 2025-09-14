@@ -270,6 +270,7 @@ const PanoramaBubble: React.FC<PanoramaBubbleProps> = ({
               {button.provider === 'yandex' && 'Yandex'}
               {button.provider === 'apple' && 'Apple'}
               {button.provider === 'naver' && 'Naver'}
+              {button.provider === 'ja' && 'Já 360'}
             </div>
           </a>
         ))}

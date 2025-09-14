@@ -10,7 +10,7 @@ import L from 'leaflet';
  * Interface for detection results
  */
 export interface StreetViewDetectionResult {
-  provider: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
+  provider: 'google' | 'bing' | 'yandex' | 'apple' | 'naver' | 'ja';
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
@@ -21,7 +21,7 @@ export interface StreetViewDetectionResult {
  * Interface for provider-specific detection parameters
  */
 interface ProviderDetectionConfig {
-  name: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
+  name: 'google' | 'bing' | 'yandex' | 'apple' | 'naver' | 'ja';
   urlPattern: string;
 }
 
@@ -50,6 +50,10 @@ export class StreetViewDetectionCanvas {
     {
       name: 'naver',
       urlPattern: 'streetradar.app'
+    },
+    {
+      name: 'ja',
+      urlPattern: 'tiles.streetradar.app'
     }
   ];
 
@@ -93,6 +97,17 @@ export class StreetViewDetectionCanvas {
           result.closestPoint = latlng;
           result.distance = 0;
           result.tileUrl = 'Naver MVT Layer Active';
+        } else if (config.name === 'ja') {
+          // For ja.is, we use standard tile detection logic as it uses PNG tiles
+          const tileInfo = this.findTileForProvider(map, latlng, config);
+          
+          if (tileInfo) {
+            // If a tile is found, consider the panorama available
+            result.available = true;
+            result.closestPoint = latlng; // Use click position as panorama position
+            result.distance = 0;
+            result.tileUrl = tileInfo.imgElement.src;
+          }
         } else {
           // Standard logic for other providers
           const tileInfo = this.findTileForProvider(map, latlng, config);

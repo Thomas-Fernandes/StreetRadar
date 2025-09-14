@@ -320,16 +320,36 @@
     flex-direction: column;
     gap: 12px;
     padding: 16px;
-    max-height: 300px;
+    max-height: 40vh;
     opacity: 1;
     transition: all 0.3s ease;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   
   .controls-container.collapsed {
     padding: 0 16px;
     max-height: 0;
     opacity: 0;
+  }
+
+  /* Custom scrollbar styling for controls container */
+  .controls-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .controls-container::-webkit-scrollbar-track {
+    background: rgba(155, 68, 52, 0.1);
+    border-radius: 3px;
+  }
+
+  .controls-container::-webkit-scrollbar-thumb {
+    background: var(--sr-primary, #9b4434);
+    border-radius: 3px;
+  }
+
+  .controls-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(155, 68, 52, 0.8);
   }
   
   .control-item {

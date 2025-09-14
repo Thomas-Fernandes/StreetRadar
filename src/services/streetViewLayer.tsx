@@ -30,7 +30,7 @@ import { createNaverMVTLayer } from './naverMVTLayer';
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver';
+  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver' | 'ja';
   visible: boolean;
 }
 
@@ -51,6 +51,8 @@ const getAttribution = (provider: string): string => {
       return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
     case 'naver':
       return '&copy; <a href="https://map.naver.com" target="_blank" rel="noopener noreferrer">Naver Street View</a>';
+    case 'ja':
+      return '&copy; <a href="https://ja.is" target="_blank" rel="noopener noreferrer">Já 360</a>';
     default:
       return '';
   }
@@ -130,6 +132,15 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
               }
             });
           }
+          break;
+        case 'ja':
+          // Use standard TileLayer for ja.is as it uses PNG tiles
+          tileLayer = L.tileLayer(StreetViewService.getJaIsTileUrl(), {
+            maxZoom: 19,
+            opacity: 0.9,
+            pane: 'overlayPane',
+            attribution: attribution
+          });
           break;
       }
       

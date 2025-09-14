@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-09-14T10:32:12.686128",
+  "panoramas": {
+    "total": 798823,
+    "snapped": 625934,
+    "snap_success_rate_percent": 78.4
+  },
+  "roads": {
+    "total_covered_roads": 29715,
+    "total_road_length_km": 27262.2,
+    "covered_length_km": 10693.1,
+    "coverage_ratio_percent": 59.6
+  },
+  "segments": {
+    "total_segments": 95618,
+    "total_length_km": 10693.1
+  },
+  "quality_distribution": {
+    "D": 354656,
+    "C": 142416,
+    "B": 81655,
+    "A": 47207
+  },
+  "processing_parameters": {
+    "search_radius_m": 25.0,
+    "max_snap_distance_m": 30.0,
+    "max_heading_deviation_deg": 135.0,
+    "coverage_radius_m": 12.0,
+    "min_segment_length_m": 3.0
+  }
+}
