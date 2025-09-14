@@ -51,6 +51,12 @@ export default function Home() {
       name: 'Naver Street View', 
       logoSrc: '/images/providers/naver.svg',
       logoAlt: 'Naver Logo' 
+    },
+    { 
+      id: 'ja360', 
+      name: 'ja360 Street View', 
+      logoSrc: '/images/providers/ja360.svg',
+      logoAlt: 'ja360 Logo' 
     }
   ];
 

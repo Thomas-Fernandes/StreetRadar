@@ -103,4 +103,18 @@ export class StreetViewService {
     // Return a special identifier to indicate MVT layer usage
     return 'NAVER_MVT_LAYER';
   }
+
+  /**
+   * Generates URL for ja360 coverage tiles
+   *
+   * This URL displays the coverage areas where ja360 (Japanese 360-degree 
+   * street view service) is available.
+   * 
+   * @returns URL template for ja360 coverage tiles
+   */
+  static getJa360TileUrl(): string {
+    // Placeholder URL - this would need to be replaced with the actual ja360 tile server URL
+    // The actual URL would depend on ja360's specific API and tile serving infrastructure
+    return 'https://tiles.ja360.example.com/coverage/{z}/{x}/{y}.png';
+  }
 }

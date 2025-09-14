@@ -44,6 +44,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     yandexPanoramas: false,
     appleLookAround: false,
     naverStreetView: false,
+    ja360: false,
   });
   // Control panel collapsed state
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -117,6 +118,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       shortName: 'Naver',
       logo: '/images/providers/naver.svg',
       color: '#00c851'
+    },
+    {
+      key: 'ja360',
+      name: 'Street View',
+      shortName: 'ja360',
+      logo: '/images/providers/ja360.svg',
+      color: '#FF6B35'
     }
   ];
 
@@ -635,6 +643,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             map={mapInstance} 
             provider="naver" 
             visible={visibleLayers.naverStreetView} 
+          />
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="ja360" 
+            visible={visibleLayers.ja360} 
           />
         </>
       )}

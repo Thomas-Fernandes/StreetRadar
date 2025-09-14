@@ -20,6 +20,7 @@ The application is available at **[streetradar.app](https://streetradar.app)**
 | Bing Streetside | ✅ | ✅ | ✅ | ❌ |
 | Yandex Panoramas | ⚠️ Alpha | ⚠️ Alpha | ⚠️ Alpha | ❌ |
 | Naver Street View | ✅ | ❌ | ✅ | ❌ |
+| ja360 Street View | ❌ | ❌ | ❌ | ❌ |
 | Baidu Panorama | ❌ | ❌ | ❌ | ❌ |
 | Kakao Road View | ❌ | ❌ | ❌ | ❌ |
 | Mapillary | ❌ | ❌ | ❌ | ❌ |

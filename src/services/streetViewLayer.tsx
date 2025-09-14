@@ -19,6 +19,7 @@ import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
+import { createJa360TileLayer } from './ja360TileLayer';
 import { createAppleMVTLayer } from './appleMVTLayer';
 import { createNaverMVTLayer } from './naverMVTLayer';
 
@@ -30,7 +31,7 @@ import { createNaverMVTLayer } from './naverMVTLayer';
  */
 interface StreetViewLayerProps {
   map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver';
+  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver' | 'ja360';
   visible: boolean;
 }
 
@@ -51,6 +52,8 @@ const getAttribution = (provider: string): string => {
       return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
     case 'naver':
       return '&copy; <a href="https://map.naver.com" target="_blank" rel="noopener noreferrer">Naver Street View</a>';
+    case 'ja360':
+      return '&copy; <a href="#" target="_blank" rel="noopener noreferrer">ja360 Street View</a>';
     default:
       return '';
   }
@@ -130,6 +133,15 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
               }
             });
           }
+          break;
+        case 'ja360':
+          // Use custom TileLayer for ja360
+          tileLayer = createJa360TileLayer(StreetViewService.getJa360TileUrl(), {
+            maxZoom: 19,
+            opacity: 0.9,
+            pane: 'overlayPane',
+            attribution: attribution
+          });
           break;
       }
       
