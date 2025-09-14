@@ -10,7 +10,7 @@ import L from 'leaflet';
  * Interface for detection results
  */
 export interface StreetViewDetectionResult {
-  provider: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
+  provider: 'google' | 'bing' | 'yandex' | 'apple' | 'naver' | 'ja360';
   available: boolean;
   closestPoint?: L.LatLng;
   distance?: number;
@@ -21,7 +21,7 @@ export interface StreetViewDetectionResult {
  * Interface for provider-specific detection parameters
  */
 interface ProviderDetectionConfig {
-  name: 'google' | 'bing' | 'yandex' | 'apple' | 'naver';
+  name: 'google' | 'bing' | 'yandex' | 'apple' | 'naver' | 'ja360';
   urlPattern: string;
 }
 
@@ -50,6 +50,10 @@ export class StreetViewDetectionCanvas {
     {
       name: 'naver',
       urlPattern: 'streetradar.app'
+    },
+    {
+      name: 'ja360',
+      urlPattern: 'ja360.example.com'
     }
   ];
 
