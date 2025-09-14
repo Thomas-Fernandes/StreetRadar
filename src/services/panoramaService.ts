@@ -81,6 +81,9 @@ export class PanoramaService {
         // The proper panorama link will be generated asynchronously
         return `https://map.naver.com/v5/search/${lat},${lng}`;
       
+      case 'ja':
+        return `https://ja.is/kort/#${lat},${lng}`;
+      
       default:
         return '#';
     }
@@ -117,6 +120,9 @@ export class PanoramaService {
         // Use the new NaverStreetViewService for direct panorama links
         return NaverStreetViewService.buildOptimizedNaverLink(lat, lng);
       
+      case 'ja':
+        return `https://ja.is/kort/#${lat.toFixed(6)},${lng.toFixed(6)}`;
+      
       default:
         return '#';
     }
@@ -135,6 +141,7 @@ export class PanoramaService {
       case 'yandex': return 'Yandex Panoramas';
       case 'apple': return 'Apple Look Around';
       case 'naver': return 'Naver Street View';
+      case 'ja': return 'Já 360 Street View';
       default: return provider;
     }
   }

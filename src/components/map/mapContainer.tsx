@@ -44,6 +44,7 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
     yandexPanoramas: false,
     appleLookAround: false,
     naverStreetView: false,
+    jaStreetView: false,
   });
   // Control panel collapsed state
   const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
@@ -117,6 +118,13 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       shortName: 'Naver',
       logo: '/images/providers/naver.svg',
       color: '#00c851'
+    },
+    {
+      key: 'jaStreetView',
+      name: 'Já 360',
+      shortName: 'Já 360',
+      logo: '/images/providers/ja.svg',
+      color: '#ff6b35'
     }
   ];
 
@@ -381,7 +389,10 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
       // Get list of active providers
       const activeProviders = Object.entries(visibleLayers)
         .filter(([, isVisible]) => isVisible)
-        .map(([provider]) => provider.replace('StreetView', '').replace('Streetside', '').replace('Panoramas', '').replace('LookAround', '').toLowerCase());
+        .map(([provider]) => {
+          if (provider === 'jaStreetView') return 'ja';
+          return provider.replace('StreetView', '').replace('Streetside', '').replace('Panoramas', '').replace('LookAround', '').toLowerCase();
+        });
       
       // Detect available panoramas
       const results = await PanoramaService.detectPanoramasAt(
@@ -635,6 +646,11 @@ export default function MapContainer({ center = [46.603354, 1.888334], zoom = 3 
             map={mapInstance} 
             provider="naver" 
             visible={visibleLayers.naverStreetView} 
+          />
+          <StreetViewLayer 
+            map={mapInstance} 
+            provider="ja" 
+            visible={visibleLayers.jaStreetView} 
           />
         </>
       )}
