@@ -190,7 +190,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
         }
       ]
     };
-  }, [filters, selectedCountry]);
+  }, [filters, selectedCountry, colors.background, colors.gradient.start, colors.primary, colors.secondary]);
 
   const loadTimelineData = useCallback(async () => {
     try {

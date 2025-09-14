@@ -191,7 +191,7 @@ const CoverageChart: React.FC<CoverageChartProps> = ({
         total: countryTotals[country]
       }))
     };
-  }, [filters]);
+  }, [colors.background, colors.countries]);
 
   const loadCoverageData = useCallback(async () => {
     try {
