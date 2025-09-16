@@ -82,14 +82,14 @@ export class StreetViewDetectionCanvas {
           available: false
         };
         
-        // Specialized logic for Apple MVT Layer
+        // Specialized logic for Apple PMTiles Layer
         if (config.name === 'apple') {
-          // For Apple, since it's enabled in the panel, we consider it available
-          // (simplified logic as Apple MVT layer has a different architecture)
+          // For Apple, since it now uses PMTiles, we consider it available when the layer is active
+          // (similar to the new PMTiles architecture)
           result.available = true;
           result.closestPoint = latlng;
           result.distance = 0;
-          result.tileUrl = 'Apple MVT Layer Active';
+          result.tileUrl = 'Apple PMTiles Layer Active';
         } else if (config.name === 'naver') {
           // For Naver, since it's enabled in the panel, we consider it available
           // (simplified logic as Naver MVT layer has a different architecture)
@@ -98,16 +98,12 @@ export class StreetViewDetectionCanvas {
           result.distance = 0;
           result.tileUrl = 'Naver MVT Layer Active';
         } else if (config.name === 'ja') {
-          // For ja.is, we use standard tile detection logic as it uses PNG tiles
-          const tileInfo = this.findTileForProvider(map, latlng, config);
-          
-          if (tileInfo) {
-            // If a tile is found, consider the panorama available
-            result.available = true;
-            result.closestPoint = latlng; // Use click position as panorama position
-            result.distance = 0;
-            result.tileUrl = tileInfo.imgElement.src;
-          }
+          // For ja.is, since it now uses PMTiles, we consider it available when the layer is active
+          // (similar to Apple and Naver MVT layers)
+          result.available = true;
+          result.closestPoint = latlng;
+          result.distance = 0;
+          result.tileUrl = 'ja.is PMTiles Layer Active';
         } else {
           // Standard logic for other providers
           const tileInfo = this.findTileForProvider(map, latlng, config);

@@ -31,12 +31,31 @@ export interface TileJSONMetadata {
 
 export class ApplePMTilesService {
   private static readonly BASE_URL = 'https://tiles.streetradar.app';
+  private static readonly PMTILES_URL = `${ApplePMTilesService.BASE_URL}/tiles.pmtiles`;
   private static readonly TILEJSON_URL = `${ApplePMTilesService.BASE_URL}/tiles.json`;
   private static readonly MVT_URL_TEMPLATE = `${ApplePMTilesService.BASE_URL}/tiles/apple/{z}/{x}/{y}.mvt`;
   
   // Cache to avoid repeating TileJSON call every time
   private static tileJSONCache: TileJSONMetadata | null = null;
   private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
+
+  /**
+   * Gets the direct URL to the tiles.pmtiles file
+   * 
+   * @returns The direct URL to the PMTiles file
+   */
+  static getPMTilesUrl(): string {
+    return ApplePMTilesService.PMTILES_URL;
+  }
+
+  /**
+   * Gets attribution text for Apple Look Around
+   * 
+   * @returns Attribution string
+   */
+  static getAttribution(): string {
+    return '© Apple Inc. - Look Around';
+  }
 
   /**
    * Retrieves TileJSON metadata from Apple PMtiles

@@ -19,8 +19,9 @@ import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
-import { createAppleMVTLayer } from './appleMVTLayer';
 import { createNaverMVTLayer } from './naverMVTLayer';
+import { createJaPMTilesLayer } from './jaPMTilesLayer';
+import { createApplePMTilesLayer } from './applePMTilesLayerNew';
 
 /**
  * Properties for the StreetViewLayer component
@@ -102,10 +103,10 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           });
           break;
         case 'apple':
-          // Use custom MVT layer for Apple
+          // Use custom PMTiles layer for Apple
           const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
-          if (appleUrl === 'APPLE_MVT_LAYER') {
-            tileLayer = createAppleMVTLayer({
+          if (appleUrl === 'APPLE_PMTILES_LAYER') {
+            tileLayer = createApplePMTilesLayer({
               opacity: 0.9,
               pane: 'overlayPane',
               attribution: attribution,
@@ -134,13 +135,15 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           }
           break;
         case 'ja':
-          // Use standard TileLayer for ja.is as it uses PNG tiles
-          tileLayer = L.tileLayer(StreetViewService.getJaIsTileUrl(), {
-            maxZoom: 19,
-            opacity: 0.9,
-            pane: 'overlayPane',
-            attribution: attribution
-          });
+          // Use custom PMTiles layer for ja.is
+          const jaUrl = StreetViewService.getJaIsTileUrl();
+          if (jaUrl === 'JA_PMTILES_LAYER') {
+            tileLayer = createJaPMTilesLayer({
+              opacity: 0.9,
+              pane: 'overlayPane',
+              attribution: attribution
+            });
+          }
           break;
       }
       

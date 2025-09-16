@@ -30,13 +30,13 @@ export class StreetViewService {
    * Generates URL for Apple Look Around coverage tiles
    *
    * This method now returns a special identifier to indicate that we need to
-   * use the custom MVT layer instead of a standard TileLayer.
+   * use the custom PMTiles layer instead of a standard TileLayer.
    *
-   * @returns Special identifier for Apple MVT layer
+   * @returns Special identifier for Apple PMTiles layer
    */
   static getAppleLookAroundTileUrl(): string {
-    // Return a special identifier to indicate MVT layer usage
-    return 'APPLE_MVT_LAYER';
+    // Return a special identifier to indicate PMTiles layer usage
+    return 'APPLE_PMTILES_LAYER';
   }
 
   /**
@@ -107,13 +107,13 @@ export class StreetViewService {
   /**
    * Generates URL for ja.is coverage tiles
    *
-   * This URL displays the coverage indicating where ja.is panoramas are available.
-   * Since ja.is uses PNG tiles, we use a standard TileLayer.
+   * This method now returns a special identifier to indicate that we need to
+   * use the custom PMTiles layer instead of a standard TileLayer.
    * 
-   * @returns URL template for ja.is coverage tiles
+   * @returns Special identifier for ja.is PMTiles layer
    */
   static getJaIsTileUrl(): string {
-    // URL pattern for ja.is tiles hosted on tiles.streetradar.app
-    return 'https://tiles.streetradar.app/tiles/ja/{z}/{x}/{y}.png';
+    // Return a special identifier to indicate PMTiles layer usage
+    return 'JA_PMTILES_LAYER';
   }
 }
