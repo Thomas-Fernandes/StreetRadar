@@ -94,14 +94,14 @@ export class StreetViewService {
   /**
    * Generates URL for Naver Street View coverage tiles
    *
-   * This method returns a special identifier to indicate that we need to
-   * use the custom MVT layer instead of a standard TileLayer.
+   * This method now returns a special identifier to indicate that we need to
+   * use the custom PMTiles layer instead of a standard TileLayer.
    *
-   * @returns Special identifier for Naver MVT layer
+   * @returns Special identifier for Naver PMTiles layer
    */
   static getNaverStreetViewTileUrl(): string {
-    // Return a special identifier to indicate MVT layer usage
-    return 'NAVER_MVT_LAYER';
+    // Return a special identifier to indicate PMTiles layer usage
+    return 'NAVER_PMTILES_LAYER';
   }
 
   /**

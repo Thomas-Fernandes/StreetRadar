@@ -91,12 +91,12 @@ export class StreetViewDetectionCanvas {
           result.distance = 0;
           result.tileUrl = 'Apple PMTiles Layer Active';
         } else if (config.name === 'naver') {
-          // For Naver, since it's enabled in the panel, we consider it available
-          // (simplified logic as Naver MVT layer has a different architecture)
+          // For Naver, since it now uses PMTiles, we consider it available when the layer is active
+          // (similar to the new PMTiles architecture)
           result.available = true;
           result.closestPoint = latlng;
           result.distance = 0;
-          result.tileUrl = 'Naver MVT Layer Active';
+          result.tileUrl = 'Naver PMTiles Layer Active';
         } else if (config.name === 'ja') {
           // For ja.is, since it now uses PMTiles, we consider it available when the layer is active
           // (similar to Apple and Naver MVT layers)

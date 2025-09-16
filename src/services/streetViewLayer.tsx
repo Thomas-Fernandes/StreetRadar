@@ -19,9 +19,9 @@ import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
 import { createYandexTileLayer } from './yandexTileLayer';
-import { createNaverMVTLayer } from './naverMVTLayer';
 import { createJaPMTilesLayer } from './jaPMTilesLayer';
 import { createApplePMTilesLayer } from './applePMTilesLayerNew';
+import { createNaverPMTilesLayer } from './naverPMTilesLayerNew';
 
 /**
  * Properties for the StreetViewLayer component
@@ -119,18 +119,13 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
           }
           break;
         case 'naver':
-          // Use custom MVT layer for Naver
+          // Use custom PMTiles layer for Naver
           const naverUrl = StreetViewService.getNaverStreetViewTileUrl();
-          if (naverUrl === 'NAVER_MVT_LAYER') {
-            tileLayer = createNaverMVTLayer({
+          if (naverUrl === 'NAVER_PMTILES_LAYER') {
+            tileLayer = createNaverPMTilesLayer({
               opacity: 0.9,
               pane: 'overlayPane',
-              attribution: attribution,
-              style: {
-                color: '#00c851',
-                weight: 2,
-                opacity: 0.8
-              }
+              attribution: attribution
             });
           }
           break;
