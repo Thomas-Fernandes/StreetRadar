@@ -31,12 +31,31 @@ export interface TileJSONMetadata {
 
 export class NaverPMTilesService {
   private static readonly BASE_URL = 'https://tiles.streetradar.app';
+  private static readonly PMTILES_URL = `${NaverPMTilesService.BASE_URL}/naver.pmtiles`;
   private static readonly TILEJSON_URL = `${NaverPMTilesService.BASE_URL}/tiles.json`;
   private static readonly MVT_URL_TEMPLATE = `${NaverPMTilesService.BASE_URL}/tiles/naver/{z}/{x}/{y}.mvt`;
   
   // Cache to avoid repeating TileJSON call every time
   private static tileJSONCache: TileJSONMetadata | null = null;
   private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
+
+  /**
+   * Gets the direct URL to the naver.pmtiles file
+   * 
+   * @returns The direct URL to the PMTiles file
+   */
+  static getPMTilesUrl(): string {
+    return NaverPMTilesService.PMTILES_URL;
+  }
+
+  /**
+   * Gets attribution text for Naver Street View
+   * 
+   * @returns Attribution string
+   */
+  static getAttribution(): string {
+    return '© Naver Corporation - Street View';
+  }
 
   /**
    * Retrieves TileJSON metadata from Naver PMtiles
