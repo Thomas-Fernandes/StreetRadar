@@ -21,6 +21,9 @@ import { PanoramaService } from '../../services/panoramaService';
 import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
 import StatisticsPanel from '@/components/map/statisticsPanel';
+import ProviderWarning from '@/components/map/providerWarning';
+import { useProviderWarnings } from '@/hooks/useProviderWarnings';
+import { useMapUI } from '@/hooks/useMapUI';
 import Image from 'next/image';
 
 /**
@@ -70,12 +73,8 @@ export default function MapContainer({
         }
         return fromUrl;
     });
-    // Control panel collapsed state
-    const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
     // Basemap selection
     const [currentBasemap, setCurrentBasemap] = useState(initialUrlState?.basemap ?? 'osm');
-    // Basemap selector open state
-    const [isBasemapSelectorOpen, setIsBasemapSelectorOpen] = useState(false);
     // References to the basemap layers
     const basemapLayersRef = useRef<{ [key: string]: L.TileLayer }>({});
     // Information about the last click/drop
@@ -94,16 +93,19 @@ export default function MapContainer({
     const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{ x: number; y: number } | null>(
         null
     );
-    // State for Yandex warning popup
-    const [showYandexWarning, setShowYandexWarning] = useState<boolean>(false);
-    // Flag to know if Yandex warning has already been shown
-    const [yandexWarningShown, setYandexWarningShown] = useState<boolean>(false);
-    // State for Apple warning popup
-    const [showAppleWarning, setShowAppleWarning] = useState<boolean>(false);
-    // Flag to know if Apple warning has already been shown
-    const [appleWarningShown, setAppleWarningShown] = useState<boolean>(false);
-    // Statistics panel open state
-    const [isStatisticsPanelOpen, setIsStatisticsPanelOpen] = useState<boolean>(false);
+    // One-time notices for providers with known limitations. Four booleans
+    // before — two per provider, kept in step by hand — and two now.
+    const providerWarnings = useProviderWarnings();
+    // Open/closed state for the panel, basemap picker and statistics drawer.
+    const {
+        isPanelCollapsed,
+        isBasemapSelectorOpen,
+        isStatisticsPanelOpen,
+        togglePanel,
+        toggleBasemapSelector,
+        toggleStatisticsPanel,
+        closeBasemapSelector,
+    } = useMapUI();
 
     // Mirror the current view into the URL hash so a position can be shared.
     useMapUrlState({ map: mapInstance, visibleLayers, basemap: currentBasemap });
@@ -335,16 +337,9 @@ export default function MapContainer({
 
     // Function to toggle layer visibility
     const toggleLayer = (layer: keyof typeof visibleLayers) => {
-        // If activating Yandex and it wasn't already activated AND the warning has never been shown
-        if (layer === 'yandexPanoramas' && !visibleLayers.yandexPanoramas && !yandexWarningShown) {
-            setShowYandexWarning(true);
-            setYandexWarningShown(true); // Mark as shown to never show it again
-        }
-
-        // If activating Apple and it wasn't already activated AND the warning has never been shown
-        if (layer === 'appleLookAround' && !visibleLayers.appleLookAround && !appleWarningShown) {
-            setShowAppleWarning(true);
-            setAppleWarningShown(true); // Mark as shown to never show it again
+        // Only when switching a layer on, and only the first time for that provider.
+        if (!visibleLayers[layer]) {
+            providerWarnings.warnOnce(layer);
         }
 
         setVisibleLayers((prev) => ({
@@ -360,11 +355,6 @@ export default function MapContainer({
     ) => {
         e.stopPropagation(); // Stop propagation to prevent double toggle
         toggleLayer(layer);
-    };
-
-    // Toggle panel collapsed state
-    const togglePanel = () => {
-        setIsPanelCollapsed(!isPanelCollapsed);
     };
 
     // Function to change basemap
@@ -394,17 +384,7 @@ export default function MapContainer({
         setCurrentBasemap(basemap);
 
         // Close the selector after selection
-        setIsBasemapSelectorOpen(false);
-    };
-
-    // Toggle basemap selector
-    const toggleBasemapSelector = () => {
-        setIsBasemapSelectorOpen(!isBasemapSelectorOpen);
-    };
-
-    // Toggle statistics panel
-    const toggleStatisticsPanel = () => {
-        setIsStatisticsPanelOpen(!isStatisticsPanelOpen);
+        closeBasemapSelector();
     };
 
     /**
@@ -503,20 +483,6 @@ export default function MapContainer({
     const closePanoramaBubble = () => {
         setDetectedPosition(null);
         setDetectionResults([]);
-    };
-
-    /**
-     * Closes the Yandex warning popup
-     */
-    const closeYandexWarning = () => {
-        setShowYandexWarning(false);
-    };
-
-    /**
-     * Closes the Apple warning popup
-     */
-    const closeAppleWarning = () => {
-        setShowAppleWarning(false);
     };
 
     return (
@@ -872,174 +838,12 @@ export default function MapContainer({
                 />
             )}
 
-            {/* Yandex warning popup */}
-            {showYandexWarning && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2000,
-                        animation: 'fadeIn 0.3s ease',
-                    }}
-                    onClick={closeYandexWarning}
-                >
-                    <div
-                        style={{
-                            background: '#fefbf1',
-                            padding: '24px',
-                            borderRadius: '12px',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-                            maxWidth: '400px',
-                            width: '90%',
-                            fontFamily: 'var(--font-geist-sans, sans-serif)',
-                            color: 'var(--sr-text, #333)',
-                            textAlign: 'center',
-                            transform: 'scale(1)',
-                            animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                        <h3
-                            style={{
-                                margin: '0 0 16px 0',
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: 'var(--sr-primary, #9b4434)',
-                            }}
-                        >
-                            Yandex Panoramas - Alpha Feature
-                        </h3>
-                        <p
-                            style={{
-                                margin: '0 0 20px 0',
-                                fontSize: '16px',
-                                lineHeight: '1.5',
-                                color: 'var(--sr-text-light, #666)',
-                            }}
-                        >
-                            Yandex Panoramas support is currently in alpha testing. Coverage
-                            detection and panorama links may not work as expected.
-                        </p>
-                        <button
-                            onClick={closeYandexWarning}
-                            style={{
-                                background: 'var(--sr-primary, #9b4434)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '10px 20px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = '#7a3429';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
-                            }}
-                        >
-                            I understand
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Apple warning popup */}
-            {showAppleWarning && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2000,
-                        animation: 'fadeIn 0.3s ease',
-                    }}
-                    onClick={closeAppleWarning}
-                >
-                    <div
-                        style={{
-                            background: '#fefbf1',
-                            padding: '24px',
-                            borderRadius: '12px',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-                            maxWidth: '420px',
-                            width: '90%',
-                            fontFamily: 'var(--font-geist-sans, sans-serif)',
-                            color: 'var(--sr-text, #333)',
-                            textAlign: 'center',
-                            transform: 'scale(1)',
-                            animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                        <h3
-                            style={{
-                                margin: '0 0 16px 0',
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: 'var(--sr-primary, #9b4434)',
-                            }}
-                        >
-                            Apple Look Around - Beta Feature
-                        </h3>
-                        <div
-                            style={{
-                                margin: '0 0 20px 0',
-                                fontSize: '16px',
-                                lineHeight: '1.5',
-                                color: 'var(--sr-text-light, #666)',
-                                textAlign: 'left',
-                            }}
-                        >
-                            <p style={{ margin: '0 0 12px 0' }}>
-                                Apple Look Around support is currently in beta. Known issues:
-                            </p>
-                            <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                                <li>Maximum zoom level: 16</li>
-                                <li>Map matching contains errors for Canada, Spain, and Italy</li>
-                            </ul>
-                        </div>
-                        <button
-                            onClick={closeAppleWarning}
-                            style={{
-                                background: 'var(--sr-primary, #9b4434)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '10px 20px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = '#7a3429';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
-                            }}
-                        >
-                            I understand
-                        </button>
-                    </div>
-                </div>
+            {/* One-time notice for providers with known limitations. */}
+            {providerWarnings.active && (
+                <ProviderWarning
+                    provider={providerWarnings.active}
+                    onDismiss={providerWarnings.dismiss}
+                />
             )}
 
             {/* Loading animation styles */}
