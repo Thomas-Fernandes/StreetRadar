@@ -46,6 +46,13 @@ jobs:
             - name: Typecheck
               run: npm run typecheck
 
+            # Covers the pure logic worth protecting — currently the map URL
+            # hash, whose clamping, wrapping and empty-segment handling are easy
+            # to get subtly wrong and produce links that silently land somewhere
+            # else. Three real bugs were caught writing these.
+            - name: Test
+              run: npm test
+
             # This step deliberately runs with no secrets in scope.
             #
             # A module that threw on a missing environment variable once broke the
