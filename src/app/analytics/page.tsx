@@ -68,8 +68,8 @@ export default function AnalyticsPage() {
 
             <main className="py-20">
                 <div className="container">
-                    <div className="mb-12 text-center">
-                        <h1 className="from-primary to-secondary mb-4 bg-gradient-to-br bg-clip-text text-5xl font-bold text-transparent">
+                    <div className="mb-20 text-center">
+                        <h1 className="from-primary to-secondary mb-6 bg-gradient-to-br bg-clip-text text-5xl leading-[1.6] font-bold text-transparent">
                             Analytics &amp; Statistics
                         </h1>
                         {/* Says how old the underlying data is. The pipeline has not
@@ -82,7 +82,7 @@ export default function AnalyticsPage() {
                     </div>
 
                     <section className="mb-15 rounded-2xl border border-black/5 bg-white/60 p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-                        <h2 className="text-primary mb-6 text-center text-3xl font-semibold">
+                        <h2 className="text-primary mb-6 text-center text-[28px] font-semibold">
                             Street View Coverage Evolution
                         </h2>
                         <CoverageChartWithControls
@@ -98,19 +98,22 @@ export default function AnalyticsPage() {
                             What&apos;s Coming
                         </h3>
 
-                        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
+                        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-[30px]">
                             {upcomingFeatures.map((feature) => (
                                 <article
                                     key={feature.title}
-                                    className="rounded-xl border border-black/5 bg-white/60 p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
+                                    className="rounded-xl border border-black/5 bg-white/60 p-[30px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
                                 >
-                                    <div className="mb-4 text-3xl" aria-hidden="true">
+                                    <div
+                                        className="mb-4 text-[32px] leading-[1.6]"
+                                        aria-hidden="true"
+                                    >
                                         {feature.icon}
                                     </div>
                                     <h4 className="text-ink mb-3 text-lg font-semibold">
                                         {feature.title}
                                     </h4>
-                                    <p className="text-ink-light text-sm leading-relaxed">
+                                    <p className="text-ink-light text-sm leading-[1.5]">
                                         {feature.description}
                                     </p>
                                 </article>

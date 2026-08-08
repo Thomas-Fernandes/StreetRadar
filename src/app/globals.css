@@ -39,14 +39,17 @@ body {
     --secondary: #337b81;
     --text: #333333;
     --text-light: #666666;
-    --spacing: 24px;
+    /* Renamed from --spacing: Tailwind 4 builds its entire spacing scale as
+       calc(var(--spacing) * n), so a --spacing of 24px turned every p-4, mb-8
+       and gap-6 into six times what it should be. */
+    --sr-gutter: 24px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* The `* { margin: 0; padding: 0; box-sizing: border-box }` that used to sit
+   here is gone. Tailwind's preflight already does all three — and because it
+   lives in @layer base while this file is unlayered, the copy here won every
+   cascade it entered. That silently zeroed every Tailwind spacing utility on
+   the page: p-8, mb-12 and py-20 all computed to 0px. */
 
 body {
     font-family: var(--font-dm-sans), sans-serif;
@@ -58,7 +61,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--spacing);
+    padding: 0 var(--sr-gutter);
 }
 
 a {
@@ -333,7 +336,7 @@ a {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    padding: 40px var(--spacing);
+    padding: 40px var(--sr-gutter);
     text-align: center;
 }
 
