@@ -35,7 +35,7 @@ export class PanoramaService {
     map: L.Map,
     latlng: L.LatLng,
     activeProviders: string[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     _options: PanoramaDetectionOptions = { method: 'canvas' }
   ): Promise<StreetViewDetectionResult[]> {
     // For now, use only the Canvas method

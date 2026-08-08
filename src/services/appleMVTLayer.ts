@@ -170,7 +170,7 @@ export class AppleMVTLayer extends L.GridLayer {
   private async renderMVTData(
     ctx: CanvasRenderingContext2D,
     arrayBuffer: ArrayBuffer,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     _coords: L.Coords
   ): Promise<void> {
     try {

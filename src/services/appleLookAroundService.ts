@@ -11,7 +11,6 @@
  * the Apple Look Around protocol to create direct links to panoramas.
  */
 
-import { APPLE_CONSTANTS } from '@/types/apple-protobuf';
 import L from 'leaflet';
 
 /**
@@ -97,7 +96,7 @@ export class AppleLookAroundService {
     lat: number,
     lon: number,
     heading: number = 0,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     _pitch: number = 0
   ): string {
     // For now, let's use a simplified method that works well
@@ -160,9 +159,9 @@ export class AppleLookAroundService {
    * @returns Promise<boolean> indicating if Look Around is available
    */
   static async checkLookAroundAvailability(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     _lat: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     _lon: number
   ): Promise<boolean> {
     // TODO: Implement verification via Apple tile API
@@ -235,10 +234,11 @@ export class AppleLookAroundService {
     }
   }> {
     try {
-      // Calculate tile at zoom 17
-      const tileCoord = this.wgs84ToTileCoord(lat, lon, APPLE_CONSTANTS.COVERAGE_ZOOM);
-      
-      // TODO: Build Apple API URL and prepare headers for future implementation
+      // TODO: this method is a stub — nothing calls it yet. The real implementation
+      // computes the tile, queries the Apple tile API and parses the protobuf response.
+      // It needs APPLE_CONSTANTS back from '@/types/apple-protobuf':
+      //
+      // const tileCoord = this.wgs84ToTileCoord(lat, lon, APPLE_CONSTANTS.COVERAGE_ZOOM);
       // const url = new URL(APPLE_API.TILE_BASE_URL);
       // const headers = {
       //   ...APPLE_API.HEADERS,
@@ -247,10 +247,7 @@ export class AppleLookAroundService {
       //   'maps-tile-z': tileCoord.z.toString()
       // };
 
-      // For now, return available: true since we don't make the real call
-      // In the future, this would make the HTTP call and parse the protobuf
-      console.log('Tile coordinate calculated:', tileCoord);
-      
+      // Until then it reports coverage as available at the requested position.
       return {
         available: true,
         nearestPanorama: {

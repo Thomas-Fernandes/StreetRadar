@@ -48,7 +48,7 @@ export class NaverStreetViewService {
    * @param lon Longitude
    * @returns Promise<NaverPanoramaData | null> Panorama data if found, null otherwise
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   static async findPanoramaNear(_lat: number, _lon: number): Promise<NaverPanoramaData | null> {
     // CORS Issue: Direct browser requests to Naver API are blocked
     // For now, we'll skip the API call and return null to use fallback URLs
@@ -58,7 +58,7 @@ export class NaverStreetViewService {
     // 2. Server-side rendering for the initial request
     // 3. Use Naver's official JavaScript SDK (if available)
     
-    console.debug('Naver API call skipped due to CORS restrictions. Using fallback URL.');
+    console.warn('Naver API call skipped due to CORS restrictions. Using fallback URL.');
     return null;
 
     /* 
