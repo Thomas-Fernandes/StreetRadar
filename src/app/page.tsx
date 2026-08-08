@@ -9,18 +9,15 @@
  * - A hero section with title and description
  * - A visual preview of the map that links to the full map page
  * - A presentation of supported Street View providers
- * - A footer with visitor stats and version number
+ * - A footer with the version number
+ *
+ * This is a server component: it holds no state and ships no client JS.
  */
-
-'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useVisitorStats } from '@/hooks/useVisitorStats';
 
 export default function Home() {
-  const visitorStats = useVisitorStats();
-  
   const providers = [
     { 
       id: 'google', 
@@ -141,37 +138,6 @@ export default function Home() {
                 />
               </div>
               <span className="copyright">© {new Date().getFullYear()} StreetRadar v0.1</span>
-            </div>
-            
-            <div className="visitor-stats">
-              {visitorStats.loading ? (
-                <div className="stats-loading">
-                  <div className="loading-spinner"></div>
-                  <span>Loading stats...</span>
-                </div>
-              ) : visitorStats.error ? (
-                <div className="stats-error">
-                  <span>Stats unavailable</span>
-                </div>
-              ) : (
-                <div className="stats-display">
-                  <div className="stats-main">
-                    <span className="stats-number">{visitorStats.total.toLocaleString()}</span>
-                    <span className="stats-label">Page Views</span>
-                  </div>
-                  <div className="stats-breakdown">
-                    <div className="stat-item">
-                      <span className="stat-value">{visitorStats.thisWeek}</span>
-                      <span className="stat-period">this week</span>
-                    </div>
-                    <div className="stat-divider">•</div>
-                    <div className="stat-item">
-                      <span className="stat-value">{visitorStats.thisMonth}</span>
-                      <span className="stat-period">this month</span>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

@@ -135,7 +135,11 @@ a {
 .map-image {
   width: 100%;
   aspect-ratio: 16/9;
-  background-image: url('/images/map-preview.png');
+  background-image: url('/images/map-preview.webp');
+  background-image: image-set(
+    url('/images/map-preview.avif') type('image/avif'),
+    url('/images/map-preview.webp') type('image/webp')
+  );
   background-size: cover;
   background-position: center;
   transition: transform 0.6s ease;
@@ -264,111 +268,10 @@ a {
   font-size: 14px;
 }
 
-/* Visitor Stats */
-.visitor-stats {
-  display: flex;
-  align-items: center;
-}
-
-.stats-loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-light);
-  font-size: 14px;
-}
-
-.loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-top: 2px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
+/* Shared spinner animation — used by the chart components and the map overlay */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* Chart container styles for better integration */
-.chart-container {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 12px;
-  padding: 20px;
-  margin: 16px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-}
-
-.chart-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(155, 68, 52, 0.15);
-}
-
-.stats-error {
-  color: var(--text-light);
-  font-size: 14px;
-}
-
-.stats-display {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.stats-main {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.stats-number {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.stats-label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.stats-breakdown {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--text-light);
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.stat-value {
-  font-weight: 700;
-  color: var(--text);
-}
-
-.stat-period {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.stat-divider {
-  color: var(--text-light);
-  opacity: 0.5;
 }
 
 /* Responsive Adjustments */
@@ -394,13 +297,5 @@ a {
     flex-direction: column;
     gap: 20px;
     text-align: center;
-  }
-  
-  .stats-display {
-    align-items: center;
-  }
-  
-  .stats-breakdown {
-    justify-content: center;
   }
 }
