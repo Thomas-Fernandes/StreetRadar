@@ -1,3 +1,22 @@
+/* Tailwind was installed and configured in PostCSS, but this import was never
+   added — so no utility class was ever generated, and the handful in the source
+   did nothing at all. Adding it is what actually switches Tailwind on. */
+@import 'tailwindcss';
+
+/* The palette the site already uses, exposed to Tailwind as `bg-background`,
+   `text-primary` and so on. Deliberately the same hex values as the CSS
+   variables below: this is a vocabulary change, not a redesign. */
+@theme {
+    --color-background: #fefbf1;
+    --color-primary: #9b4434;
+    --color-primary-dark: #7a3429;
+    --color-secondary: #337b81;
+    --color-ink: #333333;
+    --color-ink-light: #666666;
+
+    --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
 /* Existing CSS */
 html,
 body {
@@ -20,14 +39,17 @@ body {
     --secondary: #337b81;
     --text: #333333;
     --text-light: #666666;
-    --spacing: 24px;
+    /* Renamed from --spacing: Tailwind 4 builds its entire spacing scale as
+       calc(var(--spacing) * n), so a --spacing of 24px turned every p-4, mb-8
+       and gap-6 into six times what it should be. */
+    --sr-gutter: 24px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* The `* { margin: 0; padding: 0; box-sizing: border-box }` that used to sit
+   here is gone. Tailwind's preflight already does all three — and because it
+   lives in @layer base while this file is unlayered, the copy here won every
+   cascade it entered. That silently zeroed every Tailwind spacing utility on
+   the page: p-8, mb-12 and py-20 all computed to 0px. */
 
 body {
     font-family: var(--font-dm-sans), sans-serif;
@@ -39,96 +61,12 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--spacing);
+    padding: 0 var(--sr-gutter);
 }
 
 a {
     text-decoration: none;
     color: inherit;
-}
-
-/* Header and Navigation */
-.header {
-    padding: 5px 0;
-}
-
-.header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.logo {
-    position: relative;
-    height: 50px;
-}
-
-.logo img {
-    height: 100%;
-    width: auto;
-}
-
-.logo.small {
-    height: 35px;
-}
-
-.nav {
-    display: flex;
-    gap: 36px;
-}
-
-.nav-link {
-    color: var(--text-light);
-    font-weight: 500;
-    transition: color 0.3s ease;
-}
-
-.nav-link:hover {
-    color: var(--primary);
-}
-
-/* Hero Section */
-.hero {
-    padding: 80px 0;
-    text-align: center;
-}
-
-.title {
-    font-size: 64px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-}
-
-.subtitle {
-    font-size: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-    color: var(--text-light);
-}
-
-/* Map Section */
-.map-section {
-    padding: 40px 0 100px;
-}
-
-.map-link {
-    display: block;
-}
-
-.map-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-
-.map-container:hover {
-    transform: translateY(-5px);
 }
 
 .map-image {
@@ -142,131 +80,6 @@ a {
     background-size: cover;
     background-position: center;
     transition: transform 0.6s ease;
-}
-
-.map-container:hover .map-image {
-    transform: scale(1.03);
-}
-
-.map-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.map-container:hover .map-overlay {
-    opacity: 1;
-}
-
-.explore-btn {
-    background-color: var(--background);
-    color: var(--text);
-    font-weight: 500;
-    padding: 12px 24px;
-    border-radius: 30px;
-    transform: translateY(10px);
-    transition: transform 0.3s ease;
-}
-
-.map-container:hover .explore-btn {
-    transform: translateY(0);
-}
-
-/* Providers Section */
-.providers-section {
-    padding: 80px 0;
-}
-
-.section-title {
-    text-align: center;
-    margin-bottom: 50px;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.providers {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
-}
-
-.provider {
-    display: flex;
-    align-items: center;
-    padding: 20px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
-    transition:
-        transform 0.3s ease,
-        box-shadow 0.3s ease;
-}
-
-.provider:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-}
-
-.provider:nth-child(odd):hover {
-    border-left: 3px solid var(--primary);
-}
-
-.provider:nth-child(even):hover {
-    border-left: 3px solid var(--secondary);
-}
-
-.provider-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f0f0f0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-}
-
-.provider-name {
-    font-weight: 500;
-}
-
-/* Footer */
-.footer {
-    padding: 40px 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-.footer .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.footer-left {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.copyright {
-    color: var(--text-light);
-    font-size: 14px;
 }
 
 /* Shared spinner animation — used by the chart components and the map overlay */
@@ -314,7 +127,7 @@ a {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    padding: 40px var(--spacing);
+    padding: 40px var(--sr-gutter);
     text-align: center;
 }
 

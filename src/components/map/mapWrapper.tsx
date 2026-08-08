@@ -30,7 +30,7 @@ const MapContainer = dynamic(() => import('@/components/map/mapContainer'), {
  */
 export default function MapWrapper() {
     return (
-        <div className="w-full h-full">
+        <div>
             <MapContainer center={[46.603354, 1.888334]} zoom={3} />
         </div>
     );

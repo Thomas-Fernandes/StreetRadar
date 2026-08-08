@@ -88,8 +88,11 @@ export default function ProviderWarning({ provider, onDismiss }: ProviderWarning
                     }}
                 >
                     <p style={{ margin: caveats ? '0 0 12px 0' : 0 }}>{warning.body}</p>
+                    {/* listStyleType is explicit because Tailwind's preflight sets
+                        `list-style: none` on every ul, and these caveats only read
+                        as a list if they keep their bullets. */}
                     {caveats && (
-                        <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                        <ul style={{ margin: 0, paddingLeft: '20px', listStyleType: 'disc' }}>
                             {caveats.map((caveat) => (
                                 <li key={caveat}>{caveat}</li>
                             ))}

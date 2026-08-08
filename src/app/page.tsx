@@ -1,154 +1,93 @@
 /**
  * page.tsx
  *
- * Main home page of the StreetRadar application.
+ * Home page: what the site is, a way into the map, and which providers are
+ * covered.
  *
- * This page serves as the entry point for users and presents the main features
- * of the application. It includes several sections:
- * - A header with logo and navigation
- * - A hero section with title and description
- * - A visual preview of the map that links to the full map page
- * - A presentation of supported Street View providers
- * - A footer with the version number
+ * Converted from the class-based styles in globals.css to Tailwind. The map
+ * preview's four coordinated hover effects — the card lifts, the image scales,
+ * an overlay fades in, the button slides up — are now driven by a single
+ * `group` on the card rather than four descendant selectors.
  *
- * This is a server component: it holds no state and ships no client JS.
+ * Server component: no state, no client JS.
  */
 
 import Link from 'next/link';
 import Image from 'next/image';
+import SiteHeader from '@/components/layout/siteHeader';
+import SiteFooter from '@/components/layout/siteFooter';
+
+const PROVIDERS = [
+    { id: 'google', name: 'Google Street View', logo: '/images/providers/google.svg' },
+    { id: 'apple', name: 'Apple Look Around', logo: '/images/providers/apple.svg' },
+    { id: 'bing', name: 'Bing Streetside', logo: '/images/providers/bing.svg' },
+    { id: 'yandex', name: 'Yandex Panoramas', logo: '/images/providers/yandex.svg' },
+    { id: 'naver', name: 'Naver Street View', logo: '/images/providers/naver.svg' },
+    { id: 'ja', name: 'Já 360 Street View', logo: '/images/providers/ja.svg' },
+];
 
 export default function Home() {
-    const providers = [
-        {
-            id: 'google',
-            name: 'Google Street View',
-            logoSrc: '/images/providers/google.svg',
-            logoAlt: 'Google Logo',
-        },
-        {
-            id: 'apple',
-            name: 'Apple Look Around',
-            logoSrc: '/images/providers/apple.svg',
-            logoAlt: 'Apple Logo',
-        },
-        {
-            id: 'bing',
-            name: 'Bing Streetside',
-            logoSrc: '/images/providers/bing.svg',
-            logoAlt: 'Bing Logo',
-        },
-        {
-            id: 'yandex',
-            name: 'Yandex Panoramas',
-            logoSrc: '/images/providers/yandex.svg',
-            logoAlt: 'Yandex Logo',
-        },
-        {
-            id: 'naver',
-            name: 'Naver Street View',
-            logoSrc: '/images/providers/naver.svg',
-            logoAlt: 'Naver Logo',
-        },
-        {
-            id: 'ja',
-            name: 'Já 360 Street View',
-            logoSrc: '/images/providers/ja.svg',
-            logoAlt: 'Já 360 Logo',
-        },
-    ];
-
     return (
         <div>
-            {/* Header */}
-            <header className="header">
-                <div className="container">
-                    <div className="logo">
-                        <Image
-                            src="/images/logo.png"
-                            alt="StreetRadar Logo"
-                            width={50}
-                            height={50}
-                            priority
-                        />
-                    </div>
-                    <nav className="nav">
-                        <Link href="/map" className="nav-link">
-                            Map
-                        </Link>
-                        <Link href="/analytics" className="nav-link">
-                            Analytics
-                        </Link>
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader current="/" />
 
-            {/* Hero Section */}
-            <section className="hero">
+            <section className="py-20 text-center">
                 <div className="container">
-                    <h1 className="title">StreetRadar</h1>
-                    <p className="subtitle">
+                    <h1 className="from-primary to-secondary mb-6 bg-gradient-to-br bg-clip-text text-[64px] leading-[1.6] font-bold text-transparent max-md:text-[40px]">
+                        StreetRadar
+                    </h1>
+                    <p className="text-ink-light mx-auto max-w-[600px] text-xl leading-[1.6] max-md:text-lg">
                         Discover street-level imagery from around the world in one seamless
                         interface
                     </p>
                 </div>
             </section>
 
-            {/* Map Section */}
-            <section className="map-section">
+            <section className="pt-10 pb-25">
                 <div className="container">
-                    <Link href="/map" className="map-link">
-                        <div className="map-container">
-                            <div className="map-image">{/* Background image set in CSS */}</div>
-                            <div className="map-overlay">
-                                <span className="explore-btn">Explore Map</span>
+                    <Link href="/map" className="group block">
+                        <div className="relative overflow-hidden rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.05)] transition-transform duration-300 group-hover:-translate-y-[5px]">
+                            {/* Background image lives in CSS so it can use image-set()
+                                to serve AVIF with a WebP fallback. */}
+                            <div className="map-image aspect-video w-full transition-transform duration-600 group-hover:scale-[1.03]" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                <span className="bg-background text-ink translate-y-[10px] rounded-[30px] px-6 py-3 font-medium transition-transform duration-300 group-hover:translate-y-0">
+                                    Explore Map
+                                </span>
                             </div>
                         </div>
                     </Link>
                 </div>
             </section>
 
-            {/* Providers Section */}
-            <section className="providers-section">
+            <section className="py-20">
                 <div className="container">
-                    <h2 className="section-title">Supported Providers</h2>
-                    <div className="providers">
-                        {providers.map((provider) => (
-                            <div key={provider.id} className="provider">
-                                <div className="provider-icon">
+                    <h2 className="text-ink mb-[50px] text-center text-[32px] leading-[1.6] font-bold">
+                        Supported Providers
+                    </h2>
+                    <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-[30px] max-md:grid-cols-1">
+                        {PROVIDERS.map((provider) => (
+                            <div
+                                key={provider.id}
+                                className="odd:hover:border-l-primary even:hover:border-l-secondary flex items-center rounded-lg bg-white/50 p-5 transition-[transform,box-shadow] duration-300 hover:-translate-y-[3px] hover:border-l-[3px] hover:shadow-[0_10px_20px_rgba(0,0,0,0.05)]"
+                            >
+                                <div className="mr-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#f0f0f0]">
                                     <Image
-                                        src={provider.logoSrc}
-                                        alt={provider.logoAlt}
+                                        src={provider.logo}
+                                        alt=""
                                         width={24}
                                         height={24}
+                                        aria-hidden="true"
                                     />
                                 </div>
-                                <span className="provider-name">{provider.name}</span>
+                                <span className="font-medium">{provider.name}</span>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="footer">
-                <div className="container">
-                    <div className="footer-content">
-                        <div className="footer-left">
-                            <div className="logo small">
-                                <Image
-                                    src="/images/logo.png"
-                                    alt="StreetRadar Logo"
-                                    width={35}
-                                    height={35}
-                                />
-                            </div>
-                            <span className="copyright">
-                                © {new Date().getFullYear()} StreetRadar v0.1
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </footer>
+            <SiteFooter />
         </div>
     );
 }
