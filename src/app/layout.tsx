@@ -14,12 +14,24 @@
  */
 
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { DM_Sans, Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // Configuration of Geist fonts (sans-serif) and Geist Mono (monospace)
 // These fonts will be available via CSS variables --font-geist-sans and --font-geist-mono
+// Body font. It used to arrive through an @import of the Google Fonts CDN in
+// globals.css — a render-blocking request to a third party on every page load,
+// and one Turbopack rejects outright because @import must precede other rules.
+// next/font self-hosts it and inlines the @font-face at build time.
+const dmSans = DM_Sans({
+    variable: '--font-dm-sans',
+    subsets: ['latin'],
+    weight: ['400', '500', '700'],
+    display: 'swap',
+});
+
+// Still referenced by the chart components through --font-geist-sans.
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -84,7 +96,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body
+                className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
                 {children}
             </body>
         </html>

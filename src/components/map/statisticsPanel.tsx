@@ -31,13 +31,6 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
     const [isChartModalOpen, setIsChartModalOpen] = useState<boolean>(false);
     const [isModalClosing, setIsModalClosing] = useState<boolean>(false);
 
-    // Load statistics when component mounts or when panel opens
-    useEffect(() => {
-        if (isOpen && loading) {
-            loadStatistics();
-        }
-    }, [isOpen, loading]);
-
     const loadStatistics = async () => {
         try {
             setLoading(true);
@@ -62,6 +55,15 @@ export default function StatisticsPanel({ isOpen, onToggle }: StatisticsPanelPro
             setLoading(false);
         }
     };
+
+    // Load statistics when the panel opens. Declared after loadStatistics on
+    // purpose: the effect used to sit above it and reach the const in its
+    // temporal dead zone, which only worked because effects run after render.
+    useEffect(() => {
+        if (isOpen && loading) {
+            loadStatistics();
+        }
+    }, [isOpen, loading]);
 
     // Toggle chart modal
     const toggleChartsExpansion = () => {
