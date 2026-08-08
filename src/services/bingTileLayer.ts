@@ -19,33 +19,33 @@ export type BingTileLayerOptions = L.TileLayerOptions;
  * Class to create a Bing Maps tile layer with quadkey support
  */
 export class BingTileLayer extends L.TileLayer {
-  constructor(urlTemplate: string, options?: BingTileLayerOptions) {
-    // We will use a different approach to handle quadkeys
-    // Replace {q} with {z}/{x}/{y} to intercept it in createTile
-    const modifiedUrl = urlTemplate.replace('{q}', '{z}/{x}/{y}');
-    super(modifiedUrl, options);
-    
-    // Save original URL for reference
-    this.originalUrl = urlTemplate;
-    this.hasQuadKey = urlTemplate.indexOf('{q}') !== -1;
-  }
+    constructor(urlTemplate: string, options?: BingTileLayerOptions) {
+        // We will use a different approach to handle quadkeys
+        // Replace {q} with {z}/{x}/{y} to intercept it in createTile
+        const modifiedUrl = urlTemplate.replace('{q}', '{z}/{x}/{y}');
+        super(modifiedUrl, options);
 
-  private originalUrl: string;
-  private hasQuadKey: boolean;
-
-  /**
-   * Overridden from parent class to handle quadkeys
-   */
-  getTileUrl(coords: L.Coords): string {
-    if (this.hasQuadKey) {
-      // For URLs that use quadkeys
-      const quadKey = StreetViewService.tileXYToQuadKey(coords.x, coords.y, coords.z);
-      return this.originalUrl.replace('{q}', quadKey);
-    } else {
-      // Use default implementation for other URLs
-      return super.getTileUrl(coords);
+        // Save original URL for reference
+        this.originalUrl = urlTemplate;
+        this.hasQuadKey = urlTemplate.indexOf('{q}') !== -1;
     }
-  }
+
+    private originalUrl: string;
+    private hasQuadKey: boolean;
+
+    /**
+     * Overridden from parent class to handle quadkeys
+     */
+    getTileUrl(coords: L.Coords): string {
+        if (this.hasQuadKey) {
+            // For URLs that use quadkeys
+            const quadKey = StreetViewService.tileXYToQuadKey(coords.x, coords.y, coords.z);
+            return this.originalUrl.replace('{q}', quadKey);
+        } else {
+            // Use default implementation for other URLs
+            return super.getTileUrl(coords);
+        }
+    }
 }
 
 /**
@@ -55,6 +55,9 @@ export class BingTileLayer extends L.TileLayer {
  * @param options - Additional options for the TileLayer
  * @returns BingTileLayer instance
  */
-export function createBingTileLayer(urlTemplate: string, options?: BingTileLayerOptions): BingTileLayer {
-  return new BingTileLayer(urlTemplate, options);
+export function createBingTileLayer(
+    urlTemplate: string,
+    options?: BingTileLayerOptions
+): BingTileLayer {
+    return new BingTileLayer(urlTemplate, options);
 }

@@ -1,187 +1,190 @@
 /**
  * NaverPMTilesService.ts
- * 
+ *
  * Service dedicated to managing Naver Street View PMtiles.
- * 
+ *
  * This service handles interaction with the PMtiles CDN hosted on tiles.streetradar.app
  * and provides methods to retrieve TileJSON and build MVT tile URLs.
  * It follows best practices by never downloading the complete archive.
  */
 
 export interface TileJSONMetadata {
-  tilejson: string;
-  name?: string;
-  description?: string;
-  version?: string;
-  attribution?: string;
-  scheme?: string;
-  tiles: string[];
-  minzoom: number;
-  maxzoom: number;
-  bounds?: [number, number, number, number];
-  center?: [number, number, number];
-  vector_layers?: Array<{
-    id: string;
+    tilejson: string;
+    name?: string;
     description?: string;
-    minzoom?: number;
-    maxzoom?: number;
-    fields?: { [key: string]: string };
-  }>;
+    version?: string;
+    attribution?: string;
+    scheme?: string;
+    tiles: string[];
+    minzoom: number;
+    maxzoom: number;
+    bounds?: [number, number, number, number];
+    center?: [number, number, number];
+    vector_layers?: Array<{
+        id: string;
+        description?: string;
+        minzoom?: number;
+        maxzoom?: number;
+        fields?: { [key: string]: string };
+    }>;
 }
 
 export class NaverPMTilesService {
-  private static readonly BASE_URL = 'https://tiles.streetradar.app';
-  private static readonly PMTILES_URL = `${NaverPMTilesService.BASE_URL}/naver.pmtiles`;
-  private static readonly TILEJSON_URL = `${NaverPMTilesService.BASE_URL}/tiles.json`;
-  private static readonly MVT_URL_TEMPLATE = `${NaverPMTilesService.BASE_URL}/tiles/naver/{z}/{x}/{y}.mvt`;
-  
-  // Cache to avoid repeating TileJSON call every time
-  private static tileJSONCache: TileJSONMetadata | null = null;
-  private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
+    private static readonly BASE_URL = 'https://tiles.streetradar.app';
+    private static readonly PMTILES_URL = `${NaverPMTilesService.BASE_URL}/naver.pmtiles`;
+    private static readonly TILEJSON_URL = `${NaverPMTilesService.BASE_URL}/tiles.json`;
+    private static readonly MVT_URL_TEMPLATE = `${NaverPMTilesService.BASE_URL}/tiles/naver/{z}/{x}/{y}.mvt`;
 
-  /**
-   * Gets the direct URL to the naver.pmtiles file
-   * 
-   * @returns The direct URL to the PMTiles file
-   */
-  static getPMTilesUrl(): string {
-    return NaverPMTilesService.PMTILES_URL;
-  }
+    // Cache to avoid repeating TileJSON call every time
+    private static tileJSONCache: TileJSONMetadata | null = null;
+    private static tileJSONPromise: Promise<TileJSONMetadata> | null = null;
 
-  /**
-   * Gets attribution text for Naver Street View
-   * 
-   * @returns Attribution string
-   */
-  static getAttribution(): string {
-    return '© Naver Corporation - Street View';
-  }
-
-  /**
-   * Retrieves TileJSON metadata from Naver PMtiles
-   * 
-   * This method calls the TileJSON endpoint only once at startup
-   * and caches the result to avoid repeated calls.
-   * 
-   * @returns Promise<TileJSONMetadata> The PMtiles metadata
-   * @throws Error If the TileJSON call fails
-   */
-  static async getTileJSON(): Promise<TileJSONMetadata> {
-    // If we already have data in cache, return it
-    if (NaverPMTilesService.tileJSONCache) {
-      return NaverPMTilesService.tileJSONCache;
+    /**
+     * Gets the direct URL to the naver.pmtiles file
+     *
+     * @returns The direct URL to the PMTiles file
+     */
+    static getPMTilesUrl(): string {
+        return NaverPMTilesService.PMTILES_URL;
     }
 
-    // If a call is already in progress, wait for its result
-    if (NaverPMTilesService.tileJSONPromise) {
-      return NaverPMTilesService.tileJSONPromise;
+    /**
+     * Gets attribution text for Naver Street View
+     *
+     * @returns Attribution string
+     */
+    static getAttribution(): string {
+        return '© Naver Corporation - Street View';
     }
 
-    // Launch a new TileJSON call
-    NaverPMTilesService.tileJSONPromise = NaverPMTilesService.fetchTileJSON();
-    
-    try {
-      const result = await NaverPMTilesService.tileJSONPromise;
-      NaverPMTilesService.tileJSONCache = result;
-      return result;
-    } catch (error) {
-      // In case of error, clean up promise to allow retry
-      NaverPMTilesService.tileJSONPromise = null;
-      throw error;
-    }
-  }
-
-  /**
-   * Performs HTTP call to retrieve TileJSON
-   * 
-   * @returns Promise<TileJSONMetadata> The PMtiles metadata
-   * @throws Error If the HTTP call fails
-   */
-  private static async fetchTileJSON(): Promise<TileJSONMetadata> {
-    try {
-      const response = await fetch(NaverPMTilesService.TILEJSON_URL, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
+    /**
+     * Retrieves TileJSON metadata from Naver PMtiles
+     *
+     * This method calls the TileJSON endpoint only once at startup
+     * and caches the result to avoid repeated calls.
+     *
+     * @returns Promise<TileJSONMetadata> The PMtiles metadata
+     * @throws Error If the TileJSON call fails
+     */
+    static async getTileJSON(): Promise<TileJSONMetadata> {
+        // If we already have data in cache, return it
+        if (NaverPMTilesService.tileJSONCache) {
+            return NaverPMTilesService.tileJSONCache;
         }
-      });
 
-      if (!response.ok) {
-        throw new Error(`TileJSON request failed: ${response.status} ${response.statusText}`);
-      }
+        // If a call is already in progress, wait for its result
+        if (NaverPMTilesService.tileJSONPromise) {
+            return NaverPMTilesService.tileJSONPromise;
+        }
 
-      const tileJSON: TileJSONMetadata = await response.json();
-      
-      // Validation of essential data
-      if (!tileJSON.tiles || !Array.isArray(tileJSON.tiles) || tileJSON.tiles.length === 0) {
-        throw new Error('Invalid TileJSON: missing or empty tiles array');
-      }
+        // Launch a new TileJSON call
+        NaverPMTilesService.tileJSONPromise = NaverPMTilesService.fetchTileJSON();
 
-      if (typeof tileJSON.minzoom !== 'number' || typeof tileJSON.maxzoom !== 'number') {
-        throw new Error('Invalid TileJSON: missing or invalid zoom levels');
-      }
-
-      return tileJSON;
-    } catch (error) {
-      console.error('Failed to fetch Naver PMtiles TileJSON:', error);
-      throw new Error(`Unable to load Naver PMtiles metadata: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        try {
+            const result = await NaverPMTilesService.tileJSONPromise;
+            NaverPMTilesService.tileJSONCache = result;
+            return result;
+        } catch (error) {
+            // In case of error, clean up promise to allow retry
+            NaverPMTilesService.tileJSONPromise = null;
+            throw error;
+        }
     }
-  }
 
-  /**
-   * Generates URL for a specific MVT tile
-   * 
-   * @param x - X coordinate of the tile
-   * @param y - Y coordinate of the tile
-   * @param z - Zoom level
-   * @returns The complete MVT tile URL
-   */
-  static getMVTTileUrl(x: number, y: number, z: number): string {
-    return NaverPMTilesService.MVT_URL_TEMPLATE
-      .replace('{x}', x.toString())
-      .replace('{y}', y.toString())
-      .replace('{z}', z.toString());
-  }
+    /**
+     * Performs HTTP call to retrieve TileJSON
+     *
+     * @returns Promise<TileJSONMetadata> The PMtiles metadata
+     * @throws Error If the HTTP call fails
+     */
+    private static async fetchTileJSON(): Promise<TileJSONMetadata> {
+        try {
+            const response = await fetch(NaverPMTilesService.TILEJSON_URL, {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                },
+            });
 
-  /**
-   * Generates URL template for Leaflet
-   * 
-   * @returns The URL template with {x}, {y}, {z} placeholders
-   */
-  static getMVTUrlTemplate(): string {
-    return NaverPMTilesService.MVT_URL_TEMPLATE;
-  }
+            if (!response.ok) {
+                throw new Error(
+                    `TileJSON request failed: ${response.status} ${response.statusText}`
+                );
+            }
 
-  /**
-   * Checks if a zoom level is valid according to PMtiles limits
-   * 
-   * @param zoom - The zoom level to check
-   * @param tileJSON - TileJSON metadata (optional, will be retrieved if not provided)
-   * @returns Promise<boolean> True if zoom is valid
-   */
-  static async isZoomLevelValid(zoom: number, tileJSON?: TileJSONMetadata): Promise<boolean> {
-    const metadata = tileJSON || await NaverPMTilesService.getTileJSON();
-    return zoom >= metadata.minzoom && zoom <= metadata.maxzoom;
-  }
+            const tileJSON: TileJSONMetadata = await response.json();
 
-  /**
-   * Retrieves zoom limits from PMtiles
-   * 
-   * @returns Promise<{minzoom: number, maxzoom: number}> The zoom limits
-   */
-  static async getZoomLimits(): Promise<{minzoom: number, maxzoom: number}> {
-    const tileJSON = await NaverPMTilesService.getTileJSON();
-    return {
-      minzoom: tileJSON.minzoom,
-      maxzoom: tileJSON.maxzoom
-    };
-  }
+            // Validation of essential data
+            if (!tileJSON.tiles || !Array.isArray(tileJSON.tiles) || tileJSON.tiles.length === 0) {
+                throw new Error('Invalid TileJSON: missing or empty tiles array');
+            }
 
-  /**
-   * Clears the cache (useful for tests or reloading)
-   */
-  static clearCache(): void {
-    NaverPMTilesService.tileJSONCache = null;
-    NaverPMTilesService.tileJSONPromise = null;
-  }
+            if (typeof tileJSON.minzoom !== 'number' || typeof tileJSON.maxzoom !== 'number') {
+                throw new Error('Invalid TileJSON: missing or invalid zoom levels');
+            }
+
+            return tileJSON;
+        } catch (error) {
+            console.error('Failed to fetch Naver PMtiles TileJSON:', error);
+            throw new Error(
+                `Unable to load Naver PMtiles metadata: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
+        }
+    }
+
+    /**
+     * Generates URL for a specific MVT tile
+     *
+     * @param x - X coordinate of the tile
+     * @param y - Y coordinate of the tile
+     * @param z - Zoom level
+     * @returns The complete MVT tile URL
+     */
+    static getMVTTileUrl(x: number, y: number, z: number): string {
+        return NaverPMTilesService.MVT_URL_TEMPLATE.replace('{x}', x.toString())
+            .replace('{y}', y.toString())
+            .replace('{z}', z.toString());
+    }
+
+    /**
+     * Generates URL template for Leaflet
+     *
+     * @returns The URL template with {x}, {y}, {z} placeholders
+     */
+    static getMVTUrlTemplate(): string {
+        return NaverPMTilesService.MVT_URL_TEMPLATE;
+    }
+
+    /**
+     * Checks if a zoom level is valid according to PMtiles limits
+     *
+     * @param zoom - The zoom level to check
+     * @param tileJSON - TileJSON metadata (optional, will be retrieved if not provided)
+     * @returns Promise<boolean> True if zoom is valid
+     */
+    static async isZoomLevelValid(zoom: number, tileJSON?: TileJSONMetadata): Promise<boolean> {
+        const metadata = tileJSON || (await NaverPMTilesService.getTileJSON());
+        return zoom >= metadata.minzoom && zoom <= metadata.maxzoom;
+    }
+
+    /**
+     * Retrieves zoom limits from PMtiles
+     *
+     * @returns Promise<{minzoom: number, maxzoom: number}> The zoom limits
+     */
+    static async getZoomLimits(): Promise<{ minzoom: number; maxzoom: number }> {
+        const tileJSON = await NaverPMTilesService.getTileJSON();
+        return {
+            minzoom: tileJSON.minzoom,
+            maxzoom: tileJSON.maxzoom,
+        };
+    }
+
+    /**
+     * Clears the cache (useful for tests or reloading)
+     */
+    static clearCache(): void {
+        NaverPMTilesService.tileJSONCache = null;
+        NaverPMTilesService.tileJSONPromise = null;
+    }
 }

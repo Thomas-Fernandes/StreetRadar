@@ -1,13 +1,13 @@
 /**
  * StreetViewLayer.tsx
- * 
+ *
  * React component to manage the display of Street View coverage layers on the map.
- * 
+ *
  * This component is responsible for adding and removing tile layers
  * representing Street View coverage from different providers (Google, Apple, etc.)
  * on the Leaflet map. It manages layer visibility state and handles cleaning up
  * resources when properties change or when the component is unmounted.
- * 
+ *
  * It has no visual rendering of its own (returns null) as it directly manipulates
  * the Leaflet map instance through its effects.
  */
@@ -30,9 +30,9 @@ import { createNaverPMTilesLayer } from './naverPMTilesLayerNew';
  * @property visible - Whether the layer should be visible or not
  */
 interface StreetViewLayerProps {
-  map: L.Map | null;
-  provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver' | 'ja';
-  visible: boolean;
+    map: L.Map | null;
+    provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver' | 'ja';
+    visible: boolean;
 }
 
 /**
@@ -41,22 +41,22 @@ interface StreetViewLayerProps {
  * @returns The HTML attribution string
  */
 const getAttribution = (provider: string): string => {
-  switch (provider) {
-    case 'google':
-      return '&copy; <a href="https://www.google.com/streetview/" target="_blank" rel="noopener noreferrer">Google Street View</a>';
-    case 'bing':
-      return '&copy; <a href="https://www.bing.com/maps/streetside" target="_blank" rel="noopener noreferrer">Microsoft Bing Streetside</a>';
-    case 'yandex':
-      return '&copy; <a href="https://yandex.com/maps/" target="_blank" rel="noopener noreferrer">Yandex Panoramas</a>';
-    case 'apple':
-      return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
-    case 'naver':
-      return '&copy; <a href="https://map.naver.com" target="_blank" rel="noopener noreferrer">Naver Street View</a>';
-    case 'ja':
-      return '&copy; <a href="https://ja.is" target="_blank" rel="noopener noreferrer">Já 360</a>';
-    default:
-      return '';
-  }
+    switch (provider) {
+        case 'google':
+            return '&copy; <a href="https://www.google.com/streetview/" target="_blank" rel="noopener noreferrer">Google Street View</a>';
+        case 'bing':
+            return '&copy; <a href="https://www.bing.com/maps/streetside" target="_blank" rel="noopener noreferrer">Microsoft Bing Streetside</a>';
+        case 'yandex':
+            return '&copy; <a href="https://yandex.com/maps/" target="_blank" rel="noopener noreferrer">Yandex Panoramas</a>';
+        case 'apple':
+            return '&copy; <a href="https://maps.apple.com" target="_blank" rel="noopener noreferrer">Apple Look Around</a>';
+        case 'naver':
+            return '&copy; <a href="https://map.naver.com" target="_blank" rel="noopener noreferrer">Naver Street View</a>';
+        case 'ja':
+            return '&copy; <a href="https://ja.is" target="_blank" rel="noopener noreferrer">Já 360</a>';
+        default:
+            return '';
+    }
 };
 
 /**
@@ -64,101 +64,104 @@ const getAttribution = (provider: string): string => {
  * from a specific provider to the Leaflet map.
  */
 const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visible }) => {
-  useEffect(() => {
-    // Do nothing if the map is not initialized
-    if (!map) return;
+    useEffect(() => {
+        // Do nothing if the map is not initialized
+        if (!map) return;
 
-    // Variable to store the reference to the created layer
-    let tileLayer: L.TileLayer | L.GridLayer | null = null;
-    
-    // Get attribution for this provider
-    const attribution = getAttribution(provider);
+        // Variable to store the reference to the created layer
+        let tileLayer: L.TileLayer | L.GridLayer | null = null;
 
-    // Select appropriate URL based on provider
-    if (visible) {
-      switch (provider) {
-        case 'google':
-          tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
-            maxZoom: 19,
-            opacity: 0.9,
-            pane: 'overlayPane',
-            attribution: attribution
-          });
-          break;
-        case 'bing':
-          // Use our custom TileLayer for Bing that handles quadkeys
-          tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
-            maxZoom: 19,
-            opacity: 0.9,
-            pane: 'overlayPane',
-            attribution: attribution
-          });
-          break;
-        case 'yandex':
-          tileLayer = createYandexTileLayer(StreetViewService.getYandexPanoramasTileUrl(), {
-            maxZoom: 19,
-            opacity: 0.9,
-            pane: 'overlayPane',
-            attribution: attribution
-          });
-          break;
-        case 'apple':
-          // Use custom PMTiles layer for Apple
-          const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
-          if (appleUrl === 'APPLE_PMTILES_LAYER') {
-            tileLayer = createApplePMTilesLayer({
-              opacity: 0.9,
-              pane: 'overlayPane',
-              attribution: attribution,
-              style: {
-                color: '#e74c3c',
-                weight: 2,
-                opacity: 0.8
-              }
-            });
-          }
-          break;
-        case 'naver':
-          // Use custom PMTiles layer for Naver
-          const naverUrl = StreetViewService.getNaverStreetViewTileUrl();
-          if (naverUrl === 'NAVER_PMTILES_LAYER') {
-            tileLayer = createNaverPMTilesLayer({
-              opacity: 0.9,
-              pane: 'overlayPane',
-              attribution: attribution
-            });
-          }
-          break;
-        case 'ja':
-          // Use custom PMTiles layer for ja.is
-          const jaUrl = StreetViewService.getJaIsTileUrl();
-          if (jaUrl === 'JA_PMTILES_LAYER') {
-            tileLayer = createJaPMTilesLayer({
-              opacity: 0.9,
-              pane: 'overlayPane',
-              attribution: attribution
-            });
-          }
-          break;
-      }
-      
-      // Add layer to map if it was created
-      if (tileLayer) {
-        tileLayer.addTo(map);
-      }
-    }
+        // Get attribution for this provider
+        const attribution = getAttribution(provider);
 
-    // Cleanup function executed on unmount or dependency changes
-    return () => {
-      // Remove layer from map if it exists
-      if (tileLayer && map.hasLayer(tileLayer)) {
-        map.removeLayer(tileLayer);
-      }
-    };
-  }, [map, provider, visible]); // Effect dependencies
+        // Select appropriate URL based on provider
+        if (visible) {
+            switch (provider) {
+                case 'google':
+                    tileLayer = L.tileLayer(StreetViewService.getGoogleStreetViewTileUrl(), {
+                        maxZoom: 19,
+                        opacity: 0.9,
+                        pane: 'overlayPane',
+                        attribution: attribution,
+                    });
+                    break;
+                case 'bing':
+                    // Use our custom TileLayer for Bing that handles quadkeys
+                    tileLayer = createBingTileLayer(StreetViewService.getBingStreetsideTileUrl(), {
+                        maxZoom: 19,
+                        opacity: 0.9,
+                        pane: 'overlayPane',
+                        attribution: attribution,
+                    });
+                    break;
+                case 'yandex':
+                    tileLayer = createYandexTileLayer(
+                        StreetViewService.getYandexPanoramasTileUrl(),
+                        {
+                            maxZoom: 19,
+                            opacity: 0.9,
+                            pane: 'overlayPane',
+                            attribution: attribution,
+                        }
+                    );
+                    break;
+                case 'apple':
+                    // Use custom PMTiles layer for Apple
+                    const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
+                    if (appleUrl === 'APPLE_PMTILES_LAYER') {
+                        tileLayer = createApplePMTilesLayer({
+                            opacity: 0.9,
+                            pane: 'overlayPane',
+                            attribution: attribution,
+                            style: {
+                                color: '#e74c3c',
+                                weight: 2,
+                                opacity: 0.8,
+                            },
+                        });
+                    }
+                    break;
+                case 'naver':
+                    // Use custom PMTiles layer for Naver
+                    const naverUrl = StreetViewService.getNaverStreetViewTileUrl();
+                    if (naverUrl === 'NAVER_PMTILES_LAYER') {
+                        tileLayer = createNaverPMTilesLayer({
+                            opacity: 0.9,
+                            pane: 'overlayPane',
+                            attribution: attribution,
+                        });
+                    }
+                    break;
+                case 'ja':
+                    // Use custom PMTiles layer for ja.is
+                    const jaUrl = StreetViewService.getJaIsTileUrl();
+                    if (jaUrl === 'JA_PMTILES_LAYER') {
+                        tileLayer = createJaPMTilesLayer({
+                            opacity: 0.9,
+                            pane: 'overlayPane',
+                            attribution: attribution,
+                        });
+                    }
+                    break;
+            }
 
-  // This component renders nothing directly in the DOM
-  return null;
+            // Add layer to map if it was created
+            if (tileLayer) {
+                tileLayer.addTo(map);
+            }
+        }
+
+        // Cleanup function executed on unmount or dependency changes
+        return () => {
+            // Remove layer from map if it exists
+            if (tileLayer && map.hasLayer(tileLayer)) {
+                map.removeLayer(tileLayer);
+            }
+        };
+    }, [map, provider, visible]); // Effect dependencies
+
+    // This component renders nothing directly in the DOM
+    return null;
 };
 
 export default StreetViewLayer;

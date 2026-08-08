@@ -1,15 +1,15 @@
 /**
  * layout.tsx
- * 
+ *
  * Main layout of the StreetRadar application.
- * 
+ *
  * This file defines the base HTML structure that wraps all application pages.
  * It includes:
  * - Application metadata (title, description)
  * - Font imports
  * - Base HTML structure (html, body)
  * - Global CSS classes
- * 
+ *
  * In Next.js, this layout is applied to all routes within the app/ directory.
  */
 
@@ -32,7 +32,8 @@ const geistMono = Geist_Mono({
 // Application metadata (title, description)
 export const metadata: Metadata = {
     title: 'StreetRadar - Interactive Street View Coverage Map',
-    description: 'Discover Street View coverage worldwide. Find panoramas from Google, Bing, Yandex and Apple in one place.',
+    description:
+        'Discover Street View coverage worldwide. Find panoramas from Google, Bing, Yandex and Apple in one place.',
     icons: {
         icon: '/images/logo_no_bg.png',
         shortcut: '/images/logo_no_bg.png',
