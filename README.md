@@ -2,8 +2,8 @@
 
 StreetRadar is a Next.js web application that aims to display all coverage areas from existing Street View platforms on a single unified map. The application allows users to:
 
-* Visualize coverage areas by provider
-* Access statistics on coverage areas by provider
+- Visualize coverage areas by provider
+- Access statistics on coverage areas by provider
 
 **Disclaimer:** This application has no commercial or advertising objectives, but serves purely informational purposes to provide data that is not readily available elsewhere.
 
@@ -13,18 +13,18 @@ The application is available at **[streetradar.app](https://streetradar.app)**
 
 ## 📋 Coverage Statistics
 
-| Provider | Coverage Display | Panorama Detection | Direct Links | Statistics |
-|----------|------------------|-------------------|--------------|------------|
-| Google Street View | ✅ | ✅ | ✅ | ❌ |
-| Apple Look Around | ✅ | ⚠️ Alpha | ✅ | ✅ |
-| Bing Streetside | ✅ | ✅ | ✅ | ❌ |
-| Yandex Panoramas | ⚠️ Alpha | ⚠️ Alpha | ⚠️ Alpha | ❌ |
-| Naver Street View | ✅ | ❌ | ✅ | ❌ |
-| Já 360 | ✅ | ❌ | ❌ | ❌ |
-| Baidu Panorama | ❌ | ❌ | ❌ | ❌ |
-| Kakao Road View | ❌ | ❌ | ❌ | ❌ |
-| Mapillary | ❌ | ❌ | ❌ | ❌ |
-| Mapy.cz Panorama | ❌ | ❌ | ❌ | ❌ |
+| Provider           | Coverage Display | Panorama Detection | Direct Links | Statistics |
+| ------------------ | ---------------- | ------------------ | ------------ | ---------- |
+| Google Street View | ✅               | ✅                 | ✅           | ❌         |
+| Apple Look Around  | ✅               | ⚠️ Alpha           | ✅           | ✅         |
+| Bing Streetside    | ✅               | ✅                 | ✅           | ❌         |
+| Yandex Panoramas   | ⚠️ Alpha         | ⚠️ Alpha           | ⚠️ Alpha     | ❌         |
+| Naver Street View  | ✅               | ❌                 | ✅           | ❌         |
+| Já 360             | ✅               | ❌                 | ❌           | ❌         |
+| Baidu Panorama     | ❌               | ❌                 | ❌           | ❌         |
+| Kakao Road View    | ❌               | ❌                 | ❌           | ❌         |
+| Mapillary          | ❌               | ❌                 | ❌           | ❌         |
+| Mapy.cz Panorama   | ❌               | ❌                 | ❌           | ❌         |
 
 ## 🛠️ Technology Stack
 
@@ -64,36 +64,41 @@ streetradar/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - **Node.js** 18+ and npm
 
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Thomas-Fernandes/StreetRadar.git
-   cd streetradar
-   ```
+
+    ```bash
+    git clone https://github.com/Thomas-Fernandes/StreetRadar.git
+    cd streetradar
+    ```
 
 2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 3. **Start development server**
-   ```bash
-   npm run dev
-   ```
+
+    ```bash
+    npm run dev
+    ```
 
 4. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🚧 Roadmap
 
-*Coming soon...*
+_Coming soon..._
 
 ## 🙏 Acknowledgments
 
 This project draws significant inspiration from:
+
 - **[streetlevel](https://github.com/sk-zk/streetlevel)** by sk-zk - Essential reference for understanding Street View APIs and coverage data structures
 - **[Leaflet](https://leafletjs.com/)** - The leading open-source mapping library
 - **[OpenStreetMap](https://www.openstreetmap.org/)** - Community-driven map data

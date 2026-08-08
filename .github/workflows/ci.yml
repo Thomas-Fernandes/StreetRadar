@@ -1,0 +1,62 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        # ready_for_review is not one of the default activity types. It has to be
+        # listed explicitly, otherwise a draft PR skipped by the guard below would
+        # never run CI at all — marking it ready would trigger nothing and it could
+        # be merged without a single check having run.
+        types: [opened, synchronize, reopened, ready_for_review]
+
+# A new push to the same branch makes the previous run irrelevant.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    quality:
+        name: Lint, types and build
+        runs-on: ubuntu-latest
+
+        # Draft pull requests still fire the `pull_request` event — the draft flag
+        # filters nothing by itself. This condition is what actually skips them.
+        # The event_name check keeps pushes to main running, where there is no
+        # pull_request object to read.
+        if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .nvmrc
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Check formatting
+              run: npm run format:check
+
+            - name: Lint
+              run: npm run lint
+
+            - name: Typecheck
+              run: npm run typecheck
+
+            # This step deliberately runs with no secrets in scope.
+            #
+            # A module that threw on a missing environment variable once broke the
+            # static prerender of `/`, so the production build failed while local
+            # development kept working. Keeping this step secret-free is what stops
+            # that class of regression from shipping again — do not add `env:` here.
+            - name: Build without secrets
+              run: npm run build
+
+            # Blocks on critical advisories only. Three high-severity ones
+            # (sharp, postcss, next) currently have no fix below Next 16; tighten
+            # this to --audit-level=high once that migration lands.
+            - name: Audit production dependencies
+              run: npm audit --omit=dev --audit-level=critical
