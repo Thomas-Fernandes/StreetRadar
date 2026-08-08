@@ -50,7 +50,6 @@ const eslintConfig = [
             'src/components/charts/CountryBarChart.tsx',
             'src/components/charts/CoverageChart.tsx',
             'src/components/charts/TimelineChart.tsx',
-            'src/components/map/mapContainer.tsx',
             'src/components/map/statisticsPanel.tsx',
         ],
         rules: {

@@ -17,10 +17,12 @@ import 'leaflet/dist/leaflet.css';
 import '@/styles/leafletStyles.css';
 import StreetViewLayer from '@/services/streetViewLayer';
 import PegcatControl from './pegcatControl';
-import { PanoramaService } from '../../services/panoramaService';
-import { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
 import PanoramaBubble from '@/components/map/panoramaBubble';
 import StatisticsPanel from '@/components/map/statisticsPanel';
+import ProviderWarning from '@/components/map/providerWarning';
+import { useProviderWarnings } from '@/hooks/useProviderWarnings';
+import { useMapUI } from '@/hooks/useMapUI';
+import { usePanoramaDetection } from '@/hooks/usePanoramaDetection';
 import Image from 'next/image';
 
 /**
@@ -70,40 +72,36 @@ export default function MapContainer({
         }
         return fromUrl;
     });
-    // Control panel collapsed state
-    const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
     // Basemap selection
     const [currentBasemap, setCurrentBasemap] = useState(initialUrlState?.basemap ?? 'osm');
-    // Basemap selector open state
-    const [isBasemapSelectorOpen, setIsBasemapSelectorOpen] = useState(false);
     // References to the basemap layers
     const basemapLayersRef = useRef<{ [key: string]: L.TileLayer }>({});
-    // Information about the last click/drop
-    const [clickInfo, setClickInfo] = useState<{
-        position: L.LatLng | null;
-        type: 'click' | 'drop';
-        timestamp: number;
-    } | null>(null);
-    // Panorama detection results
-    const [detectionResults, setDetectionResults] = useState<StreetViewDetectionResult[]>([]);
-    // Detected position to display the bubble
-    const [detectedPosition, setDetectedPosition] = useState<L.LatLng | null>(null);
-    // State indicating if detection is in progress
-    const [isDetecting, setIsDetecting] = useState<boolean>(false);
-    // Pixel position for temporary bubbles
-    const [tempBubbleScreenPos, setTempBubbleScreenPos] = useState<{ x: number; y: number } | null>(
-        null
-    );
-    // State for Yandex warning popup
-    const [showYandexWarning, setShowYandexWarning] = useState<boolean>(false);
-    // Flag to know if Yandex warning has already been shown
-    const [yandexWarningShown, setYandexWarningShown] = useState<boolean>(false);
-    // State for Apple warning popup
-    const [showAppleWarning, setShowAppleWarning] = useState<boolean>(false);
-    // Flag to know if Apple warning has already been shown
-    const [appleWarningShown, setAppleWarningShown] = useState<boolean>(false);
-    // Statistics panel open state
-    const [isStatisticsPanelOpen, setIsStatisticsPanelOpen] = useState<boolean>(false);
+    // One-time notices for providers with known limitations. Four booleans
+    // before — two per provider, kept in step by hand — and two now.
+    const providerWarnings = useProviderWarnings();
+    // Open/closed state for the panel, basemap picker and statistics drawer.
+    const {
+        isPanelCollapsed,
+        isBasemapSelectorOpen,
+        isStatisticsPanelOpen,
+        togglePanel,
+        toggleBasemapSelector,
+        toggleStatisticsPanel,
+        closeBasemapSelector,
+    } = useMapUI();
+
+    // Click -> detection -> bubble, and the marker that tracks the map while it
+    // moves. Five pieces of state and three effects, none of them about layers.
+    const {
+        clickInfo,
+        detectionResults,
+        detectedPosition,
+        isDetecting,
+        markerScreenPos,
+        handleMapClick,
+        handlePegcatDrop,
+        close: closePanoramaBubble,
+    } = usePanoramaDetection({ map: mapInstance, visibleLayers });
 
     // Mirror the current view into the URL hash so a position can be shared.
     useMapUrlState({ map: mapInstance, visibleLayers, basemap: currentBasemap });
@@ -285,66 +283,11 @@ export default function MapContainer({
         };
     }, [mapInstance]);
 
-    // Effect to update temporary bubble positions
-    useEffect(() => {
-        if (!mapInstance || !clickInfo?.position) {
-            setTempBubbleScreenPos(null);
-            return;
-        }
-
-        const updateTempBubblePosition = () => {
-            try {
-                const point = mapInstance.latLngToContainerPoint(clickInfo.position!);
-                setTempBubbleScreenPos({ x: point.x, y: point.y });
-            } catch (error) {
-                console.error('Error during coordinate conversion:', error);
-                setTempBubbleScreenPos(null);
-            }
-        };
-
-        // Update initial position
-        updateTempBubblePosition();
-
-        // Listen to map movement events
-        const events = ['move', 'zoom', 'zoomstart', 'zoomend', 'movestart', 'moveend'];
-        events.forEach((event) => {
-            mapInstance.on(event as keyof L.LeafletEventHandlerFnMap, updateTempBubblePosition);
-        });
-
-        // Cleanup event listeners
-        return () => {
-            events.forEach((event) => {
-                mapInstance.off(
-                    event as keyof L.LeafletEventHandlerFnMap,
-                    updateTempBubblePosition
-                );
-            });
-        };
-    }, [mapInstance, clickInfo?.position]);
-
-    // Effect to make info bubble disappear after a delay
-    useEffect(() => {
-        if (!clickInfo) return;
-
-        const timer = setTimeout(() => {
-            setClickInfo(null);
-        }, 5000); // 5 seconds
-
-        return () => clearTimeout(timer);
-    }, [clickInfo]);
-
     // Function to toggle layer visibility
     const toggleLayer = (layer: keyof typeof visibleLayers) => {
-        // If activating Yandex and it wasn't already activated AND the warning has never been shown
-        if (layer === 'yandexPanoramas' && !visibleLayers.yandexPanoramas && !yandexWarningShown) {
-            setShowYandexWarning(true);
-            setYandexWarningShown(true); // Mark as shown to never show it again
-        }
-
-        // If activating Apple and it wasn't already activated AND the warning has never been shown
-        if (layer === 'appleLookAround' && !visibleLayers.appleLookAround && !appleWarningShown) {
-            setShowAppleWarning(true);
-            setAppleWarningShown(true); // Mark as shown to never show it again
+        // Only when switching a layer on, and only the first time for that provider.
+        if (!visibleLayers[layer]) {
+            providerWarnings.warnOnce(layer);
         }
 
         setVisibleLayers((prev) => ({
@@ -360,11 +303,6 @@ export default function MapContainer({
     ) => {
         e.stopPropagation(); // Stop propagation to prevent double toggle
         toggleLayer(layer);
-    };
-
-    // Toggle panel collapsed state
-    const togglePanel = () => {
-        setIsPanelCollapsed(!isPanelCollapsed);
     };
 
     // Function to change basemap
@@ -394,129 +332,7 @@ export default function MapContainer({
         setCurrentBasemap(basemap);
 
         // Close the selector after selection
-        setIsBasemapSelectorOpen(false);
-    };
-
-    // Toggle basemap selector
-    const toggleBasemapSelector = () => {
-        setIsBasemapSelectorOpen(!isBasemapSelectorOpen);
-    };
-
-    // Toggle statistics panel
-    const toggleStatisticsPanel = () => {
-        setIsStatisticsPanelOpen(!isStatisticsPanelOpen);
-    };
-
-    /**
-     * Handles PegCat drop event on the map
-     */
-    const handlePegcatDrop = async (latlng: L.LatLng) => {
-        // Start detection
-        await detectPanoramas(latlng, 'drop');
-    };
-
-    /**
-     * Handles map click when zoom is sufficient
-     */
-    const handleMapClick = async (latlng: L.LatLng) => {
-        // If a popup is already open, close it instead of opening a new one
-        if (detectedPosition) {
-            closePanoramaBubble();
-            return;
-        }
-
-        // Start detection
-        await detectPanoramas(latlng, 'click');
-    };
-
-    /**
-     * Common function to detect panoramas
-     */
-    const detectPanoramas = async (latlng: L.LatLng, type: 'click' | 'drop') => {
-        if (!mapInstance) return;
-
-        // Show indication that detection is in progress
-        setClickInfo({
-            position: latlng,
-            type,
-            timestamp: Date.now(),
-        });
-
-        // Mark that we're detecting
-        setIsDetecting(true);
-
-        try {
-            // Get list of active providers
-            const activeProviders = Object.entries(visibleLayers)
-                .filter(([, isVisible]) => isVisible)
-                .map(([provider]) => {
-                    if (provider === 'jaStreetView') return 'ja';
-                    return provider
-                        .replace('StreetView', '')
-                        .replace('Streetside', '')
-                        .replace('Panoramas', '')
-                        .replace('LookAround', '')
-                        .toLowerCase();
-                });
-
-            // Detect available panoramas
-            const results = await PanoramaService.detectPanoramasAt(
-                mapInstance,
-                latlng,
-                activeProviders,
-                { method: 'canvas' }
-            );
-
-            // Store results
-            setDetectionResults(results);
-
-            // Find first available point to position the bubble
-            const availableResult = results.find(
-                (r: StreetViewDetectionResult) => r.available && r.closestPoint
-            );
-            if (availableResult && availableResult.closestPoint) {
-                setDetectedPosition(availableResult.closestPoint);
-            } else {
-                // If no point found, use click position
-                setDetectedPosition(latlng);
-            }
-
-            // Clear click info
-            setClickInfo(null);
-        } catch (error) {
-            console.error('Error during panorama detection:', error);
-
-            // In case of error, use click position
-            setDetectedPosition(latlng);
-            setDetectionResults([]);
-
-            // Clear click info
-            setClickInfo(null);
-        } finally {
-            setIsDetecting(false);
-        }
-    };
-
-    /**
-     * Closes the panorama bubble
-     */
-    const closePanoramaBubble = () => {
-        setDetectedPosition(null);
-        setDetectionResults([]);
-    };
-
-    /**
-     * Closes the Yandex warning popup
-     */
-    const closeYandexWarning = () => {
-        setShowYandexWarning(false);
-    };
-
-    /**
-     * Closes the Apple warning popup
-     */
-    const closeAppleWarning = () => {
-        setShowAppleWarning(false);
+        closeBasemapSelector();
     };
 
     return (
@@ -769,13 +585,13 @@ export default function MapContainer({
                 mapInstance &&
                 !isDetecting &&
                 !detectedPosition &&
-                tempBubbleScreenPos && (
+                markerScreenPos && (
                     <div
                         className="info-bubble"
                         style={{
                             position: 'absolute',
-                            left: tempBubbleScreenPos.x,
-                            top: tempBubbleScreenPos.y - 30,
+                            left: markerScreenPos.x,
+                            top: markerScreenPos.y - 30,
                             background: '#fefbf1',
                             padding: '8px 12px',
                             borderRadius: '6px',
@@ -811,56 +627,52 @@ export default function MapContainer({
                 )}
 
             {/* Indicator during detection */}
-            {isDetecting &&
-                clickInfo &&
-                clickInfo.position &&
-                mapInstance &&
-                tempBubbleScreenPos && (
+            {isDetecting && clickInfo && clickInfo.position && mapInstance && markerScreenPos && (
+                <div
+                    className="detecting-bubble"
+                    style={{
+                        position: 'absolute',
+                        left: markerScreenPos.x,
+                        top: markerScreenPos.y - 30,
+                        background: '#fefbf1',
+                        padding: '10px 15px',
+                        borderRadius: '6px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                        zIndex: 1000,
+                        transform: 'translate(-50%, -100%)',
+                        fontSize: '14px',
+                        fontFamily: 'var(--font-geist-sans, sans-serif)',
+                        color: 'var(--sr-text, #333)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        pointerEvents: 'auto',
+                    }}
+                >
                     <div
-                        className="detecting-bubble"
+                        style={{
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            border: '2px solid var(--sr-primary, #9b4434)',
+                            borderBottomColor: 'transparent',
+                            animation: 'spin 1s linear infinite',
+                        }}
+                    ></div>
+                    <div>Searching for panoramas...</div>
+                    <div
                         style={{
                             position: 'absolute',
-                            left: tempBubbleScreenPos.x,
-                            top: tempBubbleScreenPos.y - 30,
-                            background: '#fefbf1',
-                            padding: '10px 15px',
-                            borderRadius: '6px',
-                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-                            zIndex: 1000,
-                            transform: 'translate(-50%, -100%)',
-                            fontSize: '14px',
-                            fontFamily: 'var(--font-geist-sans, sans-serif)',
-                            color: 'var(--sr-text, #333)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            pointerEvents: 'auto',
+                            bottom: '-8px',
+                            left: '50%',
+                            marginLeft: '-8px',
+                            borderLeft: '8px solid transparent',
+                            borderRight: '8px solid transparent',
+                            borderTop: '8px solid #fefbf1',
                         }}
-                    >
-                        <div
-                            style={{
-                                width: '16px',
-                                height: '16px',
-                                borderRadius: '50%',
-                                border: '2px solid var(--sr-primary, #9b4434)',
-                                borderBottomColor: 'transparent',
-                                animation: 'spin 1s linear infinite',
-                            }}
-                        ></div>
-                        <div>Searching for panoramas...</div>
-                        <div
-                            style={{
-                                position: 'absolute',
-                                bottom: '-8px',
-                                left: '50%',
-                                marginLeft: '-8px',
-                                borderLeft: '8px solid transparent',
-                                borderRight: '8px solid transparent',
-                                borderTop: '8px solid #fefbf1',
-                            }}
-                        ></div>
-                    </div>
-                )}
+                    ></div>
+                </div>
+            )}
 
             {/* Panorama bubble with results */}
             {detectedPosition && !isDetecting && mapInstance && (
@@ -872,174 +684,12 @@ export default function MapContainer({
                 />
             )}
 
-            {/* Yandex warning popup */}
-            {showYandexWarning && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2000,
-                        animation: 'fadeIn 0.3s ease',
-                    }}
-                    onClick={closeYandexWarning}
-                >
-                    <div
-                        style={{
-                            background: '#fefbf1',
-                            padding: '24px',
-                            borderRadius: '12px',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-                            maxWidth: '400px',
-                            width: '90%',
-                            fontFamily: 'var(--font-geist-sans, sans-serif)',
-                            color: 'var(--sr-text, #333)',
-                            textAlign: 'center',
-                            transform: 'scale(1)',
-                            animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                        <h3
-                            style={{
-                                margin: '0 0 16px 0',
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: 'var(--sr-primary, #9b4434)',
-                            }}
-                        >
-                            Yandex Panoramas - Alpha Feature
-                        </h3>
-                        <p
-                            style={{
-                                margin: '0 0 20px 0',
-                                fontSize: '16px',
-                                lineHeight: '1.5',
-                                color: 'var(--sr-text-light, #666)',
-                            }}
-                        >
-                            Yandex Panoramas support is currently in alpha testing. Coverage
-                            detection and panorama links may not work as expected.
-                        </p>
-                        <button
-                            onClick={closeYandexWarning}
-                            style={{
-                                background: 'var(--sr-primary, #9b4434)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '10px 20px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = '#7a3429';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
-                            }}
-                        >
-                            I understand
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Apple warning popup */}
-            {showAppleWarning && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        zIndex: 2000,
-                        animation: 'fadeIn 0.3s ease',
-                    }}
-                    onClick={closeAppleWarning}
-                >
-                    <div
-                        style={{
-                            background: '#fefbf1',
-                            padding: '24px',
-                            borderRadius: '12px',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-                            maxWidth: '420px',
-                            width: '90%',
-                            fontFamily: 'var(--font-geist-sans, sans-serif)',
-                            color: 'var(--sr-text, #333)',
-                            textAlign: 'center',
-                            transform: 'scale(1)',
-                            animation: 'popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-                        <h3
-                            style={{
-                                margin: '0 0 16px 0',
-                                fontSize: '20px',
-                                fontWeight: '600',
-                                color: 'var(--sr-primary, #9b4434)',
-                            }}
-                        >
-                            Apple Look Around - Beta Feature
-                        </h3>
-                        <div
-                            style={{
-                                margin: '0 0 20px 0',
-                                fontSize: '16px',
-                                lineHeight: '1.5',
-                                color: 'var(--sr-text-light, #666)',
-                                textAlign: 'left',
-                            }}
-                        >
-                            <p style={{ margin: '0 0 12px 0' }}>
-                                Apple Look Around support is currently in beta. Known issues:
-                            </p>
-                            <ul style={{ margin: '0', paddingLeft: '20px' }}>
-                                <li>Maximum zoom level: 16</li>
-                                <li>Map matching contains errors for Canada, Spain, and Italy</li>
-                            </ul>
-                        </div>
-                        <button
-                            onClick={closeAppleWarning}
-                            style={{
-                                background: 'var(--sr-primary, #9b4434)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '10px 20px',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '14px',
-                                fontWeight: '500',
-                                transition: 'all 0.2s ease',
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = '#7a3429';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'var(--sr-primary, #9b4434)';
-                            }}
-                        >
-                            I understand
-                        </button>
-                    </div>
-                </div>
+            {/* One-time notice for providers with known limitations. */}
+            {providerWarnings.active && (
+                <ProviderWarning
+                    provider={providerWarnings.active}
+                    onDismiss={providerWarnings.dismiss}
+                />
             )}
 
             {/* Loading animation styles */}
