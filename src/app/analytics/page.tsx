@@ -15,9 +15,10 @@
  */
 
 import Link from 'next/link';
-import Image from 'next/image';
 import type { Metadata } from 'next';
 import CoverageChartWithControls from '@/components/charts/CoverageChartWithControls';
+import SiteHeader from '@/components/layout/siteHeader';
+import SiteFooter from '@/components/layout/siteFooter';
 import { COVERAGE_UPDATED, formatCoverageMonth } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -44,27 +45,7 @@ const upcomingFeatures = [
 export default function AnalyticsPage() {
     return (
         <div className="min-h-screen bg-background">
-            <header className="header">
-                <div className="container">
-                    <Link href="/" className="logo">
-                        <Image
-                            src="/images/logo.png"
-                            alt="StreetRadar Logo"
-                            width={50}
-                            height={50}
-                            priority
-                        />
-                    </Link>
-                    <nav className="nav">
-                        <Link href="/" className="nav-link">
-                            Home
-                        </Link>
-                        <Link href="/map" className="nav-link">
-                            Map
-                        </Link>
-                    </nav>
-                </div>
-            </header>
+            <SiteHeader current="/analytics" />
 
             <main className="py-20">
                 <div className="container">
@@ -135,21 +116,7 @@ export default function AnalyticsPage() {
                 </div>
             </main>
 
-            <footer className="footer">
-                <div className="container">
-                    <div className="logo small">
-                        <Image
-                            src="/images/logo.png"
-                            alt="StreetRadar Logo"
-                            width={35}
-                            height={35}
-                        />
-                    </div>
-                    <span className="copyright">
-                        © {new Date().getFullYear()} StreetRadar v0.1
-                    </span>
-                </div>
-            </footer>
+            <SiteFooter />
         </div>
     );
 }
