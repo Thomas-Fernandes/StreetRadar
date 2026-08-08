@@ -1,0 +1,3 @@
+# Repo-wide Prettier pass. The .eslintrc.json that declared prettier/prettier
+# was inert under ESLint 9, so formatting had never actually been enforced.
+17e52a869a4843673027c126100f27a1354da32a
