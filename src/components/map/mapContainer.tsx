@@ -9,6 +9,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+
+import { readMapHash, useMapUrlState } from '@/hooks/useMapUrlState';
+import type { Basemap } from '@/lib/mapUrlState';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@/styles/leafletStyles.css';
@@ -39,19 +42,36 @@ export default function MapContainer({
     const mapRef = useRef<HTMLDivElement>(null);
     // Leaflet map instance
     const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+
+    // The view carried by the URL, if any. Read once at mount: this component
+    // is loaded with ssr: false, so window is available during render.
+    const initialUrlState = useRef(readMapHash()).current;
+
     // Visible layers state
-    const [visibleLayers, setVisibleLayers] = useState({
-        googleStreetView: true,
-        bingStreetside: true,
-        yandexPanoramas: false,
-        appleLookAround: false,
-        naverStreetView: false,
-        jaStreetView: false,
+    const [visibleLayers, setVisibleLayers] = useState(() => {
+        const defaults = {
+            googleStreetView: true,
+            bingStreetside: true,
+            yandexPanoramas: false,
+            appleLookAround: false,
+            naverStreetView: false,
+            jaStreetView: false,
+        };
+
+        // A link with no layer section keeps the defaults; one that lists none
+        // meant it, and gets an empty map.
+        if (!initialUrlState?.layers) return defaults;
+
+        const fromUrl = { ...defaults };
+        for (const key of Object.keys(fromUrl) as (keyof typeof fromUrl)[]) {
+            fromUrl[key] = initialUrlState.layers.includes(key);
+        }
+        return fromUrl;
     });
     // Control panel collapsed state
     const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
     // Basemap selection
-    const [currentBasemap, setCurrentBasemap] = useState('osm');
+    const [currentBasemap, setCurrentBasemap] = useState(initialUrlState?.basemap ?? 'osm');
     // Basemap selector open state
     const [isBasemapSelectorOpen, setIsBasemapSelectorOpen] = useState(false);
     // References to the basemap layers
@@ -82,6 +102,9 @@ export default function MapContainer({
     const [appleWarningShown, setAppleWarningShown] = useState<boolean>(false);
     // Statistics panel open state
     const [isStatisticsPanelOpen, setIsStatisticsPanelOpen] = useState<boolean>(false);
+
+    // Mirror the current view into the URL hash so a position can be shared.
+    useMapUrlState({ map: mapInstance, visibleLayers, basemap: currentBasemap });
 
     // Minimum zoom level to activate Street View - reduced by 6 levels total (16 -> 13 -> 10)
     const MIN_ZOOM_FOR_STREETVIEW = 10;
@@ -149,7 +172,10 @@ export default function MapContainer({
         const map = L.map(mapRef.current, {
             maxZoom: 19,
             zoomControl: false, // Disable default zoom control to reposition it
-        }).setView(center, zoom);
+        }).setView(
+            initialUrlState ? [initialUrlState.lat, initialUrlState.lon] : center,
+            initialUrlState ? initialUrlState.zoom : zoom
+        );
 
         // Add our custom CSS class to the map container
         map.getContainer().className += ' streetradar-map';
@@ -217,13 +243,23 @@ export default function MapContainer({
             })
             .addTo(map);
 
+        // A shared link can name a basemap other than the OSM default added
+        // above; apply it once the layer refs exist.
+        if (initialUrlState && initialUrlState.basemap !== 'osm') {
+            const chosen = basemapLayersRef.current[initialUrlState.basemap];
+            map.removeLayer(osm);
+            if (chosen) chosen.addTo(map);
+        }
+
         setMapInstance(map);
 
         // Cleanup on unmount
         return () => {
             map.remove();
         };
-    }, [center, zoom]);
+        // initialUrlState is a useRef().current and never changes identity;
+        // it is listed to satisfy exhaustive-deps, not because it can vary.
+    }, [center, zoom, initialUrlState]);
 
     // Effect to manage map cursor based on zoom level
     useEffect(() => {
@@ -330,7 +366,7 @@ export default function MapContainer({
     };
 
     // Function to change basemap
-    const changeBasemap = (basemap: string) => {
+    const changeBasemap = (basemap: Basemap) => {
         if (!mapInstance || !basemapLayersRef.current) return;
 
         // Remove all basemap layers
