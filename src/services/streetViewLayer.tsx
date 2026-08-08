@@ -105,7 +105,10 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
                         }
                     );
                     break;
-                case 'apple':
+                // Braces around the bodies below: a `const` in a bare case is
+                // scoped to the whole switch, so a sibling case can reach it in
+                // its temporal dead zone and throw at runtime.
+                case 'apple': {
                     // Use custom PMTiles layer for Apple
                     const appleUrl = StreetViewService.getAppleLookAroundTileUrl();
                     if (appleUrl === 'APPLE_PMTILES_LAYER') {
@@ -121,7 +124,8 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
                         });
                     }
                     break;
-                case 'naver':
+                }
+                case 'naver': {
                     // Use custom PMTiles layer for Naver
                     const naverUrl = StreetViewService.getNaverStreetViewTileUrl();
                     if (naverUrl === 'NAVER_PMTILES_LAYER') {
@@ -132,7 +136,8 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
                         });
                     }
                     break;
-                case 'ja':
+                }
+                case 'ja': {
                     // Use custom PMTiles layer for ja.is
                     const jaUrl = StreetViewService.getJaIsTileUrl();
                     if (jaUrl === 'JA_PMTILES_LAYER') {
@@ -143,6 +148,7 @@ const StreetViewLayer: React.FC<StreetViewLayerProps> = ({ map, provider, visibl
                         });
                     }
                     break;
+                }
             }
 
             // Add layer to map if it was created

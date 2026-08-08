@@ -43,9 +43,11 @@ export default function MapContainer({
     // Leaflet map instance
     const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
 
-    // The view carried by the URL, if any. Read once at mount: this component
-    // is loaded with ssr: false, so window is available during render.
-    const initialUrlState = useRef(readMapHash()).current;
+    // The view carried by the URL, if any. A lazy useState initializer rather
+    // than a ref: it runs exactly once and the value is stable, but unlike
+    // reading ref.current during render it is safe under concurrent rendering —
+    // which React 19.2's lint rules now enforce.
+    const [initialUrlState] = useState(readMapHash);
 
     // Visible layers state
     const [visibleLayers, setVisibleLayers] = useState(() => {
