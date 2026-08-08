@@ -1,0 +1,51 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+# A new push to the same branch makes the previous run irrelevant.
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    quality:
+        name: Lint, types and build
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                  node-version-file: .nvmrc
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Check formatting
+              run: npm run format:check
+
+            - name: Lint
+              run: npm run lint
+
+            - name: Typecheck
+              run: npm run typecheck
+
+            # This step deliberately runs with no secrets in scope.
+            #
+            # A module that threw on a missing environment variable once broke the
+            # static prerender of `/`, so the production build failed while local
+            # development kept working. Keeping this step secret-free is what stops
+            # that class of regression from shipping again — do not add `env:` here.
+            - name: Build without secrets
+              run: npm run build
+
+            # Blocks on critical advisories only. Three high-severity ones
+            # (sharp, postcss, next) currently have no fix below Next 16; tighten
+            # this to --audit-level=high once that migration lands.
+            - name: Audit production dependencies
+              run: npm audit --omit=dev --audit-level=critical
