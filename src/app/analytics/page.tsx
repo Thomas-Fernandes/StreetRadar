@@ -1,41 +1,49 @@
 /**
  * analytics/page.tsx
  *
- * Analytics page for StreetRadar showing data visualizations and statistics
- * about Street View coverage worldwide.
+ * Coverage statistics and charts.
  *
- * This page will feature:
- * - Coverage statistics by provider (Apple, Google, Bing, Yandex)
- * - Kilometers covered per country
- * - Number of panoramas available
- * - Interactive charts and data visualizations
+ * First page converted from inline styles to Tailwind. It was the right one to
+ * start with: entirely inline, self-contained, and nothing on it touches the
+ * Leaflet map, so the conversion cannot break map behaviour.
+ *
+ * Two conventions this page establishes for the rest:
+ *   - colours come from the @theme tokens in globals.css, so `text-primary`
+ *     rather than a repeated hex or a var() fallback chain
+ *   - hover states are `hover:` variants rather than onMouseOver handlers
+ *     writing to style, which is what the cards used to do
  */
-
-'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import CoverageChartWithControls from '@/components/charts/CoverageChartWithControls';
+import { COVERAGE_UPDATED, formatCoverageMonth } from '@/lib/site';
+
+export const metadata: Metadata = {
+    title: 'Coverage Statistics',
+    description:
+        'How Street View coverage has grown over time, by provider and by country. Built from coverage data collected directly from each provider.',
+};
+
+const upcomingFeatures = [
+    {
+        icon: '🍎',
+        title: 'Apple Look Around Coverage',
+        description:
+            'Comprehensive analysis of Apple Look Around availability, including kilometers covered and panorama count by country and region.',
+    },
+    {
+        icon: '🌍',
+        title: 'Global Statistics',
+        description:
+            'Interactive world map showing coverage density, total kilometers, and availability statistics for each provider. (Coming later)',
+    },
+];
 
 export default function AnalyticsPage() {
-    const upcomingFeatures = [
-        {
-            icon: '🍎',
-            title: 'Apple Look Around Coverage',
-            description:
-                'Comprehensive analysis of Apple Look Around availability, including kilometers covered and panorama count by country and region.',
-        },
-        {
-            icon: '🌍',
-            title: 'Global Statistics',
-            description:
-                'Interactive world map showing coverage density, total kilometers, and availability statistics for each provider. (Coming later)',
-        },
-    ];
-
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: 'var(--background, #fefbf1)' }}>
-            {/* Header */}
+        <div className="min-h-screen bg-background">
             <header className="header">
                 <div className="container">
                     <Link href="/" className="logo">
@@ -58,47 +66,23 @@ export default function AnalyticsPage() {
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main style={{ padding: '80px 0' }}>
+            <main className="py-20">
                 <div className="container">
-                    {/* Hero Section */}
-                    <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-                        <h1
-                            style={{
-                                fontSize: '48px',
-                                fontWeight: '700',
-                                marginBottom: '24px',
-                                background:
-                                    'linear-gradient(135deg, var(--primary, #9b4434), var(--secondary, #337b81))',
-                                WebkitBackgroundClip: 'text',
-                                backgroundClip: 'text',
-                                color: 'transparent',
-                            }}
-                        >
+                    <div className="mb-12 text-center">
+                        <h1 className="from-primary to-secondary mb-4 bg-gradient-to-br bg-clip-text text-5xl font-bold text-transparent">
                             Analytics &amp; Statistics
                         </h1>
+                        {/* Says how old the underlying data is. The pipeline has not
+                            run since September 2025, and a coverage site that
+                            presents year-old figures as current is worse than one
+                            that dates them. */}
+                        <p className="text-ink-light text-sm">
+                            Coverage data last updated {formatCoverageMonth(COVERAGE_UPDATED.apple)}
+                        </p>
                     </div>
 
-                    {/* Coverage Evolution Chart */}
-                    <div
-                        style={{
-                            background: 'rgba(255, 255, 255, 0.6)',
-                            border: '1px solid rgba(0, 0, 0, 0.05)',
-                            borderRadius: '16px',
-                            padding: '32px',
-                            marginBottom: '60px',
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
-                        }}
-                    >
-                        <h2
-                            style={{
-                                fontSize: '28px',
-                                fontWeight: '600',
-                                marginBottom: '24px',
-                                color: 'var(--primary, #9b4434)',
-                                textAlign: 'center',
-                            }}
-                        >
+                    <section className="mb-15 rounded-2xl border border-black/5 bg-white/60 p-8 shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+                        <h2 className="text-primary mb-6 text-center text-3xl font-semibold">
                             Street View Coverage Evolution
                         </h2>
                         <CoverageChartWithControls
@@ -107,110 +91,40 @@ export default function AnalyticsPage() {
                             interactive={true}
                             title=""
                         />
-                    </div>
+                    </section>
 
-                    {/* Upcoming Features */}
-                    <div>
-                        <h3
-                            style={{
-                                fontSize: '24px',
-                                fontWeight: '600',
-                                textAlign: 'center',
-                                marginBottom: '40px',
-                                color: 'var(--text, #333333)',
-                            }}
-                        >
+                    <section>
+                        <h3 className="text-ink mb-10 text-center text-2xl font-semibold">
                             What&apos;s Coming
                         </h3>
 
-                        <div
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                                gap: '30px',
-                            }}
-                        >
-                            {upcomingFeatures.map((feature, index) => (
-                                <div
-                                    key={index}
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.6)',
-                                        padding: '30px',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(0, 0, 0, 0.05)',
-                                        transition: 'all 0.3s ease',
-                                        cursor: 'default',
-                                    }}
-                                    onMouseOver={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-5px)';
-                                        e.currentTarget.style.boxShadow =
-                                            '0 10px 30px rgba(0, 0, 0, 0.1)';
-                                    }}
-                                    onMouseOut={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = 'none';
-                                    }}
+                        <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8">
+                            {upcomingFeatures.map((feature) => (
+                                <article
+                                    key={feature.title}
+                                    className="rounded-xl border border-black/5 bg-white/60 p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
                                 >
-                                    <div style={{ fontSize: '32px', marginBottom: '16px' }}>
+                                    <div className="mb-4 text-3xl" aria-hidden="true">
                                         {feature.icon}
                                     </div>
-                                    <h4
-                                        style={{
-                                            fontSize: '18px',
-                                            fontWeight: '600',
-                                            marginBottom: '12px',
-                                            color: 'var(--text, #333333)',
-                                        }}
-                                    >
+                                    <h4 className="text-ink mb-3 text-lg font-semibold">
                                         {feature.title}
                                     </h4>
-                                    <p
-                                        style={{
-                                            fontSize: '14px',
-                                            color: 'var(--text-light, #666666)',
-                                            lineHeight: '1.5',
-                                            margin: '0',
-                                        }}
-                                    >
+                                    <p className="text-ink-light text-sm leading-relaxed">
                                         {feature.description}
                                     </p>
-                                </div>
+                                </article>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    {/* CTA Section */}
-                    <div style={{ textAlign: 'center', marginTop: '80px' }}>
-                        <p
-                            style={{
-                                fontSize: '16px',
-                                color: 'var(--text-light, #666666)',
-                                marginBottom: '20px',
-                            }}
-                        >
+                    <div className="mt-20 text-center">
+                        <p className="text-ink-light mb-5">
                             In the meantime, explore our interactive Map
                         </p>
                         <Link
                             href="/map"
-                            style={{
-                                background: 'var(--primary, #9b4434)',
-                                color: 'white',
-                                padding: '12px 24px',
-                                borderRadius: '8px',
-                                textDecoration: 'none',
-                                fontSize: '16px',
-                                fontWeight: '500',
-                                transition: 'all 0.2s ease',
-                                display: 'inline-block',
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = '#7a3429';
-                                e.currentTarget.style.transform = 'translateY(-2px)';
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = 'var(--primary, #9b4434)';
-                                e.currentTarget.style.transform = 'translateY(0)';
-                            }}
+                            className="bg-primary hover:bg-primary-dark inline-block rounded-lg px-6 py-3 font-medium text-white transition-all duration-200 hover:-translate-y-0.5"
                         >
                             Explore Map →
                         </Link>
@@ -218,7 +132,6 @@ export default function AnalyticsPage() {
                 </div>
             </main>
 
-            {/* Footer */}
             <footer className="footer">
                 <div className="container">
                     <div className="logo small">

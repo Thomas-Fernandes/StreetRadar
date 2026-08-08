@@ -32,8 +32,13 @@ export const metadata: Metadata = {
  */
 export default function MapPage() {
     return (
-        <main className="flex flex-col h-screen w-full">
-            <div className="flex-1 w-full">
+        // The map sizes itself with an inline 100vh in MapContainer. These
+        // wrappers carried Tailwind classes that never applied, because Tailwind
+        // was never imported; leaving them in place while switching it on would
+        // introduce a second, competing sizing mechanism. Converting this page
+        // properly is a separate change.
+        <main>
+            <div>
                 <MapWrapper />
             </div>
         </main>
