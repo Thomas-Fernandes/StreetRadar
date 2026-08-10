@@ -15,6 +15,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { LayerSlug } from '@/lib/mapUrlState';
 import L from 'leaflet';
 import { StreetViewService } from '@/services/streetViewService';
 import { createBingTileLayer } from './bingTileLayer';
@@ -31,7 +32,7 @@ import { createNaverPMTilesLayer } from './naverPMTilesLayerNew';
  */
 interface StreetViewLayerProps {
     map: L.Map | null;
-    provider: 'google' | 'apple' | 'bing' | 'yandex' | 'naver' | 'ja';
+    provider: LayerSlug;
     visible: boolean;
 }
 

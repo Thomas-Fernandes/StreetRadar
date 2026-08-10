@@ -11,7 +11,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { readMapHash, useMapUrlState } from '@/hooks/useMapUrlState';
-import type { Basemap } from '@/lib/mapUrlState';
+import { LAYER_KEY_TO_SLUG, type Basemap, type LayerSlug } from '@/lib/mapUrlState';
+import { isProviderEnabled } from '@/lib/site';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '@/styles/leafletStyles.css';
@@ -62,13 +63,23 @@ export default function MapContainer({
             jaStreetView: false,
         };
 
+        // A killed provider stays off whatever the defaults or the link say, so
+        // an old shared permalink cannot switch it back on. Note this is a
+        // separate question from whether a layer is on by default: Apple and Já
+        // are both off by default and must still be reachable from a link.
+        const killed = (key: keyof typeof defaults) => !isProviderEnabled(LAYER_KEY_TO_SLUG[key]);
+
+        for (const key of Object.keys(defaults) as (keyof typeof defaults)[]) {
+            if (killed(key)) defaults[key] = false;
+        }
+
         // A link with no layer section keeps the defaults; one that lists none
         // meant it, and gets an empty map.
         if (!initialUrlState?.layers) return defaults;
 
         const fromUrl = { ...defaults };
         for (const key of Object.keys(fromUrl) as (keyof typeof fromUrl)[]) {
-            fromUrl[key] = initialUrlState.layers.includes(key);
+            fromUrl[key] = !killed(key) && initialUrlState.layers.includes(key);
         }
         return fromUrl;
     });
@@ -109,10 +120,19 @@ export default function MapContainer({
     // Minimum zoom level to activate Street View - reduced by 6 levels total (16 -> 13 -> 10)
     const MIN_ZOOM_FOR_STREETVIEW = 10;
 
-    // Provider configuration with their information
-    const providers = [
+    // Provider configuration with their information. Filtered by the kill
+    // switch, so a disabled provider is never offered in the control.
+    const allProviders: {
+        key: keyof typeof visibleLayers;
+        id: LayerSlug;
+        name: string;
+        shortName: string;
+        logo: string;
+        color: string;
+    }[] = [
         {
             key: 'googleStreetView',
+            id: 'google',
             name: 'Street View',
             shortName: 'Google',
             logo: '/images/providers/google.svg',
@@ -120,6 +140,7 @@ export default function MapContainer({
         },
         {
             key: 'bingStreetside',
+            id: 'bing',
             name: 'Streetside',
             shortName: 'Bing',
             logo: '/images/providers/bing.svg',
@@ -127,6 +148,7 @@ export default function MapContainer({
         },
         {
             key: 'appleLookAround',
+            id: 'apple',
             name: 'Look Around',
             shortName: 'Apple',
             logo: '/images/providers/apple.svg',
@@ -134,6 +156,7 @@ export default function MapContainer({
         },
         {
             key: 'yandexPanoramas',
+            id: 'yandex',
             name: 'Panoramas',
             shortName: 'Yandex',
             logo: '/images/providers/yandex.svg',
@@ -141,6 +164,7 @@ export default function MapContainer({
         },
         {
             key: 'naverStreetView',
+            id: 'naver',
             name: 'Street View',
             shortName: 'Naver',
             logo: '/images/providers/naver.svg',
@@ -148,12 +172,14 @@ export default function MapContainer({
         },
         {
             key: 'jaStreetView',
+            id: 'ja',
             name: 'Já 360',
             shortName: 'Já 360',
             logo: '/images/providers/ja.svg',
             color: '#ff6b35',
         },
     ];
+    const providers = allProviders.filter((provider) => isProviderEnabled(provider.id));
 
     // Initialize Leaflet map
     useEffect(() => {
@@ -536,36 +562,16 @@ export default function MapContainer({
             {/* Street View layer components */}
             {mapInstance && (
                 <>
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="google"
-                        visible={visibleLayers.googleStreetView}
-                    />
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="bing"
-                        visible={visibleLayers.bingStreetside}
-                    />
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="yandex"
-                        visible={visibleLayers.yandexPanoramas}
-                    />
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="apple"
-                        visible={visibleLayers.appleLookAround}
-                    />
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="naver"
-                        visible={visibleLayers.naverStreetView}
-                    />
-                    <StreetViewLayer
-                        map={mapInstance}
-                        provider="ja"
-                        visible={visibleLayers.jaStreetView}
-                    />
+                    {/* Only enabled providers are mounted at all, so a disabled
+                        one cannot issue a single tile request. */}
+                    {providers.map((provider) => (
+                        <StreetViewLayer
+                            key={provider.id}
+                            map={mapInstance}
+                            provider={provider.id}
+                            visible={visibleLayers[provider.key as keyof typeof visibleLayers]}
+                        />
+                    ))}
                 </>
             )}
 

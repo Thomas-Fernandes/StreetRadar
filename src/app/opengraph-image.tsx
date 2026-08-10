@@ -12,9 +12,9 @@
  */
 
 import { ImageResponse } from 'next/og';
-import { SITE_NAME, formatCoverageMonth, oldestCoverageDate } from '@/lib/site';
+import { ENABLED_PROVIDERS, SITE_NAME, formatCoverageMonth, oldestCoverageDate } from '@/lib/site';
 
-export const alt = 'StreetRadar — Street View coverage from six providers on one map';
+export const alt = `StreetRadar — Street View coverage from ${ENABLED_PROVIDERS.length} providers on one map`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -25,9 +25,15 @@ const SECONDARY = '#337b81';
 const TEXT = '#333333';
 const TEXT_LIGHT = '#666666';
 
-const PROVIDERS = ['Google', 'Apple', 'Bing', 'Yandex', 'Naver', 'Já 360'];
+// Derived, so a provider taken off the site is not still advertised on the
+// social card — which is cached by every platform that has ever fetched it.
+const PROVIDERS = ENABLED_PROVIDERS.map((provider) => provider.shortName);
 
 export default async function Image() {
+    // Null when every collected layer is switched off, in which case there is no
+    // rebuild date the card can honestly quote.
+    const coverageDate = oldestCoverageDate();
+
     return new ImageResponse(
         (
             <div
@@ -66,7 +72,7 @@ export default async function Image() {
                             maxWidth: 900,
                         }}
                     >
-                        See where Street View imagery exists worldwide — six providers on one map.
+                        {`See where Street View imagery exists worldwide — ${ENABLED_PROVIDERS.length} providers on one map.`}
                     </div>
                 </div>
 
@@ -89,7 +95,9 @@ export default async function Image() {
                         ))}
                     </div>
                     <div style={{ display: 'flex', fontSize: 24, color: TEXT_LIGHT }}>
-                        streetradar.app · coverage data {formatCoverageMonth(oldestCoverageDate())}
+                        {coverageDate
+                            ? `streetradar.app · coverage data ${formatCoverageMonth(coverageDate)}`
+                            : 'streetradar.app'}
                     </div>
                 </div>
             </div>
