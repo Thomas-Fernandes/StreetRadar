@@ -400,7 +400,7 @@ const TimelineChart: React.FC<TimelineChartProps> = ({
                         }}
                     ></div>
                     <p style={{ margin: 0, fontSize: '14px', fontWeight: '500' }}>
-                        Chargement de la timeline...
+                        Loading timeline...
                     </p>
                 </div>
             </div>

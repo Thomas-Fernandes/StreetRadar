@@ -16,6 +16,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import JsonLd from '@/components/seo/jsonLd';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // Configuration of Geist fonts (sans-serif) and Geist Mono (monospace)
@@ -63,9 +64,15 @@ export const metadata: Metadata = {
         'já 360 coverage',
         'panorama coverage map',
     ],
-    alternates: {
-        canonical: '/',
-    },
+    // No `alternates.canonical` here on purpose. Next propagates metadata from
+    // the root layout to every page that does not override it, so a canonical
+    // set at this level made /map and /analytics both emit
+    // <link rel="canonical" href="https://streetradar.app">. Google treats that
+    // as an instruction to fold those URLs into the home page and drop them from
+    // the index — which is a large part of why it sent no traffic at all while
+    // Bing, which treats canonical as a hint, kept indexing them.
+    //
+    // Each page declares its own canonical instead.
     openGraph: {
         type: 'website',
         siteName: SITE_NAME,
@@ -100,6 +107,19 @@ export default function RootLayout({
                 className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 {children}
+                {/* Site-level structured data. Emitted once here rather than per
+                    page so the WebSite node cannot disagree with itself. */}
+                <JsonLd
+                    data={{
+                        '@context': 'https://schema.org',
+                        '@type': 'WebSite',
+                        name: SITE_NAME,
+                        alternateName: 'Street View coverage map',
+                        url: SITE_URL,
+                        description: SITE_DESCRIPTION,
+                        inLanguage: 'en',
+                    }}
+                />
             </body>
         </html>
     );

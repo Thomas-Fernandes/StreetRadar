@@ -12,10 +12,15 @@
  * Server component: no state, no client JS.
  */
 
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import SiteHeader from '@/components/layout/siteHeader';
 import SiteFooter from '@/components/layout/siteFooter';
+
+export const metadata: Metadata = {
+    alternates: { canonical: '/' },
+};
 
 const PROVIDERS = [
     { id: 'google', name: 'Google Street View', logo: '/images/providers/google.svg' },
