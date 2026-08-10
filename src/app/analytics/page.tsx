@@ -25,6 +25,7 @@ export const metadata: Metadata = {
     title: 'Coverage Statistics',
     description:
         'How Street View coverage has grown over time, by provider and by country. Built from coverage data collected directly from each provider.',
+    alternates: { canonical: '/analytics' },
 };
 
 const upcomingFeatures = [

@@ -19,6 +19,7 @@ export const metadata: Metadata = {
         'Explore worldwide Street View coverage from Google, Bing, Yandex and Apple. Click anywhere to find available panoramas and discover street-level imagery around the world.',
     keywords:
         'street view, google maps, bing streetside, yandex panoramas, apple look around, coverage map, panoramas',
+    alternates: { canonical: '/map' },
     openGraph: {
         title: 'StreetRadar - Interactive Street View Coverage Map',
         description:

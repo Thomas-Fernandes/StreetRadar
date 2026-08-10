@@ -63,9 +63,15 @@ export const metadata: Metadata = {
         'já 360 coverage',
         'panorama coverage map',
     ],
-    alternates: {
-        canonical: '/',
-    },
+    // No `alternates.canonical` here on purpose. Next propagates metadata from
+    // the root layout to every page that does not override it, so a canonical
+    // set at this level made /map and /analytics both emit
+    // <link rel="canonical" href="https://streetradar.app">. Google treats that
+    // as an instruction to fold those URLs into the home page and drop them from
+    // the index — which is a large part of why it sent no traffic at all while
+    // Bing, which treats canonical as a hint, kept indexing them.
+    //
+    // Each page declares its own canonical instead.
     openGraph: {
         type: 'website',
         siteName: SITE_NAME,
