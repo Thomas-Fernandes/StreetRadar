@@ -6,9 +6,12 @@
  */
 
 import Image from 'next/image';
-import { COVERAGE_UPDATED, formatCoverageMonth, oldestCoverageDate } from '@/lib/site';
+import { formatCoverageMonth, newestCoverageDate, oldestCoverageDate } from '@/lib/site';
 
 export default function SiteFooter() {
+    const oldest = oldestCoverageDate();
+    const newest = newestCoverageDate();
+
     return (
         <footer className="border-t border-black/5 bg-white/30 py-10">
             <div className="container flex items-center justify-between gap-5 max-md:flex-col max-md:text-center">
@@ -26,10 +29,15 @@ export default function SiteFooter() {
                         © {new Date().getFullYear()} StreetRadar v0.1
                     </span>
                 </div>
-                <span className="text-ink-light text-sm">
-                    Coverage data {formatCoverageMonth(oldestCoverageDate())}
-                    {COVERAGE_UPDATED.apple !== oldestCoverageDate() && ' or newer'}
-                </span>
+                {/* Null when every collected layer is switched off — the site is
+                    then only showing live provider layers, which have no rebuild
+                    date to apologise for. */}
+                {oldest && (
+                    <span className="text-ink-light text-sm">
+                        Coverage data {formatCoverageMonth(oldest)}
+                        {newest !== oldest && ' or newer'}
+                    </span>
+                )}
             </div>
         </footer>
     );

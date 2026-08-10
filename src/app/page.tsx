@@ -17,19 +17,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import SiteHeader from '@/components/layout/siteHeader';
 import SiteFooter from '@/components/layout/siteFooter';
+import { ENABLED_PROVIDERS } from '@/lib/site';
 
 export const metadata: Metadata = {
     alternates: { canonical: '/' },
 };
-
-const PROVIDERS = [
-    { id: 'google', name: 'Google Street View', logo: '/images/providers/google.svg' },
-    { id: 'apple', name: 'Apple Look Around', logo: '/images/providers/apple.svg' },
-    { id: 'bing', name: 'Bing Streetside', logo: '/images/providers/bing.svg' },
-    { id: 'yandex', name: 'Yandex Panoramas', logo: '/images/providers/yandex.svg' },
-    { id: 'naver', name: 'Naver Street View', logo: '/images/providers/naver.svg' },
-    { id: 'ja', name: 'Já 360 Street View', logo: '/images/providers/ja.svg' },
-];
 
 export default function Home() {
     return (
@@ -71,7 +63,7 @@ export default function Home() {
                         Supported Providers
                     </h2>
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-[30px] max-md:grid-cols-1">
-                        {PROVIDERS.map((provider) => (
+                        {ENABLED_PROVIDERS.map((provider) => (
                             <div
                                 key={provider.id}
                                 className="odd:hover:border-l-primary even:hover:border-l-secondary flex items-center rounded-lg bg-white/50 p-5 transition-[transform,box-shadow] duration-300 hover:-translate-y-[3px] hover:border-l-[3px] hover:shadow-[0_10px_20px_rgba(0,0,0,0.05)]"

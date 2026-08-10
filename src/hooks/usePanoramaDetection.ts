@@ -12,6 +12,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { activeProviderIds } from '@/lib/mapUrlState';
 import type L from 'leaflet';
 import { PanoramaService } from '@/services/panoramaService';
 import type { StreetViewDetectionResult } from '@/services/streetViewDetectionCanvas';
@@ -26,24 +27,6 @@ export interface ClickInfo {
     position: L.LatLng | null;
     type: 'click' | 'drop';
     timestamp: number;
-}
-
-/**
- * Turns the layer state keys into the provider ids PanoramaService expects:
- * googleStreetView -> google, appleLookAround -> apple, jaStreetView -> ja.
- */
-export function activeProviderIds(visibleLayers: Record<string, boolean>): string[] {
-    return Object.entries(visibleLayers)
-        .filter(([, isVisible]) => isVisible)
-        .map(([layer]) => {
-            if (layer === 'jaStreetView') return 'ja';
-            return layer
-                .replace('StreetView', '')
-                .replace('Streetside', '')
-                .replace('Panoramas', '')
-                .replace('LookAround', '')
-                .toLowerCase();
-        });
 }
 
 interface Options {

@@ -13,7 +13,14 @@ import Link from 'next/link';
 import MapWrapper from '@/components/map/mapWrapper';
 import JsonLd from '@/components/seo/jsonLd';
 import type { Metadata } from 'next';
-import { COVERAGE_UPDATED, PROVIDERS, SITE_NAME, SITE_URL, formatCoverageMonth } from '@/lib/site';
+import {
+    COVERAGE_UPDATED,
+    ENABLED_PROVIDERS,
+    listProviderNames,
+    SITE_NAME,
+    SITE_URL,
+    formatCoverageMonth,
+} from '@/lib/site';
 
 // Map page specific metadata
 export const metadata: Metadata = {
@@ -67,9 +74,9 @@ export default function MapPage() {
                         in the provider’s own viewer.
                     </p>
 
-                    <h2 className="text-ink mb-5 text-2xl font-semibold">The six providers</h2>
+                    <h2 className="text-ink mb-5 text-2xl font-semibold">The providers</h2>
                     <dl className="mb-10 grid max-w-[70ch] gap-5">
-                        {PROVIDERS.map((provider) => (
+                        {ENABLED_PROVIDERS.map((provider) => (
                             <div key={provider.id}>
                                 <dt className="text-ink font-medium">{provider.name}</dt>
                                 <dd className="text-ink-light leading-[1.6]">
@@ -114,10 +121,7 @@ export default function MapPage() {
                     applicationCategory: 'BrowserApplication',
                     operatingSystem: 'Any',
                     browserRequirements: 'Requires JavaScript.',
-                    description:
-                        'Interactive map of worldwide street-level imagery coverage from ' +
-                        'Google Street View, Apple Look Around, Bing Streetside, Yandex ' +
-                        'Panoramas, Naver Street View and Já 360.',
+                    description: `Interactive map of worldwide street-level imagery coverage from ${listProviderNames()}.`,
                     isAccessibleForFree: true,
                     offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
                 }}
