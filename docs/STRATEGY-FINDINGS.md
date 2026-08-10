@@ -15,17 +15,17 @@ Every recommendation below is re-scored against that, not against growth.
 
 ## Decision A — Is there a business here? No. Unanimous across five agents.
 
-| Route | Finding | Source |
-|---|---|---|
-| Paid API / dataset sale | No identified buyer. No street-level coverage dataset is sold anywhere, by anyone, at any price. 17 months live, zero inbound commercial enquiry. | SaaS strategist |
-| €1,000 MRR | Needs ~20,000 visitors/month — **40× current traffic** | SaaS strategist |
-| Display ads | **€0.50–1.00/month.** Raptive floor 25,000 pv/mo; Mediavine Journey floor 1,000 sessions (site is at ~half); AdSense payout threshold €70 would take years | Ad monetization |
-| Affiliate | **GeoGuessr has no affiliate program at all** (`/affiliate` 404, `/partners` 404, zero ToS mentions). Referral pays subscription credit and requires you to already be a paying subscriber. Creator program is cosmetics-only, gated at 1,000 followers. Realistic: **€0–5/month** | Affiliate research |
-| Advertiser demand | **CPC $0.00** across essentially the entire keyword cluster | SEO strategist |
-| Ad-blocking | ~**50%** on this specific audience (Plausible measured 58.67% on HN/Reddit traffic; 68.2% desktop; Linux 82.3%). Acceptable Ads would recover half of that — taking €0.65/mo to €1.00/mo | Ad-block research |
+| Route                   | Finding                                                                                                                                                                                                                                                                            | Source             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Paid API / dataset sale | No identified buyer. No street-level coverage dataset is sold anywhere, by anyone, at any price. 17 months live, zero inbound commercial enquiry.                                                                                                                                  | SaaS strategist    |
+| €1,000 MRR              | Needs ~20,000 visitors/month — **40× current traffic**                                                                                                                                                                                                                             | SaaS strategist    |
+| Display ads             | **€0.50–1.00/month.** Raptive floor 25,000 pv/mo; Mediavine Journey floor 1,000 sessions (site is at ~half); AdSense payout threshold €70 would take years                                                                                                                         | Ad monetization    |
+| Affiliate               | **GeoGuessr has no affiliate program at all** (`/affiliate` 404, `/partners` 404, zero ToS mentions). Referral pays subscription credit and requires you to already be a paying subscriber. Creator program is cosmetics-only, gated at 1,000 followers. Realistic: **€0–5/month** | Affiliate research |
+| Advertiser demand       | **CPC $0.00** across essentially the entire keyword cluster                                                                                                                                                                                                                        | SEO strategist     |
+| Ad-blocking             | ~**50%** on this specific audience (Plausible measured 58.67% on HN/Reddit traffic; 68.2% desktop; Linux 82.3%). Acceptable Ads would recover half of that — taking €0.65/mo to €1.00/mo                                                                                           | Ad-block research  |
 
 Structural note worth keeping: the entire GeoGuessr-alternative ecosystem competes
-*on being free* (Plonk It explicitly: "we don't use ads or charge for any of our
+_on being free_ (Plonk It explicitly: "we don't use ads or charge for any of our
 features"). A category whose value proposition is not-paying has nothing to pay an
 affiliate out of. Not a temporary gap — the category's economics.
 
@@ -35,7 +35,7 @@ $500/month against $500/month of infrastructure. **Net personal income $0.**
 Donations asymptote to costs, never above them.
 
 → **Decision: closed.** Matches the owner's own position. The research's value here
-is confirming that monetising would be both worthless *and* actively harmful —
+is confirming that monetising would be both worthless _and_ actively harmful —
 see Decision F.
 
 ---
@@ -58,11 +58,11 @@ the 0% Google / 18.5% Bing split that was measured.
 
 Second cause, equally decisive — measured visible word counts from raw HTML:
 
-| URL | Visible words | H1 | JSON-LD |
-|---|---|---|---|
-| `/` | ~90 | brand only, zero keywords | 0 |
-| `/map` | **6** — literally `Loading map...` | **none** | 0 |
-| `/analytics` | 109, mostly nav chrome + "Coming Soon" | present | 0 |
+| URL          | Visible words                          | H1                        | JSON-LD |
+| ------------ | -------------------------------------- | ------------------------- | ------- |
+| `/`          | ~90                                    | brand only, zero keywords | 0       |
+| `/map`       | **6** — literally `Loading map...`     | **none**                  | 0       |
+| `/analytics` | 109, mostly nav chrome + "Coming Soon" | present                   | 0       |
 
 ~166 words site-wide. Every chart is `'use client'` fetching JSON at runtime, so the
 entire data asset is invisible in the HTML. Bot blocking was ruled out by test:
@@ -73,8 +73,10 @@ Also flagged: `/map#12/48.85/2.34/apple,google/osm` permalinks have **zero SEO
 value** — Googlebot discards everything after `#`. Great share links, zero
 indexable URLs. And `www.streetradar.app` returns SSL error 526.
 
-→ **Status: fix pushed on `fix/canonical-urls`, CI green, NOT MERGED.** ~1 day of
-work for the rest. Highest ROI item in the entire corpus.
+→ **Status: fixed in PR #44**, along with 281 server-rendered words and an H1 on
+`/map`, and JSON-LD on all three pages. Highest ROI item in the entire corpus.
+Still outstanding from this section: the `www` SSL 526, which is a Cloudflare/Vercel
+domain setting rather than a code change.
 
 ---
 
@@ -84,7 +86,7 @@ work for the rest. Highest ROI item in the entire corpus.
 
 Google autocomplete swept across 40 countries for `"does {country} have street
 view"`. **Only 13 autocomplete** — and they are almost exclusively countries where
-coverage is *absent, restricted or surprising*: China, Russia, Germany, Japan,
+coverage is _absent, restricted or surprising_: China, Russia, Germany, Japan,
 Israel, Taiwan, Hong Kong, Turkey, Mexico, Iceland, Switzerland, Poland, UK.
 Volume confirms: china 1,900 · africa 1,300 · india 1,000 · germany 1,000.
 
@@ -111,7 +113,7 @@ Three caveats: the topic is **declining ~30%/yr** (13,389 in 2025 → 8,500 in 2
 CPC is $0.00; **Yandex interest collapsed 94%** (25,118 → 1,617) while Apple more
 than doubled.
 
-**Competitive gap is genuinely open.** Per-country *multi-provider* coverage pages do
+**Competitive gap is genuinely open.** Per-country _multi-provider_ coverage pages do
 not exist anywhere. geomastr has 101 country pages but coverage is one page and
 `/country/japan/` contains the phrase "Street View" **zero times**. geometas country
 pages are 214 words, no tables, no schema. Wikipedia is provider-siloed by design and
@@ -142,11 +144,11 @@ citation is a real traffic channel.
 Verified: all three raster coverage endpoints already in `src/services/
 streetViewService.ts` are publicly samplable and cleanly discriminate coverage at z10.
 
-| | Paris | Beijing | Moscow | Seattle |
-|---|---|---|---|---|
-| Google | 37,603 B | **255 B** (empty) | – | – |
-| Bing | 2,293 B | **169 B** (empty) | **169 B** | 4,153 B |
-| Yandex | **HTTP 204** | 859 B | 107,406 B | **HTTP 204** |
+|        | Paris        | Beijing           | Moscow    | Seattle      |
+| ------ | ------------ | ----------------- | --------- | ------------ |
+| Google | 37,603 B     | **255 B** (empty) | –         | –            |
+| Bing   | 2,293 B      | **169 B** (empty) | **169 B** | 4,153 B      |
+| Yandex | **HTTP 204** | 859 B             | 107,406 B | **HTTP 204** |
 
 Rasterise over country polygons, count coverage-coloured pixels → per-country stats
 for Google, Bing and Yandex. **This is precisely what unlocks the China / Germany /
@@ -175,8 +177,7 @@ by relevance ranking), 2025-06-01 → 2026-08-10:
   **0% reach 500**.
 
 **The big scores in this niche come from third parties, not authors.** Protomaps:
-author 113 pts, a third party 1,001. DeFlock: author 17 pts, third parties 621 / 240 /
-261. The True Size Of: five front pages over ten years, five different submitters.
+author 113 pts, a third party 1,001. DeFlock: author 17 pts, third parties 621 / 240 / 261. The True Size Of: five front pages over ten years, five different submitters.
 → Optimise for re-submittability over a decade, not for launch day.
 
 **Durable multiplier from a spike: 1.1–1.5×.** The only clean ≥60-day measurement in
@@ -184,13 +185,13 @@ the public record is 1.32× (Niko Fischer: 25/day → 11,000 peak → 33/day at 
 months). Restated baseline-independently: **1 in 250 to 1 in 2,000 spike visitors
 becomes a recurring daily visitor.** ~94% bounce, 15–22s average duration.
 
-**Title beats product:** OpenFreeMap posted the *same URL* five days apart —
+**Title beats product:** OpenFreeMap posted the _same URL_ five days apart —
 14 points, then **848 points**. A flop is not a verdict.
 
 Venue ranking by strength of evidence: (1) SEO / per-country pages — the only
 compounding channel; (2) **sk-zk's GitHub Discussions "Show and tell"** — zero
 derived projects ever posted there, sk-zk actively pushing, and
-`streetradar-data-engine` is *already* listed among streetlevel's 26 dependents;
+`streetradar-data-engine` is _already_ listed among streetlevel's 26 dependents;
 (3) OSM wiki `Street-level imagery` — has provider comparison tables and links to no
 coverage map at all; (4) Maps Mania (624 posts tagged "Street View", active); (5) the
 GeoGuessr Discords (61,935 members, no Rule 7); (6) Show HN. **r/geoguessr is the
@@ -206,7 +207,7 @@ upvotes coverage maps to 30k will notice immediately.
 
 ## Decision F — Legal. The exposure is not where I first said it was.
 
-**Revision, and it matters.** I earlier ranked live tile display as the *lower* risk
+**Revision, and it matters.** I earlier ranked live tile display as the _lower_ risk
 because it stores nothing. Two agents argue the opposite and they have the better of
 it on detectability:
 
@@ -214,7 +215,7 @@ it on detectability:
   non-Google maps in the same Customer Application." StreetRadar renders Google
   coverage on a Leaflet/OSM basemap — **continuously, visibly, right now**.
   **Yandex §6.1.1** is identical and names panoramas explicitly.
-- Counterweight, which still holds: the Platform ToS binds *API customers*, and he
+- Counterweight, which still holds: the Platform ToS binds _API customers_, and he
   holds no key. The End User Terms bind instead, and are weaker on this exact point.
 - **Apple Maps ToU §1.3(vi)** remains the clause most squarely on point — "copy,
   extract, scrape or reutilize… creation of any databases based upon data or content
@@ -222,23 +223,23 @@ it on detectability:
 
 **Corrections to what I told the owner earlier:**
 
-1. **The EU sui generis database right is the *weakest* theory, not the key one.**
+1. **The EU sui generis database right is the _weakest_ theory, not the key one.**
    Directive 96/9/EC Art 11 and French CPI L341-2 limit it to EU/EEA makers, and no
    Council extension to third countries has ever been concluded — so Google, Apple,
-   Naver and Yandex are likely **not beneficiaries at all**. On top of that, *BHB v
-   William Hill* (C-203/02) holds the right covers investment in *obtaining* existing
+   Naver and Yandex are likely **not beneficiaries at all**. On top of that, _BHB v
+   William Hill_ (C-203/02) holds the right covers investment in _obtaining_ existing
    materials and "does not cover the resources used for the creation of materials."
-   Coverage imagery is *created* by driving cars, not obtained. Two independent
+   Coverage imagery is _created_ by driving cars, not obtained. Two independent
    reasons the claim probably fails.
-2. **But that helps less than it sounds.** *Ryanair v PR Aviation* (C-30/14): where no
+2. **But that helps less than it sounds.** _Ryanair v PR Aviation_ (C-30/14): where no
    database right exists, the Directive's Art 8 lawful-user protections don't apply
    either, leaving the owner free to impose contractual limits. **No IP right means the
    claim arrives as contract instead.** That is the hiQ endgame — won the CFAA point,
    then lost on contract: Dec 2022 consent judgment, permanent injunction, compelled
    deletion of all derived code and data, $500k, company defunct.
 3. **The serious French exposure is criminal and has nothing to do with IP.**
-   *Cass. crim. 20 May 2015, n° 14-81.336* (Bluetouff): conviction upheld for
-   *maintien frauduleux dans un STAD* where the data was reachable **without
+   _Cass. crim. 20 May 2015, n° 14-81.336_ (Bluetouff): conviction upheld for
+   _maintien frauduleux dans un STAD_ where the data was reachable **without
    credentials**, because the defendant had seen that access controls existed and
    continued anyway. The defence that no offence is committed by "l'internaute qui
    utilise un logiciel grand public pour pénétrer dans un système non protégé" was
@@ -274,11 +275,11 @@ commercial actor.
 
 Verified directly (not agent-reported):
 
-| Provider scraped | Actual host | robots.txt on the called path |
-|---|---|---|
-| Apple | `gspe72-ssl.ls.apple.com/mnn_us/`, `gspe76-ssl.ls.apple.com/api/tile?` | no file served (403) |
-| Naver | `map.pstatic.net` | no file served (Access Denied) |
-| **Já 360** | `ja.is` | **`Disallow: /kort/closest/` + `/kort/scene/`** — the exact two endpoints `streetlevel.ja` calls |
+| Provider scraped | Actual host                                                            | robots.txt on the called path                                                                    |
+| ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Apple            | `gspe72-ssl.ls.apple.com/mnn_us/`, `gspe76-ssl.ls.apple.com/api/tile?` | no file served (403)                                                                             |
+| Naver            | `map.pstatic.net`                                                      | no file served (Access Denied)                                                                   |
+| **Já 360**       | `ja.is`                                                                | **`Disallow: /kort/closest/` + `/kort/scene/`** — the exact two endpoints `streetlevel.ja` calls |
 
 Já is the only machine-readable refusal and the only EEA-established maker.
 
@@ -326,7 +327,7 @@ directions: legally and in what could ever be published.
 8. **Do not** build the tile-sampling pipeline. **Do not** monetise.
 
 Open questions the research did not answer: geospatial newsletters as a channel
-(agent failed); community-led growth tactics (agent failed); whether *Ryanair v
-Booking.com*'s 2024 CFAA verdict survived post-trial motions; French *parasitisme /
-concurrence déloyale*, which needs neither an IP right nor a contract and is the
+(agent failed); community-led growth tactics (agent failed); whether _Ryanair v
+Booking.com_'s 2024 CFAA verdict survived post-trial motions; French _parasitisme /
+concurrence déloyale_, which needs neither an IP right nor a contract and is the
 least-examined risk given the owner's jurisdiction.

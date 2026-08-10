@@ -13,13 +13,7 @@ import Link from 'next/link';
 import MapWrapper from '@/components/map/mapWrapper';
 import JsonLd from '@/components/seo/jsonLd';
 import type { Metadata } from 'next';
-import {
-    COVERAGE_UPDATED,
-    PROVIDERS,
-    SITE_NAME,
-    SITE_URL,
-    formatCoverageMonth,
-} from '@/lib/site';
+import { COVERAGE_UPDATED, PROVIDERS, SITE_NAME, SITE_URL, formatCoverageMonth } from '@/lib/site';
 
 // Map page specific metadata
 export const metadata: Metadata = {
@@ -63,22 +57,17 @@ export default function MapPage() {
 
             <section className="bg-background py-16">
                 <div className="container">
-                    <h2 className="text-ink mb-5 text-2xl font-semibold">
-                        What this map shows
-                    </h2>
+                    <h2 className="text-ink mb-5 text-2xl font-semibold">What this map shows</h2>
                     <p className="text-ink-light mb-10 max-w-[70ch] leading-[1.6]">
-                        Every provider publishes street-level imagery for a different part
-                        of the world, and none of them will tell you where the others have
-                        been. This map puts all six coverage networks in one place, so you
-                        can see at a glance whether a given road has been photographed —
-                        and by whom. Click anywhere to check which providers have a
-                        panorama near that point, then open it directly in the provider’s
-                        own viewer.
+                        Every provider publishes street-level imagery for a different part of the
+                        world, and none of them will tell you where the others have been. This map
+                        puts all six coverage networks in one place, so you can see at a glance
+                        whether a given road has been photographed — and by whom. Click anywhere to
+                        check which providers have a panorama near that point, then open it directly
+                        in the provider’s own viewer.
                     </p>
 
-                    <h2 className="text-ink mb-5 text-2xl font-semibold">
-                        The six providers
-                    </h2>
+                    <h2 className="text-ink mb-5 text-2xl font-semibold">The six providers</h2>
                     <dl className="mb-10 grid max-w-[70ch] gap-5">
                         {PROVIDERS.map((provider) => (
                             <div key={provider.id}>
@@ -87,17 +76,14 @@ export default function MapPage() {
                                     {provider.blurb}{' '}
                                     {provider.source === 'live' ? (
                                         <span>
-                                            This layer is requested live as you pan, so it
-                                            is always current.
+                                            This layer is requested live as you pan, so it is always
+                                            current.
                                         </span>
                                     ) : (
                                         <span>
-                                            This layer is built from coverage collected
-                                            for this site, last rebuilt in{' '}
-                                            {formatCoverageMonth(
-                                                COVERAGE_UPDATED[provider.id]
-                                            )}
-                                            .
+                                            This layer is built from coverage collected for this
+                                            site, last rebuilt in{' '}
+                                            {formatCoverageMonth(COVERAGE_UPDATED[provider.id])}.
                                         </span>
                                     )}
                                 </dd>
