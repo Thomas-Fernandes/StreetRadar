@@ -19,7 +19,8 @@ import type { Metadata } from 'next';
 import CoverageChartWithControls from '@/components/charts/CoverageChartWithControls';
 import SiteHeader from '@/components/layout/siteHeader';
 import SiteFooter from '@/components/layout/siteFooter';
-import { COVERAGE_UPDATED, formatCoverageMonth } from '@/lib/site';
+import JsonLd from '@/components/seo/jsonLd';
+import { COVERAGE_UPDATED, SITE_NAME, SITE_URL, formatCoverageMonth } from '@/lib/site';
 
 export const metadata: Metadata = {
     title: 'Coverage Statistics',
@@ -118,6 +119,24 @@ export default function AnalyticsPage() {
             </main>
 
             <SiteFooter />
+
+            {/* The coverage time series is the one asset here nobody else
+                publishes, so it is worth describing as a dataset rather than
+                leaving it as an unlabelled chart. */}
+            <JsonLd
+                data={{
+                    '@context': 'https://schema.org',
+                    '@type': 'Dataset',
+                    name: 'Street View coverage over time, by provider',
+                    description:
+                        'Monthly street-level imagery coverage by provider and country, ' +
+                        'derived from coverage data collected directly from each provider.',
+                    url: `${SITE_URL}/analytics`,
+                    creator: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+                    isAccessibleForFree: true,
+                    temporalCoverage: `2018-06/${COVERAGE_UPDATED.apple}`,
+                }}
+            />
         </div>
     );
 }

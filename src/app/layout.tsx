@@ -16,6 +16,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import JsonLd from '@/components/seo/jsonLd';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from '@/lib/site';
 
 // Configuration of Geist fonts (sans-serif) and Geist Mono (monospace)
@@ -106,6 +107,19 @@ export default function RootLayout({
                 className={`${dmSans.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 {children}
+                {/* Site-level structured data. Emitted once here rather than per
+                    page so the WebSite node cannot disagree with itself. */}
+                <JsonLd
+                    data={{
+                        '@context': 'https://schema.org',
+                        '@type': 'WebSite',
+                        name: SITE_NAME,
+                        alternateName: 'Street View coverage map',
+                        url: SITE_URL,
+                        description: SITE_DESCRIPTION,
+                        inLanguage: 'en',
+                    }}
+                />
             </body>
         </html>
     );
